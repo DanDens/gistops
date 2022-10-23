@@ -1,0 +1,4 @@
+jsonschema==4.0.0
+jinja2==3.0.1
+invoke==1.5.0
+fire

@@ -1,2 +1,2 @@
 # gistops
-Automation around gists stored as git repositorty
+Automation around gists git repositories using Python 3.10 and later
