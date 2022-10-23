@@ -1,6 +1,6 @@
 # https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry
 name: build-and-deploy-gistops
-run-name: ${{ github.actor }} is building and deploying gistops
+run-name: Build and Push ghcr.io/dandens/gistops 
 on:
   push:
     branches:
@@ -15,7 +15,6 @@ jobs:
       - name: Set Env Values
         run: | 
           GIT_COMMIT_SHORT_ID=$(git rev-parse --short HEAD)
-          echo '"GIT_COMMIT_SHORT_ID='"$GIT_COMMIT_SHORT_ID"' >> $GITHUB_ENV'
           echo "GIT_COMMIT_SHORT_ID=$GIT_COMMIT_SHORT_ID" >> $GITHUB_ENV
           
       - uses: actions/labeler@v4
@@ -39,6 +38,7 @@ jobs:
           context: .
           file: ./Dockerfile
           tags: |
+            ghcr.io/dandens/gistops:${{ env.GIT_COMMIT_SHORT_ID }}
             ghcr.io/dandens/gistops:latest
           push: ${{ github.ref == 'refs/heads/main' }}
 
