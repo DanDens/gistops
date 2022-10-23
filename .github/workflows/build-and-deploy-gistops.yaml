@@ -9,6 +9,15 @@ jobs:
   build-and-push-docker:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Set Env Values
+        run: |
+          GIT_COMMIT_SHORT_ID=$(git rev-parse --short HEAD)
+          echo '"GIT_COMMIT_SHORT_ID='"$GIT_COMMIT_SHORT_ID"' >> $GITHUB_ENV'
+          echo "GIT_COMMIT_SHORT_ID=$GIT_COMMIT_SHORT_ID" >> $GITHUB_ENV
+          
       - uses: actions/labeler@v4
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
@@ -30,7 +39,7 @@ jobs:
           context: .
           file: ./Dockerfile
           tags: |
-            ghcr.io/dandens/gistops:latest
+            ghcr.io/dandens/gistops:${{ env.GIT_COMMIT_SHORT }}
           push: ${{ github.ref == 'refs/heads/main' }}
 
       - name: Image digest
