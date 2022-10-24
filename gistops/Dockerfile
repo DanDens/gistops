@@ -7,7 +7,7 @@ RUN apt-get -y install gnupg
 
 WORKDIR /usr/src/app
 
-COPY gistops ./
+COPY . .
 RUN pip install --no-cache-dir -r requirements.txt
 
 CMD [ "python", "./main.py" ]
