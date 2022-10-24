@@ -44,7 +44,6 @@ then
   sudo make altinstall 
   popd
 
-  sudo update-alternatives --install /usr/bin/python python /usr/local/bin/python3.10 2
   sudo update-alternatives --install /usr/bin/python3 python3 /usr/local/bin/python3.10 2
 
   # cleanup

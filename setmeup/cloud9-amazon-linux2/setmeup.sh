@@ -4,17 +4,12 @@ set -e
 ############
 # Packages #
 ############
-sudo apt-get update && sudo apt upgrade 
-sudo apt-get install software-properties-common --allow-unauthenticated -y --fix-missing
-sudo apt-get install --allow-unauthenticated -y --fix-missing \
-  apt-utils \
+sudo yum update && sudo yum upgrade 
+sudo yum install -y  \
   unzip \
   curl \
-  gnupg \
-  lsb-release \
-  apt-transport-https \
+  gnupg2 \
   ca-certificates \
-  dirmngr \
   wget \
   gpg \
   jq 
@@ -27,8 +22,9 @@ sudo apt-get install --allow-unauthenticated -y --fix-missing \
 ###############
 # Python 3.10 #
 ###############
-sudo apt install -y build-essential libncursesw5-dev libssl-dev \
-  libsqlite3-dev tk-dev libgdbm-dev libc6-dev libbz2-dev libffi-dev zlib1g-dev  
+sudo yum -y groupinstall "Development Tools"
+sudo yum uninstall openssl openssl-devel
+sudo yum install gcc devel libffi-devel openssl11 openssl11-devel bzip2-devel
 
 python_version="$(python3.10 --version 2>/dev/null)" || true
 if ! [ "$python_version" = "Python 3.10.8" ];
@@ -51,7 +47,6 @@ then
   sudo make altinstall 
   popd
 
-  sudo update-alternatives --install /usr/bin/python python /usr/local/bin/python3.10 2
   sudo update-alternatives --install /usr/bin/python3 python3 /usr/local/bin/python3.10 2
 
   # cleanup
