@@ -1,4 +1,4 @@
-FROM python:3.10.8-slim-bullseye
+FROM python:3.7.15-slim-bullseye
 
 RUN apt-get update
 RUN apt-get -y install pandoc texlive-latex-recommended librsvg2-bin

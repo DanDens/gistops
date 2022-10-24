@@ -1,2 +1,3 @@
 Dockerfile
 setup-python-venv.sh
+.gitignore
