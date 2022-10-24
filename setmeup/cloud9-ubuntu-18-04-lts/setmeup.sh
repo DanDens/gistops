@@ -1,15 +1,17 @@
-#!/usr/bin/env sh
+#!/bin/bash
 set -e
 
-################
-# APT PACKAGES #
-################
+############
+# Packages #
+############
 sudo apt-get update && sudo apt upgrade 
 sudo apt-get install software-properties-common --allow-unauthenticated -y --fix-missing
 sudo apt-get install --allow-unauthenticated -y --fix-missing \
   apt-utils \
   unzip \
   curl \
+  gnupg \
+  lsb-release \
   apt-transport-https \
   ca-certificates \
   dirmngr \
@@ -17,13 +19,18 @@ sudo apt-get install --allow-unauthenticated -y --fix-missing \
   gpg \
   jq 
 
+##########
+# Docker #
+##########
+# Cloud9 ships with docker already
+
 ###############
 # Python 3.10 #
 ###############
 sudo apt install -y build-essential libncursesw5-dev libssl-dev \
   libsqlite3-dev tk-dev libgdbm-dev libc6-dev libbz2-dev libffi-dev zlib1g-dev  
 
-python_version="$(python3.10 --version)" || true
+python_version="$(python3.10 --version 2>/dev/null)" || true
 if ! [ "$python_version" = "Python 3.10.8" ];
 then  
   # From https://www.python.org/downloads/release/python-3108/
@@ -48,8 +55,8 @@ then
   sudo update-alternatives --install /usr/bin/python3 python3 /usr/local/bin/python3.10 2
 
   # cleanup
-  rm -rf Python-3.10.8
-  rm Python-3.10.8.tgz
+  sudo rm -rf Python-3.10.8
+  sudo rm Python-3.10.8.tgz
 fi
 
 pip_available="$(python3.10 -m pip --version | grep 'python3.10')" || true
@@ -64,19 +71,22 @@ fi
 # Install python packages
 python3.10 -m pip install -r ../../gistops/requirements.txt
 
-#####################
-# GIT Configuration #
-#####################
-git config credential.helper store
-git config http.sslverify true
+###########
+# AWS CLI #
+###########
+aws_version="$(aws --version | grep 'aws-cli/')" || true
+if [ -z "$aws_version" ];
+then  
+  # We need to fix AWS CLI after the update
+  curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+  unzip awscliv2.zip
+  sudo ./aws/install
+  
+  rm -rf ./aws
+  rm awscliv2.zip
+fi
 
-#############
-# GIT Alias #
-#############
-git config alias.lol "log --oneline --graph --decorate --all"
-git config alias.wcd "whatchanged -p --abbrev-commit --pretty=medium"
-git config alias.mtn "mergetool --no-prompt"
-git config alias.sts "status -s" 
-git config alias.acp '!acp() { git add . && git commit -m "$1" && git push ${2-origin} ; }; acp'
+
+
 
 exit 0 
