@@ -1,0 +1,22 @@
+variables:
+  GITLAB_MIRROR_IMAGE_VERSION: "0.3.15"
+
+  # Make sure the following variables are provided during gitlab-ci merge request operation
+  # GITMAGIC_USER_EMAIL, e.g. "admin-list@bssn-software.de"
+  # GITMAGIC_USER_NAME, e.g. "bssnbot"
+  # S3_ARCHIEVED_REF_URI, e.g. "s3://hub-aas-bssn-hub-git-pxyxunb8nk6oeagrct4gqgqo9kk6reuc1b-s3alias/archieved.ref.zip"
+  # S3_AWS_ACCESS_KEY_ID, e.g. "AKIAUSYHJGUDUPTEJWQ5"
+  # S3_AWS_SECRET_ACCESS_KEY, e.g. "rh..Ej"
+
+git-zip-archive-mr-to-s3:
+  stage: git-mirror-operations
+  image:
+    name: $KANIKO_REGISTRY_HOSTNAME/lab-solutions-devops/git-zip-archive-mr-to-s3:$GITLAB_MIRROR_IMAGE_VERSION
+  script:
+  - echo "$KANIKO_REGISTRY_HOSTNAME/lab-solutions-devops/git-zip-archive-mr-to-s3:$GITLAB_MIRROR_IMAGE_VERSION"
+  - /bin/bash -c /apply.sh
+  rules:
+  - if: $CI_PIPELINE_SOURCE != "schedule" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH == null && $CI_MERGE_REQUEST_ID != null
+
+stages:
+- git-mirror-operations
