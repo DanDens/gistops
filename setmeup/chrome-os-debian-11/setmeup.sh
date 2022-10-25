@@ -23,7 +23,7 @@ sudo apt-get install --allow-unauthenticated -y --fix-missing \
 
 sudo apt-get -y install wget
 sudo sh -c "echo 'deb https://gitsecret.jfrog.io/artifactory/git-secret-deb git-secret main' >> /etc/apt/sources.list"
-sudo wget -qO - 'https://gitsecret.jfrog.io/artifactory/api/gpg/key/public' | apt-key add -
+sudo wget -qO - 'https://gitsecret.jfrog.io/artifactory/api/gpg/key/public' | sudo apt-key add -
 sudo apt-get update && apt-get install -y git-secret
 
 ###############
