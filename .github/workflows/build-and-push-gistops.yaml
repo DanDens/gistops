@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - 'main'
+      - 'gistops/**'
 jobs:
   build-and-push-gistops:
     runs-on: ubuntu-latest
