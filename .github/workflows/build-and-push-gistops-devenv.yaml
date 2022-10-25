@@ -1,12 +1,14 @@
 # https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry
-name: build-and-deploy-gistops
-run-name: Build and Push ghcr.io/dandens/gistops 
+name: build-and-push-gistops-devenv
+run-name: Build and push ghcr.io/dandens/gistops-devenv
 on:
   push:
     branches:
       - 'main'
+      - 'setmeup/docker-ubuntu-20.04-lts/**'
+      
 jobs:
-  build-and-push-gistops:
+  build-and-push-gistops-devenv:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Git Repository
@@ -35,10 +37,9 @@ jobs:
       - name: Build and Push Image
         uses: docker/build-push-action@v2
         with:
-          context: ./gistops
-          file: ./gistops/Dockerfile
+          context: ./setmeup/docker-ubuntu-20.04-lts
+          file: ./Dockerfile
           tags: |
-            ghcr.io/dandens/gistops:${{ env.IMAGE_TAG }}
-            ghcr.io/dandens/gistops:latest
+            ghcr.io/dandens/gistops-devenv:${{ env.IMAGE_TAG }}
+            ghcr.io/dandens/gistops-devenv:latest
           push: ${{ github.ref == 'refs/heads/main' }}
-          

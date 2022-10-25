@@ -1,21 +1,6 @@
-#!/usr/bin/env sh
+#!/bin/bash
 set -e
-
-################
-# APT PACKAGES #
-################
-sudo apt-get update && sudo apt upgrade 
-sudo apt-get install software-properties-common --allow-unauthenticated -y --fix-missing
-sudo apt-get install --allow-unauthenticated -y --fix-missing \
-  apt-utils \
-  unzip \
-  curl \
-  apt-transport-https \
-  ca-certificates \
-  dirmngr \
-  wget \
-  gpg \
-  jq 
+export DEBIAN_FRONTEND=noninteractive
 
 ###############
 # Python 3.10 #
@@ -23,8 +8,8 @@ sudo apt-get install --allow-unauthenticated -y --fix-missing \
 sudo apt install -y build-essential libncursesw5-dev libssl-dev \
   libsqlite3-dev tk-dev libgdbm-dev libc6-dev libbz2-dev libffi-dev zlib1g-dev  
 
-python_version="$(python3.10 --version)" || true
-if ! [ "$python_version" = "Python 3.10.8" ];
+python310_version="$(python3.10 --version)" || true
+if ! [ "$python310_version" = "Python 3.10.8" ];
 then  
   # From https://www.python.org/downloads/release/python-3108/
   curl -sS https://www.python.org/ftp/python/3.10.8/Python-3.10.8.tgz -o Python-3.10.8.tgz 
@@ -99,23 +84,5 @@ then
   sudo python3.7 get-pip.py 
   rm get-pip.py
 fi 
-
-#####################
-# GIT Configuration #
-#####################
-git config --global credential.helper store
-git config --global http.sslverify true
-
-#############
-# GIT Alias #
-#############
-git config --global core.editor "nano"
-git config --global alias.lol "log --oneline --graph --decorate --all"
-git config --global alias.wcd "whatchanged -p --abbrev-commit --pretty=medium"
-git config --global alias.mtn "mergetool --no-prompt"
-git config --global alias.sts "status -s" 
-git config --global alias.acp '!acp() { git add . && git commit -m "$1" && git push ${2-origin} ; }; acp'
-
-git config --global --list
 
 exit 0 

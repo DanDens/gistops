@@ -30,7 +30,7 @@ python_version="$(python3.10 --version 2>/dev/null)" || true
 if ! [ "$python_version" = "Python 3.10.8" ];
 then  
   # From https://www.python.org/downloads/release/python-3108/
-  curl https://www.python.org/ftp/python/3.10.8/Python-3.10.8.tgz -o Python-3.10.8.tgz 
+  curl -sS https://www.python.org/ftp/python/3.10.8/Python-3.10.8.tgz -o Python-3.10.8.tgz 
   if [ -z "$(md5sum Python-3.10.8.tgz | grep fbe3fff11893916ad1756b15c8a48834)" ];
   then
     echo "md5 checksum of https://www.python.org/ftp/python/3.10.8/Python-3.10.8.tgz is not fbe3fff11893916ad1756b15c8a48834."
@@ -59,13 +59,10 @@ pip_available="$(python3.10 -m pip --version | grep 'python3.10')" || true
 if [ -z "$pip_available" ];
 then 
   # Install latest pip
-  curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+  curl -sS https://bootstrap.pypa.io/get-pip.py -o get-pip.py
   sudo python3.10 get-pip.py 
   rm get-pip.py
 fi 
-
-# Install python packages
-python3.10 -m pip install -r ../../gistops/requirements.txt
 
 ##############
 # Python 3.7 #
@@ -74,7 +71,7 @@ python37_version="$(python3.7 --version)" || true
 if ! [ "$python37_version" = "Python 3.7.15" ];
 then  
   # From https://www.python.org/downloads/release/python-3715/
-  curl https://www.python.org/ftp/python/3.7.15/Python-3.7.15.tgz -o Python-3.7.15.tgz 
+  curl -sS https://www.python.org/ftp/python/3.7.15/Python-3.7.15.tgz -o Python-3.7.15.tgz 
   if [ -z "$(md5sum Python-3.7.15.tgz | grep beff0cd66129ad1761632aafd72ac866)" ];
   then
     echo "md5 checksum of https://www.python.org/ftp/python/3.7.15/Python-3.7.15.tgz is not beff0cd66129ad1761632aafd72ac866."
@@ -102,13 +99,10 @@ pip37_available="$(python3.7 -m pip --version | grep 'python3.7')" || true
 if [ -z "$pip37_available" ];
 then 
   # Install latest pip
-  curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+  curl -sS https://bootstrap.pypa.io/get-pip.py -o get-pip.py
   sudo python3.7 get-pip.py 
   rm get-pip.py
 fi 
-
-# Install python packages
-python3.7 -m pip install -r ../../gistops/requirements.txt
 
 ###########
 # AWS CLI #
@@ -117,7 +111,7 @@ aws_version="$(aws --version | grep 'aws-cli/')" || true
 if [ -z "$aws_version" ];
 then  
   # We need to fix AWS CLI after the update
-  curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+  curl -sS "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
   unzip awscliv2.zip
   sudo ./aws/install
   
