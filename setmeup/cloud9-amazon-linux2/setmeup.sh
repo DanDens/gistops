@@ -30,8 +30,8 @@ sudo yum -y groupinstall "Development Tools"
 sudo yum remove -y openssl openssl-devel
 sudo yum install -y gcc devel libffi-devel openssl11 openssl11-devel bzip2-devel
 
-python_version="$(python3.10 --version 2>/dev/null)" || true
-if ! [ "$python_version" = "Python 3.10.8" ];
+python310_version="$(python3.10 --version 2>/dev/null)" || true
+if ! [ "$python310_version" = "Python 3.10.8" ];
 then  
   # From https://www.python.org/downloads/release/python-3108/
   curl -sS https://www.python.org/ftp/python/3.10.8/Python-3.10.8.tgz -o Python-3.10.8.tgz 
@@ -59,8 +59,8 @@ then
   sudo rm Python-3.10.8.tgz
 fi
 
-pip_available="$(python3.10 -m pip --version | grep 'python3.10')" || true
-if [ -z "$pip_available" ];
+pip310_available="$(python3.10 -m pip --version | grep 'python3.10')" || true
+if [ -z "$pip310_available" ];
 then 
   # Install latest pip
   curl -sS https://bootstrap.pypa.io/get-pip.py -o get-pip.py
