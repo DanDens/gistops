@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - 'main'
+    paths:
       - 'gistops/**'
 jobs:
   build-and-push-gistops:
