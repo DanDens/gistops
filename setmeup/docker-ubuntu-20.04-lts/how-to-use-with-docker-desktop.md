@@ -4,6 +4,6 @@
 ...
 
 ### 2. Run a local development container 
-> docker run --name gistops-devenv -dit -v C:/users/$USER/dev:/home/ubuntu/dev ghcr.io/dandens/gistops-devenv:latest
+> docker run --name gistops-devenv -dit -v $env:USERPROFILE/ws:/home/ubuntu/ws ghcr.io/dandens/gistops-devenv:latest
 
 ### 3. 

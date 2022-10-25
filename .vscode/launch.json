@@ -6,10 +6,14 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "GistOps Hello",
+      "name": "GistOps Remote Push",
       "type": "python",
       "request": "launch",
       "program": "${workspaceRoot}/gistops/main.py",
+      "args": ["remote", "push", "master"],
+      "env": {
+        "GISTOPS_GIT_REMOTE_URL": "ok-this-is-it"
+      },
       "console": "integratedTerminal",
       "justMyCode": true
     }
