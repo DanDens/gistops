@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - 'main'
+    paths:
       - 'setmeup/docker-ubuntu-20.04-lts/**'
       
 jobs:
