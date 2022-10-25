@@ -21,6 +21,11 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
   librsvg2-bin \
   gnupg 
 
+RUN apt-get -y install wget
+RUN sh -c "echo 'deb https://gitsecret.jfrog.io/artifactory/git-secret-deb git-secret main' >> /etc/apt/sources.list"
+RUN wget -qO - 'https://gitsecret.jfrog.io/artifactory/api/gpg/key/public' | apt-key add -
+RUN apt-get update && apt-get install -y git-secret
+
 # Add USER and make USER a sudoer
 ARG USER=ubuntu
 RUN adduser --disabled-password --gecos '' ${USER}

@@ -21,14 +21,19 @@ sudo apt-get install --allow-unauthenticated -y --fix-missing \
   git \
   gnupg 
 
+sudo apt-get -y install wget
+sudo sh -c "echo 'deb https://gitsecret.jfrog.io/artifactory/git-secret-deb git-secret main' >> /etc/apt/sources.list"
+sudo wget -qO - 'https://gitsecret.jfrog.io/artifactory/api/gpg/key/public' | apt-key add -
+sudo apt-get update && apt-get install -y git-secret
+
 ###############
 # Python 3.10 #
 ###############
 sudo apt install -y build-essential libncursesw5-dev libssl-dev \
   libsqlite3-dev tk-dev libgdbm-dev libc6-dev libbz2-dev libffi-dev zlib1g-dev  
 
-python_version="$(python3.10 --version)" || true
-if ! [ "$python_version" = "Python 3.10.8" ];
+python310_version="$(python3.10 --version)" || true
+if ! [ "$python310_version" = "Python 3.10.8" ];
 then  
   # From https://www.python.org/downloads/release/python-3108/
   curl -sS https://www.python.org/ftp/python/3.10.8/Python-3.10.8.tgz -o Python-3.10.8.tgz 
