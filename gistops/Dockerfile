@@ -5,6 +5,11 @@ RUN apt-get -y install pandoc texlive-latex-recommended librsvg2-bin
 RUN apt-get -y install git
 RUN apt-get -y install gnupg
 
+RUn apt-get -y install wget
+RUN sh -c "echo 'deb https://gitsecret.jfrog.io/artifactory/git-secret-deb git-secret main' >> /etc/apt/sources.list"
+RUN wget -qO - 'https://gitsecret.jfrog.io/artifactory/api/gpg/key/public' | apt-key add -
+RUN apt-get update && apt-get install -y git-secret
+
 WORKDIR /usr/src/app
 
 COPY . .
