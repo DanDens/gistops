@@ -11,8 +11,12 @@ sudo yum install -y  \
   gnupg2 \
   ca-certificates \
   wget \
-  gpg \
-  jq 
+  jq \
+  pandoc \
+  texlive \
+  librsvg2 \
+  git \
+  gnupg
 
 ##########
 # Docker #
