@@ -15,7 +15,11 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
   wget \
   gpg \
   jq \
-  git-all
+  git \
+  pandoc \
+  texlive-latex-recommended \
+  librsvg2-bin \
+  gnupg 
 
 # Add USER and make USER a sudoer
 ARG USER=ubuntu

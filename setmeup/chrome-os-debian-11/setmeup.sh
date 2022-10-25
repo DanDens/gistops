@@ -14,8 +14,12 @@ sudo apt-get install --allow-unauthenticated -y --fix-missing \
   ca-certificates \
   dirmngr \
   wget \
-  gpg \
-  jq 
+  jq \
+  pandoc \
+  texlive-latex-recommended \
+  librsvg2-bin \
+  git \
+  gnupg 
 
 ###############
 # Python 3.10 #
