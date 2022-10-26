@@ -4,34 +4,28 @@ from typing import List
 from pathlib import Path
 import logging
 
-from invoke import run as __shell
+from invoke.context import Context as InvokeContext
 
 
-def shell(
+def shrun(
     cmd: List[str],
-    enforce_silent: bool,
     cwd: Path,
     env: dict,
-    silent_cmd: bool,
-    silent_run: bool) -> str:
+    silent_streams: bool = False,
+    enforce_absolute_silence: bool = False) -> str:
     """ Runs a command on shell"""
-    if not silent_cmd and not enforce_silent:
+    
+    if not enforce_absolute_silence:
         logger = logging.getLogger()
-        logger.info(" ".join(cmd))
+        logger.debug(f'> {" ".join(cmd)}')
 
-    old_cwd = Path.cwd()
-    try:
-        if Path.cwd() != cwd:
-            os.chdir(str(cwd))
-        stdout = __shell(
+    ctx = InvokeContext()
+    with ctx.cd(cwd):
+        stdout = ctx.run( 
             shell='sh',
             command=" ".join(cmd),
-            hide=(silent_run or enforce_silent),
-            env=env).stdout
-    except Exception as err:
-        raise err
-    finally:
-        if Path.cwd() != old_cwd:
-            os.chdir(str(old_cwd))
+            hide=(silent_streams or enforce_absolute_silence),
+            env=env 
+        ).stdout
 
     return stdout

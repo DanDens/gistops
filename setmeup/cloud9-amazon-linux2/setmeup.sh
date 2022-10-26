@@ -12,11 +12,18 @@ sudo yum install -y  \
   ca-certificates \
   wget \
   jq \
-  pandoc \
   texlive \
+  texlive-collection-xetex \
   librsvg2 \
   git \
   gnupg
+
+##########
+# Pandoc #
+##########
+wget https://github.com/jgm/pandoc/releases/download/2.19.2/pandoc-2.19.2-linux-amd64.tar.gz
+sudo tar xvzf pandoc-2.19.2-linux-amd64.tar.gz --strip-components 1 -C /usr/local
+rm pandoc-2.19.2-linux-amd64.tar.gz
 
 ##########
 # Docker #

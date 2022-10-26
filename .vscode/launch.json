@@ -10,7 +10,7 @@
       "type": "python",
       "request": "launch",
       "program": "${workspaceRoot}/gistops/main.py",
-      "args": ["remote", "push", "master"],
+      "args": ["mirror", "master"],
       "env": {
         "GISTOPS_GIT_REMOTE_URL": "ok-this-is-it"
       },
