@@ -1,8 +1,0 @@
-Dockerfile
-setup-python-venv.sh
-.gitignore
-venv
-
-__pycache__/
-*.py[cod]
-*$py.class

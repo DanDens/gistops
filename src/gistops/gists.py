@@ -13,7 +13,7 @@ from jsonschema import validate
 from jinja2 import Environment, BaseLoader
 import semver
 
-from .shell import ShellError
+import shell
 
 
 class GistError(Exception):
@@ -71,8 +71,8 @@ def assert_git_root(gist_absolute_path: Path) -> Path:
     #############
     # .git root # 
     #############
-    def traverse_upwards(gist_path: Path):
-        if gist_path.root == gist_path:
+    def traverse_upwards(gist_path: Path) -> Path:
+        if gist_path == gist_path.parent:
             return None
     
         if gist_path.is_dir():
@@ -83,7 +83,9 @@ def assert_git_root(gist_absolute_path: Path) -> Path:
         
     git_root_path = traverse_upwards(gist_absolute_path.resolve())
     if not git_root_path:
-        raise RuntimeError(f'{git_root_path} is not part of a git repository')
+        raise GistError(
+            f'{gist_absolute_path} is not in a git repository. '
+            'Please run from valid git repository')
        
     return git_root_path
     
@@ -106,7 +108,7 @@ def assert_git_attributes(
             cmd=['git','config','--global','--get','core.attributesfile'],
             enforce_absolute_silence=True) )
         attr_paths += global_attr_file
-    except ShellError as _:
+    except shell.ShellError as _:
         pass 
     
     if 'XDG_CONFIG_HOME' in os.environ:
@@ -200,7 +202,7 @@ def iterate_gists(
             
                 
     else:
-        raise RuntimeError(
+        raise GistError(
             f'{gist_path} is symbolic link. '
             'Symbolic links are not supported.'
             'Please provide file or directory')

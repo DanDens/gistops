@@ -1,18 +1,19 @@
 #!/usr/bin/env python3
 """
-Functions to convert gists using pandoc
+Functions to convert gists using Pandoc
 """
 from pathlib import Path
 from typing import Any, List, Callable
 from functools import wraps
 from jsonschema import validate
-from .gists import Gist, GistError
-from .shell import ShellError
+
+import gists
+import shell
 
 
 def __git_ignore_output(
   shrun: Callable[[List[str]], str], 
-  gist: Gist,
+  gist: gists.Gist,
   dry_run: bool): 
     
     output_path: Path = Path(gist.ops['render']['output'])
@@ -20,7 +21,7 @@ def __git_ignore_output(
         # https://git-scm.com/docs/git-check-ignore
         shrun(cmd=['git','check-ignore','--quiet',str(output_path)])
         return # already ignored
-    except ShellError:
+    except shell.ShellError:
         pass
     
     if dry_run:
@@ -37,7 +38,7 @@ def __parametrized(func):
     @wraps(func)
     def decorator_func(*args, **kwargs) -> Any:
         
-        gist: Gist = \
+        gist: gists.Gist = \
              args[1] if len(args) > 0 else kwargs['gist']
         if 'render' not in gist.ops:
             return None # ok, not all gists are rendered
@@ -57,7 +58,7 @@ def __parametrized(func):
         })
         
         if not Path(gist.ops['render']['defaults']).exists():
-            raise GistError(f"{gist.ops['render']['defaults']} does not exist")
+            raise gists.GistError(f"{gist.ops['render']['defaults']} does not exist")
 
         return func(*args, **kwargs)
             
@@ -67,9 +68,9 @@ def __parametrized(func):
 @__parametrized
 def render(
   shrun: Callable[[List[str]], str], 
-  gist: Gist, 
+  gist: gists.Gist, 
   dry_run: bool = False):
-    """Converts gist using pandoc as configured by .gitattributes""" 
+    """Converts gists using pandoc and configuration from .gitattributes""" 
     
     if 'git-ignore' in gist.ops['render'] and gist.ops['render']['git-ignore']:
         __git_ignore_output(shrun=shrun, gist=gist, dry_run=dry_run)

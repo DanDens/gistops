@@ -7,13 +7,14 @@ from pathlib import Path
 from typing import Any, List, Callable
 from functools import wraps
 from jsonschema import validate
-from .gists import Gist, GistError
+
+import gists
 
 
 def __parametrized(func):
     @wraps(func)
     def decorator_func(*args, **kwargs) -> Any:
-        gist: Gist = \
+        gist: gists.Gist = \
              args[1] if len(args) > 0 else kwargs['gist']
         if 'publish' not in gist.ops:
             return None # ok, not all gists are rendered
@@ -46,7 +47,7 @@ def __parametrized(func):
 
         for callback in gist.ops['publish']['callbacks']:
             if not Path(callback['exe']).exists():
-                raise GistError(f"executable {callback['exe']} does not exist")
+                raise gists.GistError(f"executable {callback['exe']} does not exist")
 
         return func(*args, **kwargs)
 
@@ -56,7 +57,7 @@ def __parametrized(func):
 @__parametrized
 def publish(
   shrun: Callable[[List[str]], str], 
-  gist: Gist, 
+  gist: gists.Gist, 
   dry_run: bool = False):
     """Converts gist using pandoc as configured by .gitattributes""" 
     

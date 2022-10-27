@@ -11,13 +11,12 @@ from typing import Callable, List
 
 import fire
 
-from .gists import assert_git_root, assert_git_attributes
-from .gists import GistError, iterate_gists
-from .shell import shrun
-from .mirror import mirror, as_remote
-from .render import render
-from .publish import publish
-from .version import __version__
+import gists
+import shell
+import remotes
+import pandoc
+import downstream
+import version
 
 
 class GistOps():
@@ -43,7 +42,8 @@ class GistOps():
         self.__git_diff_hash = git_hash
         # Make git root current working directory 
         # and make path relative to git root
-        self.__git_root = assert_git_root(Path(cwd).resolve())
+        self.__git_root = gists.assert_git_root(
+          Path(cwd).resolve())
         os.chdir(str(self.__git_root))
         self.__gist_path = Path(cwd).relative_to(self.__git_root)
 
@@ -69,7 +69,7 @@ class GistOps():
         # Configure Shell #
         ###################
         self.__shrun: Callable[[List[str]], str] = partial(
-          shrun,
+          shell.shrun,
           env=shell_env,
           cwd=self.__git_root.resolve(),
           hide_streams=False,
@@ -82,13 +82,36 @@ class GistOps():
         ##################
         # Git Attributes #
         ##################
-        assert_git_attributes(shrun=self.__shrun, git_root=self.__git_root)
+        gists.assert_git_attributes(
+          shrun=self.__shrun, git_root=self.__git_root)
+          
+        self.__iterate_gists: Callable[Callable[[List[str]]], gists.Gist] = partial(
+          gists.iterate_gists, 
+          git_root=self.__git_root, 
+          gist_path=self.__gist_path, 
+          git_diff_hash=self.__git_diff_hash)
+          
 
     def version(self) -> str:
         """Just print the version"""
         logger = logging.getLogger()
-        logger.info(__version__)
+        logger.info(version.__version__)
 
+
+    def list(self):
+        """Validate gists as defined in .gitattributes"""
+        logger = logging.getLogger()
+        
+        shrun_validate = partial(
+          self.__shrun,
+          enforce_absolute_silence=True)
+
+        try:
+            for gist in self.__iterate_gists(shrun_validate):
+                logger.info(f'{gist.path}') 
+        except gists.GistError as err:
+            logger.error(f'{gist.path} invalid: {err}') 
+            
 
     def validate(self):
         """Validate gists as defined in .gitattributes"""
@@ -99,36 +122,24 @@ class GistOps():
           enforce_absolute_silence=True)
 
         try:
-            for gist in iterate_gists(
-              shrun=shrun_validate, 
-              git_root=self.__git_root, 
-              gist_path=self.__gist_path, 
-              git_diff_hash=self.__git_diff_hash):
-                render(shrun=shrun_validate, gist=gist, dry_run=True)
-                publish(shrun=shrun_validate, gist=gist, dry_run=True)
+            for gist in self.__iterate_gists(shrun=shrun_validate):
+                pandoc.render(shrun=shrun_validate, gist=gist, dry_run=True)
+                downstream.publish(shrun=shrun_validate, gist=gist, dry_run=True)
                 logger.info(f'{gist.path} valid') 
-        except GistError as err:
+        except gists.GistError as err:
             logger.error(f'{gist.path} invalid: {err}') 
 
 
     def render(self):
         """Render gists using pandoc configured by .gitattributes"""
-        for gist in iterate_gists(
-          shrun=self.__shrun, 
-          git_root=self.__git_root, 
-          gist_path=self.__gist_path, 
-          git_diff_hash=self.__git_diff_hash):
-            render(shrun=self.__shrun,gist=gist,dry_run=self.__dry_run)
+        for gist in self.__iterate_gists(shrun=self.__shrun):
+            pandoc.render(shrun=self.__shrun,gist=gist,dry_run=self.__dry_run)
 
 
     def publish(self):
         """Publish gists using callbacks as defined in .gitattributes"""
-        for gist in iterate_gists(
-          shrun=self.__shrun, 
-          git_root=self.__git_root, 
-          gist_path=self.__gist_path, 
-          git_diff_hash=self.__git_diff_hash):
-            publish(shrun=self.__shrun,gist=gist,dry_run=self.__dry_run)
+        for gist in self.__iterate_gists(shrun=self.__shrun):
+            downstream.publish(shrun=self.__shrun,gist=gist,dry_run=self.__dry_run)
 
 
     def mirror(self,
@@ -154,15 +165,19 @@ class GistOps():
         if git_trg_password is None:
             git_trg_password=os.environ.get('GISTOPS_GIT_TARGET_PASSWORD', None)
       
-        mirror(
+        remotes.mirror(
           shrun = self.__shrun,
-          git_remote_src = as_remote(
+          git_remote_src = remotes.as_remote(
             self.__shrun, git_src_url, git_src_username, git_src_password ),
-          git_remote_trg = as_remote(
+          git_remote_trg = remotes.as_remote(
             self.__shrun, git_trg_url, git_trg_username, git_trg_password ),
           branch_regex = branch_regex,
           dry_run = self.__dry_run)
 
 
-if __name__ == '__main__':
+def main():
     fire.Fire(GistOps)
+  
+
+if __name__ == '__main__':
+    main()
