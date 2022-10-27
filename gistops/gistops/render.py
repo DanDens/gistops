@@ -8,20 +8,27 @@ from gistops.gists import Gist, GistError
 from gistops.shell import ShellError
 
 
-def __git_ignore_output(shrun: Callable[[List[str]], str], gist: Gist): 
+def __git_ignore_output(
+  shrun: Callable[[List[str]], str], 
+  gist: Gist,
+  dry_run: bool): 
     logger = logging.getLogger()
     
-    outfile_path: Path = Path(gist.ops['render']['outfile'])
+    output_path: Path = Path(gist.ops['render']['output'])
     try:
-      shrun(cmd=['git','check-ignore','--quiet',str(outfile_path)])
+      # https://git-scm.com/docs/git-check-ignore
+      shrun(cmd=['git','check-ignore','--quiet',str(output_path)])
       return # already ignored
     except ShellError as _:
       pass
+    
+    if dry_run:
+      return # Do nothing, please ...
       
     # Ignore output file locally
     gitignore_path: Path = gist.path.parent.joinpath('.gitignore')
     with open(gitignore_path, 'a+') as gitignore_file:
-      gitignore_file.write(f'\n{outfile_path.name}')
+      gitignore_file.write(f'\n{output_path.name}')
       
 
 
@@ -37,18 +44,19 @@ def __parametrized(func):
         # Validate pandoc parameters
         validate(instance=gist.ops['render'], schema={
           "type" : "object",
-          "description": "Pandoc Configuration",
+          "description": "Selection of Pandoc Configuration Parameters, see https://pandoc.org/MANUAL.html",
           "properties": {
-              "format":{"const":"pdf","description":"Output Format, only pdf supported"},
-              "config":{"type":"string","description":"Pandoc configuration file path"},
-              "outfile":{"type":"string","description":"Output file path"},
-              "git-ignore":{"type":"boolean","description":"Ensure output file is ignored"}
+              "from":{"type":"string","description":"Input Format, see -f option or --from=FORMAT"},
+              "to":{"type":"string","description":"Output Format, see -t option or --to=FORMAT"},
+              "defaults":{"type":"string","description":"Pandoc configuration file path, see --defaults=FILE"},
+              "output":{"type":"string","description":"Output file path, see --output=FILE"},
+              "git-ignore":{"type":"boolean","description":"Ensure output file is ignored. If true adds file to .gitignore"}
           },
-          "required":["format","config","outfile"]
+          "required":["from","to","defaults","output"]
         })
         
-        if not Path(gist.ops['render']['config']).exists():
-            raise GistError(f"{gist.ops['render']['config']} does not exist")
+        if not Path(gist.ops['render']['defaults']).exists():
+            raise GistError(f"{gist.ops['render']['defaults']} does not exist")
 
         return func(*args, **kwargs)
             
@@ -56,25 +64,31 @@ def __parametrized(func):
 
 
 @__parametrized
-def render(shrun: Callable[[List[str]], str], gist: Gist):
+def render(
+  shrun: Callable[[List[str]], str], 
+  gist: Gist, 
+  dry_run: bool = False):
     """Converts gist using pandoc as configured by .gitattributes""" 
     logger = logging.getLogger()
     
-    # Clean rendered output
-    outpath = Path(gist.ops['render']['outfile'])
-    if outpath.exists():
-        outpath.unlink()
     
     if 'git-ignore' in gist.ops['render'] and gist.ops['render']['git-ignore']:
-      __git_ignore_output(shrun=shrun, gist=gist)
+      __git_ignore_output(shrun=shrun, gist=gist, dry_run=dry_run)
+     
+    # Clean rendered output
+    if not dry_run:
+      outpath = Path(gist.ops['render']['output'])
+      if outpath.exists():
+          outpath.unlink()
      
     shrun(cmd=[
       'pandoc',str(gist.path),
-      '-f',gist.ops['type'],
-      '-t',gist.ops['render']['format'],
-      '-d',gist.ops['render']['config'],
-      '-o',gist.ops['render']['outfile'],
-      f'--resource-path={gist.path.parent}'])
+      '-f', gist.ops['render']['from'],
+      '-t', gist.ops['render']['to'],
+      '-d', gist.ops['render']['defaults'],
+      '-o', gist.ops['render']['output'],
+      f'--resource-path={gist.path.parent}'],
+      do_not_execute=dry_run)
     
 
 

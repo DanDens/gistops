@@ -41,25 +41,29 @@ def __parametrized(func):
           },
           "required":["callbacks"]
         })
-        
+
         for cb in gist.ops['publish']['callbacks']:
             if not Path(cb['exe']).exists():
                 raise GistError(f"executable {cb['exe']} does not exist")
-                
+
         return func(*args, **kwargs)
-            
+
     return decorator_func
 
 
 @__parametrized
-def publish(shrun: Callable[[List[str]], str], gist: Gist):
+def publish(
+  shrun: Callable[[List[str]], str], 
+  gist: Gist, 
+  dry_run: bool = False):
     """Converts gist using pandoc as configured by .gitattributes""" 
     logger = logging.getLogger()
     
     for cb in gist.ops['publish']['callbacks']:
-        cmd=[ str(gist.root.joinpath(cb['exe'])), str(gist.path), str(json.dumps(gist.ops)) ]
+        cmd=[ f'"{str(gist.root.joinpath(cb["exe"]))}"', f'"{str(gist.path)}"', json.dumps(json.dumps(gist.ops,separators=(',', ':'))) ]
         if 'args' in cb:
             cmd=cmd.extend(cb['args'])
             
         for cb in gist.ops['publish']['callbacks']:
-            shrun(cmd)
+            shrun(cmd=cmd, do_not_execute=dry_run)
+            

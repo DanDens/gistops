@@ -19,13 +19,16 @@ def shrun(
     env: dict,
     log_cmd_level: int = logging.DEBUG,
     hide_streams: bool = False,
-    enforce_absolute_silence: bool = False) -> str:
+    enforce_absolute_silence: bool = False,
+    do_not_execute: bool = False) -> str:
     """ Runs a command on shell"""
     
     if not enforce_absolute_silence:
         logger = logging.getLogger()
         logger.log(log_cmd_level,f'> {" ".join(cmd)}')
 
+    if do_not_execute:
+        return '' # Do nothing, please ... it is a dry run
     try:
         ctx = InvokeContext()
         with ctx.cd(cwd):

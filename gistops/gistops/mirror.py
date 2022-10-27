@@ -96,7 +96,8 @@ def mirror(
     shrun: Callable[[List[str]], str],
     git_remote_src: GitRemote,
     git_remote_trg: GitRemote,
-    branch_regex: str):
+    branch_regex: str,
+    dry_run: bool = False):
     """Force mirror branches matching the given regex"""
     logger = logging.getLogger() 
     
@@ -115,8 +116,10 @@ def mirror(
 
     # Push force branches to remote
     for branch in branches:
-        shrun(cmd=[
-          'git','push','-q','--force', f'{git_remote_trg.name}',
-          f'refs/remotes/{git_remote_src.name}/{branch}:refs/heads/{branch}'])
+        shrun(
+          cmd=[
+            'git','push','-q','--force', f'{git_remote_trg.name}',
+            f'refs/remotes/{git_remote_src.name}/{branch}:refs/heads/{branch}'], 
+          do_not_execute=dry_run)
          
         
