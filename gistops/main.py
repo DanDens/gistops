@@ -12,61 +12,79 @@ import fire
 sys.path.append(str(Path(os.path.realpath(__file__)).parent))
 from gistops.gists import Gist, locate_git_root, iterate_gists
 from gistops.shell import shrun
-from gistops.git_mirror import mirror_remote, to_remote, GitRemote
-from gistops.pandoc_convert import convert_gist
+from gistops.mirror import mirror, as_remote, GitRemote
+from gistops.render import render
+from gistops.publish import publish
 
 
 class GistOps(object):
     """Operations for gists (in git repositories)"""
 
 
-    def __init__(self, gist_path: str=str(Path.cwd()), silent: bool=False):
+    def __init__(self, 
+      gist_path: str=str(Path.cwd()), 
+      git_diff_hash: str=None,
+      quiet: bool=False):
+        # Configure logging
         logger = logging.getLogger()
         logger.addHandler(logging.StreamHandler(sys.stdout))
-        logger.setLevel(logging.INFO)
+        logger.setLevel(os.environ.get('LOG_LEVEL','INFO'))
            
-        self.__git_root = locate_git_root(
-            gist_absolute_path=Path(gist_path).resolve())
+        # Remember parameters
+        self.__git_diff_hash = git_diff_hash
+        # Make git root current working directory 
+        # and make path relative to git root
+        self.__git_root = locate_git_root(Path(gist_path).resolve())
         os.chdir(str(self.__git_root))
         self.__gist_path = Path(gist_path).relative_to(self.__git_root)
         
-        self.__shrun: Callable[[List[str],bool], str] = partial(
+        # Pre-configure shell runner
+        self.__shrun: Callable[[List[str]], str] = partial(
           shrun,
           env=os.environ,
           cwd=self.__git_root.resolve(),
-          silent_streams=silent) 
+          hide_streams=False,
+          log_cmd_level=logging.INFO,
+          enforce_absolute_silence=quiet) 
           
 
-    def convert(self):
-        """Render gists using config stored as .gitattributes"""
-        
+    def render(self):
+        """Render gists as defined by .gitattributes"""
         for gist in iterate_gists(
-          self.__shrun, self.__git_root, self.__gist_path):
-            convert_gist(shrun=self.__shrun, gist=gist)
-            
-            
-    # def publish(self):
-    #     """Publish gists using information stored as .gitattributes"""
-        
-                
+          shrun=self.__shrun, 
+          git_root=self.__git_root, 
+          gist_path=self.__gist_path, 
+          git_diff_hash=self.__git_diff_hash):
+            render(shrun=self.__shrun, gist=gist)
+    
+    
+    def publish(self):
+        """Publish gists as defined by .gitattributes"""
+        for gist in iterate_gists(
+          shrun=self.__shrun, 
+          git_root=self.__git_root, 
+          gist_path=self.__gist_path, 
+          git_diff_hash=self.__git_diff_hash):
+            publish(shrun=self.__shrun, gist=gist)
+
 
     def mirror(self,
       branch_regex: str,
-      git_source_url: str=os.environ['GISTOPS_GIT_SOURCE_URL'],
-      git_source_username: str=os.environ['GISTOPS_GIT_SOURCE_USERNAME'],
-      git_source_password: str=os.environ['GISTOPS_GIT_SOURCE_PASSWORD'],
-      git_target_url: str=os.environ['GISTOPS_GIT_TARGET_URL'],
-      git_target_username: str=os.environ['GISTOPS_GIT_TARGET_USERNAME'],
-      git_target_password: str=os.environ['GISTOPS_GIT_TARGET_PASSWORD']):
+      git_src_url: str=os.environ['GISTOPS_GIT_SOURCE_URL'],
+      git_trg_url: str=os.environ['GISTOPS_GIT_TARGET_URL'],
+      git_src_username: str=os.environ.get('GISTOPS_GIT_SOURCE_USERNAME', None),
+      git_src_password: str=os.environ.get('GISTOPS_GIT_SOURCE_PASSWORD', None),
+      git_trg_username: str=os.environ.get('GISTOPS_GIT_TARGET_USERNAME', None),
+      git_trg_password: str=os.environ.get('GISTOPS_GIT_TARGET_PASSWORD', None) ):
         """Push mirror branch(es) to remote"""
         
-        mirror_remote(
-            shrun=self.__shrun,
-            git_remote_source=to_remote(
-              git_source_url, git_source_username, git_source_password ),
-            git_remote_target=to_remote(
-              git_target_url, git_target_username, git_target_password ),
-            branch_regex=branch_regex)
+        mirror(
+          shrun = self.__shrun,
+          git_remote_src = as_remote(
+            self.__shrun, git_src_url, git_src_username, git_src_password ),
+          git_remote_trg = as_remote(
+            self.__shrun, git_trg_url, git_trg_username, git_trg_password ),
+          branch_regex = branch_regex)
 
 
 if __name__ == '__main__':
