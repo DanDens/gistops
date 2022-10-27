@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any, List, Callable
 from functools import wraps
 from jsonschema import validate
-from gistops.gists import Gist, GistError
+from .gists import Gist, GistError
 
 
 def __parametrized(func):

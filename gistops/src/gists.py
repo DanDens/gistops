@@ -13,7 +13,7 @@ from jsonschema import validate
 from jinja2 import Environment, BaseLoader
 import semver
 
-from gistops.shell import ShellError
+from .shell import ShellError
 
 
 class GistError(Exception):

@@ -11,15 +11,13 @@ from typing import Callable, List
 
 import fire
 
-# adjust PYTHON_PATH for debugging of lambda app
-sys.path.append(str(Path(os.path.realpath(__file__)).parent))
-from gistops.gists import assert_git_root, assert_git_attributes
-from gistops.gists import GistError, iterate_gists
-from gistops.shell import shrun
-from gistops.mirror import mirror, as_remote
-from gistops.render import render
-from gistops.publish import publish
-from gistops.version import __version__
+from .gists import assert_git_root, assert_git_attributes
+from .gists import GistError, iterate_gists
+from .shell import shrun
+from .mirror import mirror, as_remote
+from .render import render
+from .publish import publish
+from .version import __version__
 
 
 class GistOps():

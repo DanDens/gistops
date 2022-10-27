@@ -9,6 +9,7 @@ from typing import Any, List, Callable
 from urllib.parse import urlparse, ParseResult
 from functools import wraps
 
+
 @dataclass
 class GitRemote:
     """Represents a Git Remote Repository"""

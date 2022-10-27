@@ -23,7 +23,8 @@ RUN wget --quiet https://github.com/jgm/pandoc/releases/download/2.19.2/pandoc-2
 # Install gistops application
 WORKDIR /usr/src/app
 
-COPY . .
+COPY ./requirements.txt .
+COPY ./src .
 RUN pip install --no-cache-dir -r requirements.txt
 
 CMD [ "python", "/usr/src/app/main.py" ]

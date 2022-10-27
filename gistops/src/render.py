@@ -6,8 +6,8 @@ from pathlib import Path
 from typing import Any, List, Callable
 from functools import wraps
 from jsonschema import validate
-from gistops.gists import Gist, GistError
-from gistops.shell import ShellError
+from .gists import Gist, GistError
+from .shell import ShellError
 
 
 def __git_ignore_output(
