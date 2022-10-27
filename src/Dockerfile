@@ -37,7 +37,7 @@ RUN apt-get update && apt-get install -y git-secret
 RUN wget --quiet https://github.com/jgm/pandoc/releases/download/2.19.2/pandoc-2.19.2-linux-amd64.tar.gz && \
     tar xvzf pandoc-2.19.2-linux-amd64.tar.gz --strip-components 1 -C /usr/local && \
     rm pandoc-2.19.2-linux-amd64.tar.gz
-
+ 
 # Cleanup
 RUN apt remove -y wget
 RUN apt-get purge -y ruby
