@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+"""
+Gist Representation and Factories
+"""
 import os
 import json
 import logging
@@ -14,11 +17,12 @@ from gistops.shell import ShellError
 
 
 class GistError(Exception):
-    pass
+    """ Gist representation error """
 
 
 @dataclass
 class Gist:
+    """ Gist representation """
     root: Path
     path: Path
     ops: dict
@@ -50,11 +54,11 @@ def __load_gist(
     })
     
     try:
-        gist_semver: semver.VersionInfo = semver.VersionInfo.parse(gistops['semver'])
-    except ValueError as _:
+        semver.VersionInfo.parse(gistops['semver'])
+    except ValueError as err:
         raise GistError(
           f'gistops={{"semver":"{gistops["semver"]},..."}} '
-          f'not a sematic version, see https://semver.org/lang/de/')
+          f'not a sematic version, see https://semver.org/lang/de/') from err
     
     return Gist(git_root, gist_path, gistops)
 
@@ -88,7 +92,6 @@ def assert_git_attributes(
   shrun: Callable[[List[str],bool], str],
   git_root: Path) -> Path:  
     """Verify [attr]gistops definition stored in .gitattributes"""
-    logger = logging.getLogger()
 
     # See DEFINING MACRO ATTRIBUTES in 
     # https://git-scm.com/docs/gitattributes
@@ -120,15 +123,14 @@ def assert_git_attributes(
         
         try:
             attr_path = candidate_path.relative_to(git_root)
-        except ValueError as _:
+        except ValueError:
             attr_path = candidate_path
-            pass
         
         return attr_path
-    else:
-        raise GistError(
-          'Could not locate [attr]gistops in any known '
-          '.gitattribute or gitattributes file')
+
+    raise GistError(
+        'Could not locate [attr]gistops in any known '
+        '.gitattribute or gitattributes file')
         
         
 def iterate_gists(
@@ -156,20 +158,19 @@ def iterate_gists(
             try:
                 if gist_absolute_dir.relative_to(git_root.joinpath('.git')):
                     continue # ignore .git sub directory
-            except ValueError as _:
+            except ValueError:
                 pass
             
             gists_dir = gist_absolute_dir.relative_to(git_root)
             
-            # https://git-scm.com/docs/git-check-attr and https://git-scm.com/docs/git-ls-files
+            # https://git-scm.com/docs/git-check-attr and 
+            # https://git-scm.com/docs/git-ls-files
             # Files with gistops .gitattribute listed as 
-            # README.md: gistops: {"pandoc":{"type":"pdf","config":"pandoc.yaml","outfile":"{{file}}.pdf"}}
-            # README2.md: gistops: {"pandoc":{"type":"pdf","config":"pandoc.yaml","outfile":"{{file}}.pdf"}}
-            for gitattr in shrun(
-              cmd=[
-                'git','ls-files','|','git','check-attr','-a',
-                'gistops',f'{str(gists_dir)}/*.*']).splitlines():
-                    
+            # README.md: gistops: {"render":{...}}
+            for gitattr in shrun(cmd=[
+              'git','ls-files','|','git','check-attr','-a',
+              'gistops',f'{str(gists_dir)}/*.*']).splitlines():
+
                 gist_file, _, gistops_j2 = gitattr.split(': ')
                 if git_diff_files is not None and \
                     Path(gist_file) not in git_diff_files:

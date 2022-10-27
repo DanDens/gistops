@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
+"""
+Functions to mirror branches for git remotes
+"""
 import re
-import string
 import logging
 from dataclasses import dataclass
-from typing import Any, List, Callable, NamedTuple
-from datetime import datetime
+from typing import Any, List, Callable
 from urllib.parse import urlparse, ParseResult
-from random import choice as random_choice
 from functools import wraps
-
 
 @dataclass
 class GitRemote:
@@ -24,18 +23,18 @@ def as_remote(
   password: str) -> GitRemote:
     """Builds git remote from given parammeters"""
     parts: ParseResult = urlparse(url)
-    
+
     # Allowed characters in remote references are
     # https://mirrors.edge.kernel.org/pub/software/scm/git/docs/git-check-ref-format.html
     subs = '|'.join(
-      [re.escape(sub) for sub in ['~','..','^','\.','/','//',' ?','*','[',']','@{','@'] ])
+      [re.escape(sub) for sub in ['~','..','^','/','//',' ?','*','[',']','@{','@'] ])
     remote_name = re.sub(f'({subs})','.', f'{parts.netloc}{parts.path}')
     shrun(cmd=['git','check-ref-format','--branch',remote_name])
-      
+
     oauth2 = ''
     if username is not None and password is not None:
         oauth2 = f'{username}:{password}@'
-    
+
     return GitRemote(
         url=f'{parts.scheme}://{oauth2}{parts.netloc}{parts.path}',
         name=remote_name )
@@ -54,7 +53,7 @@ def __reset_remote(
     if __exists_remote(shrun, git_remote):
         __remove_remote(shrun, git_remote)
 
-    shrun( 
+    shrun(
         cmd=['git', 'remote', 'add', git_remote.name, git_remote.url], 
         enforce_absolute_silence=True )
 
@@ -99,13 +98,13 @@ def mirror(
     branch_regex: str,
     dry_run: bool = False):
     """Force mirror branches matching the given regex"""
-    logger = logging.getLogger() 
-    
+    logger = logging.getLogger()
+
     git_res = shrun(cmd=['git','ls-remote','--heads', git_remote_src.name])
-        
-    branches: List[str] = [match for match in re.findall(
-        f'refs/heads/({branch_regex})$', git_res, re.MULTILINE)]
-         
+
+    branches: List[str] = list(re.findall(
+        f'refs/heads/({branch_regex})$', git_res, re.MULTILINE))
+
     if len(branches) == 0:
         logger.info(f'No branches with "{branch_regex}" exist. Skipping ...')
         return
@@ -119,7 +118,5 @@ def mirror(
         shrun(
           cmd=[
             'git','push','-q','--force', f'{git_remote_trg.name}',
-            f'refs/remotes/{git_remote_src.name}/{branch}:refs/heads/{branch}'], 
+            f'refs/remotes/{git_remote_src.name}/{branch}:refs/heads/{branch}'],
           do_not_execute=dry_run)
-         
-        

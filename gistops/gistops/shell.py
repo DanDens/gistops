@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-import os
+"""
+Functions to execute commands on the shell
+"""
 from typing import List
 from pathlib import Path
 import logging
@@ -10,7 +12,6 @@ from invoke.exceptions import UnexpectedExit
 
 class ShellError(Exception):
     """Error from shell in case exit code is not 0"""
-    pass
 
 
 def shrun(

@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+"""
+Gistops module
+"""
 import os
 import sys
 from pathlib import Path

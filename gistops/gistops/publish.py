@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-import logging
+"""
+Functions to publish gists
+"""
 import json
 from pathlib import Path
 from typing import Any, List, Callable
@@ -42,9 +44,9 @@ def __parametrized(func):
           "required":["callbacks"]
         })
 
-        for cb in gist.ops['publish']['callbacks']:
-            if not Path(cb['exe']).exists():
-                raise GistError(f"executable {cb['exe']} does not exist")
+        for callback in gist.ops['publish']['callbacks']:
+            if not Path(callback['exe']).exists():
+                raise GistError(f"executable {callback['exe']} does not exist")
 
         return func(*args, **kwargs)
 
@@ -57,13 +59,14 @@ def publish(
   gist: Gist, 
   dry_run: bool = False):
     """Converts gist using pandoc as configured by .gitattributes""" 
-    logger = logging.getLogger()
     
-    for cb in gist.ops['publish']['callbacks']:
-        cmd=[ f'"{str(gist.root.joinpath(cb["exe"]))}"', f'"{str(gist.path)}"', json.dumps(json.dumps(gist.ops,separators=(',', ':'))) ]
-        if 'args' in cb:
-            cmd=cmd.extend(cb['args'])
+    for callback in gist.ops['publish']['callbacks']:
+        cmd=[ 
+          f'"{str(gist.root.joinpath(callback["exe"]))}"', 
+          f'"{str(gist.path)}"', 
+          json.dumps(json.dumps(gist.ops,separators=(',', ':'))) ]
+        if 'args' in callback:
+            cmd=cmd.extend(callback['args'])
             
-        for cb in gist.ops['publish']['callbacks']:
-            shrun(cmd=cmd, do_not_execute=dry_run)
+        shrun(cmd=cmd, do_not_execute=dry_run)
             
