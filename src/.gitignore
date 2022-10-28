@@ -127,3 +127,6 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Cloud 9 stuff
+.~c9_invoke_*
