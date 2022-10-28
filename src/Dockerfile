@@ -1,5 +1,6 @@
 # ----------
 FROM python:3.10.8-bullseye as builder
+LABEL maintainer="DanDens <dandens@github.com>"
 
 # Install gistops application
 WORKDIR /build
@@ -13,8 +14,8 @@ RUN export PIP_DISABLE_PIP_VERSION_CHECK=1 && \
 RUN python3 -m build
 
 # ----------
-
 FROM python:3.10.8-slim-bullseye
+LABEL maintainer="DanDens <dandens@github.com>"
 
 RUN apt-get update
 # https://git-scm.com/book/en/v2/Getting-Started-Installing-Git
@@ -22,12 +23,10 @@ RUN apt-get update
 RUN apt-get -y install git
 # https://wiki.debianforum.de/GnuPG#Installation
 RUN apt-get -y install gnupg
-# Required for https://git-secret.io/installation
-RUN apt-get -y install wget
-# Required for scripts
-RUN apt-get -y install jq curl
+# Required for downstream scripts
+RUN apt-get -y install jq curl wget
 # pandoc requirements as stated in https://pandoc.org/installing.html
-RUN apt-get -y install texlive-xetex
+RUN apt-get -y install texlive-xetex librsvg2-bin
 
 # https://git-secret.io/installation
 RUN sh -c "echo 'deb https://gitsecret.jfrog.io/artifactory/git-secret-deb git-secret main' >> /etc/apt/sources.list"
@@ -40,7 +39,6 @@ RUN wget --quiet https://github.com/jgm/pandoc/releases/download/2.19.2/pandoc-2
     rm pandoc-2.19.2-linux-amd64.tar.gz
  
 # Cleanup
-RUN apt remove -y wget
 RUN apt-get purge -y ruby
 RUN apt-get remove sqlite3 -y
 RUN apt-get clean
