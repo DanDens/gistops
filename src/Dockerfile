@@ -25,7 +25,7 @@ RUN apt-get -y install gnupg
 # Required for https://git-secret.io/installation
 RUN apt-get -y install wget
 # Required for scripts
-RUN apt-get -y install jq
+RUN apt-get -y install jq curl
 # pandoc requirements as stated in https://pandoc.org/installing.html
 RUN apt-get -y install texlive-xetex
 
