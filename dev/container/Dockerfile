@@ -3,7 +3,7 @@ LABEL maintainer="DanDens <dandens@github.com>"
 ARG USER=dandens
 
 USER root
-WORKDIR /root
+WORKDIR /root 
 
 # Some additional packages
 RUN DEBIAN_FRONTEND=noninteractive apt-get update 
