@@ -9,7 +9,7 @@
       "name": "GistOps Remote Push",
       "type": "python",
       "request": "launch",
-      "program": "${workspaceRoot}/gistops/src/main.py",
+      "program": "${workspaceRoot}/src/gistops/main.py",
       "args": ["mirror", "master"],
       "env": {
         "GISTOPS_GIT_REMOTE_URL": "ok-this-is-it"
