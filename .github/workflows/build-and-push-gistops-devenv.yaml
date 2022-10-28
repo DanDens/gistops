@@ -6,8 +6,12 @@ on:
     branches:
       - 'main'
     paths:
-      - 'setmeup/docker-ubuntu-20.04-lts/**'
-      
+      - 'dev/container/**'
+  workflow_run:
+    workflows: ["build-and-deploy-gistops"]
+    types:
+      - completed
+
 jobs:
   build-and-push-gistops-devenv:
     runs-on: ubuntu-latest
