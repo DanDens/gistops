@@ -6,7 +6,7 @@ on:
     branches:
       - 'main'
     paths:
-      - 'dev/container/**'
+      - 'dev/**'
   workflow_run:
     workflows: ["build-and-deploy-gistops"]
     types:
