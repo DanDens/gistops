@@ -13,6 +13,13 @@ RUN export PIP_DISABLE_PIP_VERSION_CHECK=1 && \
 
 RUN python3 -m build
 
+# https://github.com/AGWA/git-crypt
+# https://github.com/AGWA/git-crypt/blob/master/INSTALL.md
+RUN DEBIAN_FRONTEND=noninteractive apt-get update 
+RUN DEBIAN_FRONTEND=noninteractive && apt install -y git build-essential make libssl-dev
+RUN git clone https://github.com/AGWA/git-crypt.git
+RUN cd git-crypt && make && make install PREFIX=/usr/local
+
 # ----------
 FROM python:3.10.8-slim-bullseye
 LABEL maintainer="DanDens <dandens@github.com>"
@@ -28,10 +35,8 @@ RUN apt-get -y install jq curl wget
 # pandoc requirements as stated in https://pandoc.org/installing.html
 RUN apt-get -y install texlive-xetex librsvg2-bin
 
-# https://git-secret.io/installation
-RUN sh -c "echo 'deb https://gitsecret.jfrog.io/artifactory/git-secret-deb git-secret main' >> /etc/apt/sources.list"
-RUN wget -qO - 'https://gitsecret.jfrog.io/artifactory/api/gpg/key/public' | apt-key add -
-RUN apt-get update && apt-get install -y git-secret
+# Copy git-crypt from build
+COPY --from=builder /usr/local/bin/git-crypt /usr/local/bin/git-crypt
 
 # https://pandoc.org/installing.html
 RUN wget --quiet https://github.com/jgm/pandoc/releases/download/2.19.2/pandoc-2.19.2-linux-amd64.tar.gz && \
