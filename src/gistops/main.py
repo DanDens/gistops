@@ -13,9 +13,8 @@ import fire
 
 import gists
 import shell
-import remotes
-import pandoc
-import downstream
+import mirroring
+import publishing
 import version
 
 
@@ -65,9 +64,9 @@ class GistOps():
             if protected_key in shell_env: 
                 del shell_env[protected_key]
 
-        ###################
-        # Configure Shell #
-        ###################
+        #######################
+        # Pre-configure Shell #
+        #######################
         self.__shrun: Callable[[List[str]], str] = partial(
           shell.shrun,
           env=shell_env,
@@ -79,39 +78,27 @@ class GistOps():
 
         self.__dry_run = dry_run
 
-        ##################
-        # Git Attributes #
-        ##################
-        gists.assert_git_attributes(
-          shrun=self.__shrun, git_root=self.__git_root)
-          
-        self.__iterate_gists: Callable[Callable[[List[str]]], gists.Gist] = partial(
+        ##########################
+        # Pre-configure Iterator #
+        ##########################
+        self.__iterate_gists = partial(
           gists.iterate_gists, 
           git_root=self.__git_root, 
           gist_path=self.__gist_path, 
           git_diff_hash=self.__git_diff_hash)
-          
 
+
+    def init(self):
+        """Initializes gistops for the git repository"""
+        
+        gists.init_gistops(self.__shrun,self.__git_root)
+        
+    
     def version(self) -> str:
         """Just print the version"""
         logger = logging.getLogger()
         logger.info(version.__version__)
 
-
-    def list(self):
-        """Validate gists as defined in .gitattributes"""
-        logger = logging.getLogger()
-        
-        shrun_validate = partial(
-          self.__shrun,
-          enforce_absolute_silence=True)
-
-        try:
-            for gist in self.__iterate_gists(shrun_validate):
-                logger.info(f'{gist.path}') 
-        except gists.GistError as err:
-            logger.error(f'{gist.path} invalid: {err}') 
-            
 
     def validate(self):
         """Validate gists as defined in .gitattributes"""
@@ -123,23 +110,16 @@ class GistOps():
 
         try:
             for gist in self.__iterate_gists(shrun=shrun_validate):
-                pandoc.render(shrun=shrun_validate, gist=gist, dry_run=True)
-                downstream.publish(shrun=shrun_validate, gist=gist, dry_run=True)
+                publishing.publish(shrun=shrun_validate, gist=gist, dry_run=True)
                 logger.info(f'{gist.path} valid') 
         except gists.GistError as err:
             logger.error(f'{gist.path} invalid: {err}') 
 
 
-    def render(self):
-        """Render gists using pandoc configured by .gitattributes"""
-        for gist in self.__iterate_gists(shrun=self.__shrun):
-            pandoc.render(shrun=self.__shrun,gist=gist,dry_run=self.__dry_run)
-
-
     def publish(self):
-        """Publish gists using callbacks as defined in .gitattributes"""
+        """Render and Publish gists as defined by .gitattributes"""
         for gist in self.__iterate_gists(shrun=self.__shrun):
-            downstream.publish(shrun=self.__shrun,gist=gist,dry_run=self.__dry_run)
+            publishing.publish(shrun=self.__shrun,gist=gist,dry_run=self.__dry_run)
 
 
     def mirror(self,
@@ -164,20 +144,21 @@ class GistOps():
             git_trg_username=os.environ.get('GISTOPS_GIT_TARGET_USERNAME', None)
         if git_trg_password is None:
             git_trg_password=os.environ.get('GISTOPS_GIT_TARGET_PASSWORD', None)
-      
-        remotes.mirror(
+
+        mirroring.mirror(
           shrun = self.__shrun,
-          git_remote_src = remotes.as_remote(
+          git_remote_src = mirroring.as_remote(
             self.__shrun, git_src_url, git_src_username, git_src_password ),
-          git_remote_trg = remotes.as_remote(
+          git_remote_trg = mirroring.as_remote(
             self.__shrun, git_trg_url, git_trg_username, git_trg_password ),
           branch_regex = branch_regex,
           dry_run = self.__dry_run)
 
 
 def main():
+    """gistops cli entrypoint"""
     fire.Fire(GistOps)
-  
+
 
 if __name__ == '__main__':
     main()
