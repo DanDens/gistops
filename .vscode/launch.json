@@ -6,14 +6,13 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "GistOps Remote Push",
+      "name": "GistOps Publish",
       "type": "python",
       "request": "launch",
       "program": "${workspaceRoot}/src/gistops/main.py",
-      "args": ["mirror", "master"],
-      "env": {
-        "GISTOPS_GIT_REMOTE_URL": "ok-this-is-it"
-      },
+      "args": ["publish"],
+      "cwd": "/home/dandens/ws/DevOps Reports/devops-reports-2022",
+      "env": {},
       "console": "integratedTerminal",
       "justMyCode": true
     }
