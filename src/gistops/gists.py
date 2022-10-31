@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Gist Representation and Factories
+GistOps Representation and Factories
 """
 import os
 import json
@@ -15,34 +15,49 @@ from jinja2 import Environment, BaseLoader
 import shell
 
 
-class GistError(Exception):
-    """ Gist representation error """
+##################
+# EXPORTED TYPES #
+##################
+class GistOpsError(Exception):
+    """ GistOps representation error """
 
 
 @dataclass
-class Gist:
-    """ Gist representation """
+class GistOps:
+    """ GistOps representation """
     root: Path
     path: Path
     ops: dict
+    commit_id: str
 
 
-def __load_gist(
+#####################
+# PRIVATE FUNCTIONS #
+#####################
+def __j2_params(git_root_path: Path, gist_path: Path, git_commit_id: str):
+    return {
+      'root': str(git_root_path),
+      'dir': str(gist_path.parent),
+      'parent': str(gist_path.parent.name),
+      'file': str(gist_path.name),
+      'stem': str(gist_path.stem),
+      'suffix': str(gist_path.suffix),
+      'commit_id': str(git_commit_id)
+    }
+
+
+def __load_gistops(
     git_root: Path,
     gist_path: Path, 
-    gistops_j2: str) -> Gist:
+    ops_j2: str,
+    git_commit_id: str) -> GistOps:
 
-    gistops_j2_tmpl = Environment(loader=BaseLoader()).from_string(gistops_j2)
-    gistops_str: str = gistops_j2_tmpl.render({
-        'root': str(git_root),
-        'dir': str(gist_path.parent),
-        'file': str(gist_path.name),
-        'stem': str(gist_path.stem),
-        'suffix': str(gist_path.suffix)
-    })
+    gistops_j2_tmpl = Environment(loader=BaseLoader()).from_string(ops_j2)
+    gops_str: str = gistops_j2_tmpl.render(
+      __j2_params(git_root, gist_path,git_commit_id) )
 
-    gistops: dict = json.loads(gistops_str)
-    validate(instance=gistops, schema={
+    ops: dict = json.loads(gops_str)
+    validate(instance=ops, schema={
         "type": "object",
         "properties": {
             "publish": {
@@ -53,34 +68,7 @@ def __load_gist(
         }
     })
 
-    return Gist(git_root, gist_path, gistops)
-
-
-def assert_git_root(gist_absolute_path: Path) -> Path:
-    """Locate git root directory from gist_path"""
-    if not gist_absolute_path.exists():
-        raise RuntimeError(f'{gist_absolute_path} does not exist')
-
-    #############
-    # .git root # 
-    #############
-    def traverse_upwards(gist_path: Path) -> Path:
-        if gist_path == gist_path.parent:
-            return None
-
-        if gist_path.is_dir():
-            if len(list(gist_path.glob('.git'))) == 1:
-                return gist_path
-
-        return traverse_upwards(gist_path.parent)
-
-    git_root_path = traverse_upwards(gist_absolute_path.resolve())
-    if not git_root_path:
-        raise GistError(
-            f'{gist_absolute_path} is not in a git repository. '
-            'Please run from valid git repository')
-
-    return git_root_path
+    return GistOps(git_root, gist_path, ops, git_commit_id)
 
 
 def __gistops_attribute() -> str:
@@ -130,10 +118,37 @@ def __assert_gistops_attribute(
         except IOError:
             pass
 
-    raise GistError(
+    raise GistOpsError(
         'Could not locate [attr]gistops in any known '
         '.gitattribute or gitattributes file. '
         'Please run "gistops init" first')
+
+
+######################
+# EXPORTED FUNCTIONS #
+######################
+def assert_git_root(gist_absolute_path: Path) -> Path:
+    """Locate git root directory from gist_path"""
+    if not gist_absolute_path.exists():
+        raise GistOpsError(f'{gist_absolute_path} does not exist')
+
+    def traverse_upwards(gist_path: Path) -> Path:
+        if gist_path == gist_path.parent:
+            return None
+
+        if gist_path.is_dir():
+            if len(list(gist_path.glob('.git'))) == 1:
+                return gist_path
+
+        return traverse_upwards(gist_path.parent)
+
+    git_root_path = traverse_upwards(gist_absolute_path.resolve())
+    if not git_root_path:
+        raise GistOpsError(
+            f'{gist_absolute_path} is not in a git repository. '
+            'Please run from valid git repository')
+
+    return git_root_path
 
 
 def init_gistops(
@@ -145,7 +160,7 @@ def init_gistops(
     # Ensure gistops attribute
     try:
         __assert_gistops_attribute(shrun, git_root)
-    except GistError:
+    except GistOpsError:
         # Create '.git/info/attributes' file
         logger.info(f'Adding {__gistops_attribute()} to .git/info/attributes')
         with open(git_root.joinpath('.git/info/attributes'),
@@ -155,17 +170,21 @@ def init_gistops(
     # TODO: .gitignore -> .gistops/
 
 
-def iterate_gists(
+def iterate_gistops(
   shrun: Callable[[List[str],bool], str], 
   git_root: Path,
   gist_path: Path,
-  git_diff_hash: str) -> Iterator[Gist]:
+  git_diff_hash: str) -> Iterator[GistOps]:
     """Locate gists in path using gistops attribute stored in .gitattributes"""
     logger = logging.getLogger()
 
     __assert_gistops_attribute(shrun=shrun, git_root=git_root)
 
     gist_absolute_path = git_root.joinpath(gist_path).resolve()
+    git_commit_id = shrun(
+      cmd=['git', 'log', '-1', '--pretty=%h'],
+      log_cmd_level=logging.DEBUG, 
+      hide_streams=True).strip()
 
     git_diff_files: List[Path] = None
     if git_diff_hash is not None:
@@ -200,33 +219,40 @@ def iterate_gists(
                 if gitattr.split(': ')[-1] == 'unspecified':
                     continue # no gistops flag on this one
 
-                gist_file, _, gistops_j2 = gitattr.split(': ')
+                gist_file, _, ops_j2 = gitattr.split(': ')
                 if git_diff_files is not None and \
                     Path(gist_file) not in git_diff_files:
                     logger.info(f'{gist_file} unchanged for {git_diff_hash}')
                     continue
 
-                yield __load_gist(
+                yield __load_gistops(
                     git_root=git_root,
                     gist_path=Path(gist_file),
-                    gistops_j2=gistops_j2 )
+                    ops_j2=ops_j2,
+                    git_commit_id=git_commit_id )
 
     elif gist_absolute_path.is_file():
         # https://git-scm.com/docs/git-check-attr
         gitattr = shrun(cmd=['git','check-attr','gistops', str(gist_path)])
         if gitattr != '': 
-            gist_file, _, gistops_j2 = gitattr.split(' ')
+            gist_file, _, ops_j2 = gitattr.split(' ')
             if git_diff_files is None or \
                 Path(gist_file) in git_diff_files:    
 
-                yield __load_gist(
+                yield __load_gistops(
                   git_root=git_root,
                   gist_path=gist_absolute_path.relative_to(
                     git_root).joinpath(gist_file),
-                  gistops_j2=gistops_j2 )
+                  ops_j2=ops_j2,
+                  git_commit_id=git_commit_id )
 
     else:
-        raise GistError(
+        raise GistOpsError(
             f'{gist_path} is symbolic link. '
             'Symbolic links are not supported.'
             'Please provide file or directory')
+
+
+def j2_params(gist: GistOps) -> dict:
+    """Returns j2 params for rendering of gist related j2 templates"""
+    return __j2_params(gist.root, gist.path, gist.commit_id)

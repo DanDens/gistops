@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Command line arguments for Gist Operations
+Command line arguments for GistOps Operations
 """
 import os
 import sys
@@ -81,8 +81,8 @@ class GistOps():
         ##########################
         # Pre-configure Iterator #
         ##########################
-        self.__iterate_gists = partial(
-          gists.iterate_gists, 
+        self.__iterate_gistops = partial(
+          gists.iterate_gistops, 
           git_root=self.__git_root, 
           gist_path=self.__gist_path, 
           git_diff_hash=self.__git_diff_hash)
@@ -109,17 +109,17 @@ class GistOps():
           enforce_absolute_silence=True)
 
         try:
-            for gist in self.__iterate_gists(shrun=shrun_validate):
-                publishing.publish(shrun=shrun_validate, gist=gist, dry_run=True)
-                logger.info(f'{gist.path} valid') 
-        except gists.GistError as err:
-            logger.error(f'{gist.path} invalid: {err}') 
+            for gops in self.__iterate_gistops(shrun=shrun_validate):
+                publishing.publish(shrun=shrun_validate, gops=gops, dry_run=True)
+                logger.info(f'{gops.path} valid') 
+        except (gists.GistOpsError, publishing.PublishError) as err:
+            logger.error(f'{gops.path} invalid: {err}') 
 
 
     def publish(self):
         """Render and Publish gists as defined by .gitattributes"""
-        for gist in self.__iterate_gists(shrun=self.__shrun):
-            publishing.publish(shrun=self.__shrun,gist=gist,dry_run=self.__dry_run)
+        for gops in self.__iterate_gistops(shrun=self.__shrun):
+            publishing.publish(shrun=self.__shrun, gops=gops,dry_run=self.__dry_run)
 
 
     def mirror(self,
