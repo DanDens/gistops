@@ -6,12 +6,12 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "GistOps Publish",
+      "name": "gistops render",
       "type": "python",
       "request": "launch",
       "program": "${workspaceRoot}/src/gistops/main.py",
-      "args": ["publish"],
-      "cwd": "/home/dandens/ws/DevOps Reports/devops-reports-2022",
+      "args": ["render"],
+      "cwd": "/home/dandens/ws/devops-reports-2022",
       "env": {},
       "console": "integratedTerminal",
       "justMyCode": true
