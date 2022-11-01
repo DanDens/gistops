@@ -110,12 +110,13 @@ def mirror(
         logger.info(f'No branches with "{branch_regex}" exist. Skipping ...')
         return
 
-    # Fetch remote branches
-    shrun(cmd=['git','fetch','-p',git_remote_src.name])
-    shrun(cmd=['git','fetch','-p',git_remote_trg.name])
-
-    # Push force branches to remote
+    
     for branch in branches:
+        # Fetch remote branch
+        shrun(cmd=['git','fetch','-p',git_remote_src.name, branch])
+        # shrun(cmd=['git','fetch','-p',git_remote_trg.name, branch])
+        
+        # Push force branches
         shrun(
           cmd=[
             'git','push','-q','--force', f'{git_remote_trg.name}',
