@@ -113,7 +113,7 @@ def ensure_gitignore(
     try:
         # https://git-scm.com/docs/git-check-ignore
         shrun(cmd=['git','check-ignore','--quiet', 
-          str(gitignore_parent.joinpath(ignore_pattern)) ])
+          f'{str(gitignore_parent)}/{ignore_pattern}' ])
     except shell.ShellError:
         # Ignore output file locally
         gitignore_path: Path = gitignore_parent.joinpath('.gitignore')
