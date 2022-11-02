@@ -44,7 +44,7 @@ jobs:
           context: ./gistops/iterate
           file: ./gistops/iterate/Dockerfile
           build-args: |
-            GISTOPS_BASE_IMAGE_TAG=latest
+            "GISTOPS_BASE_IMAGE_TAG=latest"
           tags: |
             ghcr.io/dandens/gistops-iterate:${{ env.IMAGE_TAG }}
             ghcr.io/dandens/gistops-iterate:latest
