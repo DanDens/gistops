@@ -14,9 +14,9 @@ RUN export PIP_DISABLE_PIP_VERSION_CHECK=1 && \
 RUN python3 -m build
 
 # ----------
-ARG GISTOPS_BASE_IMAGE_TAG
-FROM ghcr.io/dandens/gistops-base:$GISTOPS_BASE_IMAGE_TAG
+FROM ghcr.io/dandens/gistops-base:latest
 LABEL maintainer="DanDens <dandens@github.com>"
+ARG USER=dandens
 
 USER root
 WORKDIR /root
@@ -35,10 +35,6 @@ RUN curl -s https://github.com/jgm/pandoc/releases/download/2.19.2/pandoc-2.19.2
 RUN apt-get purge -y ruby
 RUN apt-get remove sqlite3 -y
 RUN apt-get clean
-
-# Create USER
-ARG USER=dandens
-RUN adduser --disabled-password --gecos '' ${USER}
 
 COPY --from=builder /build/dist /home/$USER/tmp
 RUN chmod -R ugo+rwx /home/$USER/tmp
