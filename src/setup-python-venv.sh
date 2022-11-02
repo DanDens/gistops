@@ -1,8 +1,8 @@
 #!/bin/bash
 set -e
 
-python3 -m pip install --user --upgrade pip
-python3 -m pip install --user virtualenv
+python3 -m pip install --upgrade pip
+python3 -m pip install virtualenv
 python3 -m venv ./venv
 
 source ./venv/bin/activate

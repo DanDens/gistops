@@ -1,3 +1,5 @@
+# https://pylint.pycqa.org/en/latest/user_guide/messages/messages_overview.html
+
 [DESIGN]
 max-args=8 ; Purely random number, just works
 
@@ -7,8 +9,8 @@ notes=FIXME,TODO ; To make additional remarks
 [pylint]
 disable=
 	R0913, ; Too many arguments, but might be necessary for google fire 
-	W0703, ; Catching too general exception Exception (broad-except)
-  W1203, ; Use lazy formatting in logging functions (logging-fstring-interpolation)
-	wrong-import-position, ; Unecessary exception which also leads to issues
-	no-name-in-module,
-	trailing-whitespace, ; Way too much hassle
+	W0703, ; broad-except: Catching too general exception is not worth it
+  W1203, ; logging-fstring-interpolation: Use lazy formatting in logging functions
+	C0413, ; wrong-import-position: Unecessary exception which also leads to issues
+	C0303, ; trailing-whitespace: Way too much hassle
+  C0411, ; wrong-import-order: due to semantical ordering is not supported

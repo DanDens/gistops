@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-GistOps Representation and Factories
+Gist Representation and Factories
 """
 import os
 import json
@@ -9,11 +9,7 @@ from pathlib import Path
 from dataclasses import dataclass
 from typing import List, Callable, Iterator
 
-from jsonschema import validate
-from jinja2 import Environment, BaseLoader
-
 import shell
-
 
 ##################
 # EXPORTED TYPES #
@@ -23,54 +19,52 @@ class GistOpsError(Exception):
 
 
 @dataclass
-class GistOps:
-    """ GistOps representation """
+class Gist:
+    """ Gist representation """
     root: Path
     path: Path
-    ops: dict
+    tags: dict
     commit_id: str
 
+
+def gist_to_basic_dict(gist: Gist) -> dict:
+    """Returns gist as dict using basic types"""
+    return {
+      'root': str(gist.root),
+      'path': str(gist.path),
+      'tags': gist.tags,
+      'commit_id': gist.commit_id }
+
+
+def j2_params(gist: Gist) -> dict:
+    """Returns the gist as dict"""
+    return {
+      'name': str(gist.path.name),
+      'dir': str(gist.path.parent),
+      'stem': str(gist.path.stem),
+      'suffix': str(gist.path.suffix),
+      'parent': str(gist.path.parent.name),
+      **gist_to_basic_dict(gist) }
+
+
+@dataclass
+class GistPackage:
+    """ Gist package """
+    gist: Gist
+    outpath: Path
+    dependencies: List[Path]
+
+
+def pckg_to_basic_dict(pckg: GistPackage) -> dict:
+    """Returns json string for gist package as dict using basic types"""
+    return {
+      'dependencies': [str(dep) for dep in pckg.dependencies],
+      'outpath': str(pckg.outpath),
+      'gist': { **gist_to_basic_dict(pckg.gist)} }
 
 #####################
 # PRIVATE FUNCTIONS #
 #####################
-def __j2_params(git_root_path: Path, gist_path: Path, git_commit_id: str):
-    return {
-      'root': str(git_root_path),
-      'dir': str(gist_path.parent),
-      'parent': str(gist_path.parent.name),
-      'file': str(gist_path.name),
-      'stem': str(gist_path.stem),
-      'suffix': str(gist_path.suffix),
-      'commit_id': str(git_commit_id)
-    }
-
-
-def __load_gistops(
-    git_root: Path,
-    gist_path: Path, 
-    ops_j2: str,
-    git_commit_id: str) -> GistOps:
-
-    gistops_j2_tmpl = Environment(loader=BaseLoader()).from_string(ops_j2)
-    gops_str: str = gistops_j2_tmpl.render(
-      __j2_params(git_root, gist_path,git_commit_id) )
-
-    ops: dict = json.loads(gops_str)
-    validate(instance=ops, schema={
-        "type": "object",
-        "properties": {
-            "publish": {
-                "type": "array",
-                "description": "Publishing Operations",
-                "items": {"type":"object"}
-            }
-        }
-    })
-
-    return GistOps(git_root, gist_path, ops, git_commit_id)
-
-
 def __gistops_attribute() -> str:
     return '[attr]gistops'
 
@@ -127,6 +121,22 @@ def __assert_gistops_attribute(
 ######################
 # EXPORTED FUNCTIONS #
 ######################
+def ensure_gitignore(
+  shrun: Callable[[List[str]], str], 
+  gitignore_parent: Path,
+  ignore_pattern: str ):
+    """Ensure gitignore added for pattern"""
+    try:
+        # https://git-scm.com/docs/git-check-ignore
+        shrun(cmd=['git','check-ignore','--quiet', 
+          f'{str(gitignore_parent)}/{ignore_pattern}' ])
+    except shell.ShellError:
+        # Ignore output file locally
+        gitignore_path: Path = gitignore_parent.joinpath('.gitignore')
+        with open(gitignore_path, 'a+', encoding='UTF-8') as gitignore_file:
+            gitignore_file.write(f'\n{ignore_pattern}')
+
+
 def assert_git_root(gist_absolute_path: Path) -> Path:
     """Locate git root directory from gist_path"""
     if not gist_absolute_path.exists():
@@ -167,14 +177,12 @@ def init_gistops(
           'a+', encoding='utf-8') as git_attributes_file:
             git_attributes_file.write(f'\n{__gistops_attribute()}')
 
-    # TODO: .gitignore -> .gistops/
 
-
-def iterate_gistops(
+def iterate_gists(
   shrun: Callable[[List[str],bool], str], 
   git_root: Path,
   gist_path: Path,
-  git_diff_hash: str) -> Iterator[GistOps]:
+  git_diff_hash: str) -> Iterator[Gist]:
     """Locate gists in path using gistops attribute stored in .gitattributes"""
     logger = logging.getLogger()
 
@@ -182,9 +190,7 @@ def iterate_gistops(
 
     gist_absolute_path = git_root.joinpath(gist_path).resolve()
     git_commit_id = shrun(
-      cmd=['git', 'log', '-1', '--pretty=%h'],
-      log_cmd_level=logging.DEBUG, 
-      hide_streams=True).strip()
+      cmd=['git', 'log', '-1', '--pretty=%h']).strip()
 
     git_diff_files: List[Path] = None
     if git_diff_hash is not None:
@@ -213,46 +219,40 @@ def iterate_gistops(
             for gitattr in shrun(
               cmd=[
                 'git','ls-files','|','git','check-attr',
-                'gistops',f'{str(git_dir)}/*.*'],
-              log_cmd_level=logging.DEBUG, hide_streams=True).splitlines():
+                'gistops',f'{str(git_dir)}/*.*']).splitlines():
 
                 if gitattr.split(': ')[-1] == 'unspecified':
                     continue # no gistops flag on this one
 
-                gist_file, _, ops_j2 = gitattr.split(': ')
+                gist_file, _, gist_tags = gitattr.split(': ')
                 if git_diff_files is not None and \
                     Path(gist_file) not in git_diff_files:
                     logger.info(f'{gist_file} unchanged for {git_diff_hash}')
                     continue
 
-                yield __load_gistops(
-                    git_root=git_root,
-                    gist_path=Path(gist_file),
-                    ops_j2=ops_j2,
-                    git_commit_id=git_commit_id )
+                yield Gist(
+                  git_root, 
+                  Path(gist_file), 
+                  json.loads(gist_tags) if gist_tags != 'set' else {}, 
+                  git_commit_id)
 
     elif gist_absolute_path.is_file():
         # https://git-scm.com/docs/git-check-attr
         gitattr = shrun(cmd=['git','check-attr','gistops', str(gist_path)])
         if gitattr != '': 
-            gist_file, _, ops_j2 = gitattr.split(' ')
+            gist_file, _, gist_tags = gitattr.split(' ')
             if git_diff_files is None or \
-                Path(gist_file) in git_diff_files:    
+                Path(gist_file) in git_diff_files:
 
-                yield __load_gistops(
-                  git_root=git_root,
-                  gist_path=gist_absolute_path.relative_to(
-                    git_root).joinpath(gist_file),
-                  ops_j2=ops_j2,
-                  git_commit_id=git_commit_id )
+                yield Gist(
+                  git_root, 
+                  gist_absolute_path.relative_to(
+                    git_root).joinpath(gist_file), 
+                  json.loads(gist_tags) if gist_tags != 'set' else {}, 
+                  git_commit_id)
 
     else:
         raise GistOpsError(
             f'{gist_path} is symbolic link. '
             'Symbolic links are not supported.'
             'Please provide file or directory')
-
-
-def j2_params(gist: GistOps) -> dict:
-    """Returns j2 params for rendering of gist related j2 templates"""
-    return __j2_params(gist.root, gist.path, gist.commit_id)

@@ -18,15 +18,14 @@ def shrun(
     cmd: List[str],
     cwd: Path,
     env: dict,
-    log_cmd_level: int = logging.DEBUG,
-    hide_streams: bool = False,
+    log_level: int = logging.INFO,
     enforce_absolute_silence: bool = False,
     do_not_execute: bool = False) -> str:
     """ Runs a command on shell"""
     
     if not enforce_absolute_silence:
         logger = logging.getLogger()
-        logger.log(log_cmd_level,f'> {" ".join(cmd)}')
+        logger.log(log_level,f'> {" ".join(cmd)}')
 
     if do_not_execute:
         return '' # Do nothing, please ... it is a dry run
@@ -36,10 +35,13 @@ def shrun(
             stdout = ctx.run( 
                 shell='sh',
                 command=" ".join(cmd),
-                hide=(hide_streams or enforce_absolute_silence),
+                hide='stdout',
                 env=env 
             ).stdout
     except UnexpectedExit as err:
         raise ShellError("unexpected exit") from err
+
+    if not enforce_absolute_silence:
+        logger.log(log_level,stdout)
 
     return stdout

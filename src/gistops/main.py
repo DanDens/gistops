@@ -3,7 +3,7 @@
 Command line arguments for GistOps Operations
 """
 import os
-import sys
+import json
 import logging
 from functools import partial
 from pathlib import Path
@@ -14,7 +14,7 @@ import fire
 import gists
 import shell
 import mirroring
-import publishing
+import converting
 import version
 
 
@@ -25,14 +25,17 @@ class GistOps():
     def __init__(self, 
       cwd: str = str( Path.cwd() ), 
       git_hash: str = None,
-      quiet: bool = False,
-      protected_envs: List[str] = os.environ.get(
-        'GISTOPS_PROTECTED_ENVS', []),
+      protected_envs: List[str] = os.environ.get('GISTOPS_PROTECTED_ENVS', []),
       dry_run: bool = False):
 
         logger = logging.getLogger()
-        logger.addHandler(logging.StreamHandler(sys.stdout))
+        logfile = logging.FileHandler(Path(cwd).joinpath('gistops.log'))
+        logfile.setFormatter(logging.Formatter(
+            '%(levelname)s %(asctime)s %(message)s'))
+        logger.addHandler(logfile)
         logger.setLevel(os.environ.get('LOG_LEVEL','INFO'))
+
+        logger.info(version.__version__)
 
         ############
         # Git Root #
@@ -41,9 +44,9 @@ class GistOps():
         self.__git_diff_hash = git_hash
         # Make git root current working directory 
         # and make path relative to git root
-        self.__git_root = gists.assert_git_root(
-          Path(cwd).resolve())
-        os.chdir(str(self.__git_root))
+        self.__git_root = gists.assert_git_root(Path(cwd).resolve())
+        # Important as gist.path is a unique key
+        os.chdir(str(self.__git_root)) 
         self.__gist_path = Path(cwd).relative_to(self.__git_root)
 
         ##################
@@ -70,19 +73,15 @@ class GistOps():
         self.__shrun: Callable[[List[str]], str] = partial(
           shell.shrun,
           env=shell_env,
-          cwd=self.__git_root.resolve(),
-          hide_streams=False,
-          log_cmd_level=logging.INFO,
-          enforce_absolute_silence=quiet,
-          do_not_execute=False) 
+          cwd=self.__git_root.resolve()) 
 
         self.__dry_run = dry_run
 
         ##########################
         # Pre-configure Iterator #
         ##########################
-        self.__iterate_gistops = partial(
-          gists.iterate_gistops, 
+        self.__iterate_gists = partial(
+          gists.iterate_gists, 
           git_root=self.__git_root, 
           gist_path=self.__gist_path, 
           git_diff_hash=self.__git_diff_hash)
@@ -104,23 +103,34 @@ class GistOps():
         """Validate gists as defined in .gitattributes"""
         logger = logging.getLogger()
         
-        shrun_validate = partial(
-          self.__shrun,
-          enforce_absolute_silence=True)
-
+        valid_gists: List[gists.Gist] = []
         try:
-            for gops in self.__iterate_gistops(shrun=shrun_validate):
-                publishing.publish(shrun=shrun_validate, gops=gops, dry_run=True)
-                logger.info(f'{gops.path} valid') 
-        except (gists.GistOpsError, publishing.PublishError) as err:
-            logger.error(f'{gops.path} invalid: {err}') 
+            for gist in self.__iterate_gists(self.__shrun):
+                converting.convert(shrun=self.__shrun, gist=gist, dry_run=True)
+                valid_gists.append(gist)
+                logger.info(f'{gist.path} valid') 
+        except gists.GistOpsError as err:
+            logger.error(f'{gist.path} invalid: {err}') 
+        
+        print( json.dumps(
+          { 'gists':  [gists.gist_to_basic_dict(gist) for gist in valid_gists] }) )
 
 
-    def publish(self):
-        """Render and Publish gists as defined by .gitattributes"""
-        for gops in self.__iterate_gistops(shrun=self.__shrun):
-            publishing.publish(shrun=self.__shrun, gops=gops,dry_run=self.__dry_run)
+    def convert(self, outpath: str='.'):
+        """Convert gists using *.pandoc.yml"""
 
+        pckgs: List[gists.GistPackage] = []
+        for gist in self.__iterate_gists(self.__shrun):
+            pckgs.extend(
+              converting.convert(
+                shrun=self.__shrun, 
+                gist=gist, 
+                outpath=Path(outpath),
+                dry_run=self.__dry_run) )
+
+        print( json.dumps(
+          { 'gists':  [gists.pckg_to_basic_dict(pckg) for pckg in pckgs] }) )
+        
 
     def mirror(self,
       branch_regex: str,
