@@ -15,7 +15,7 @@ RUN python3 -m build
 
 # ----------
 ARG GISTOPS_BASE_IMAGE_TAG
-FROM ghcr.io/dandens/gistops-base:$GISTOPS_BASE_IMAGE_TAG
+FROM ghcr.io/dandens/gistops-base:${GISTOPS_BASE_IMAGE_TAG}
 LABEL maintainer="DanDens <dandens@github.com>"
 
 USER root
