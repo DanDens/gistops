@@ -58,7 +58,7 @@ class GistOps():
         return version.__version__
 
 
-    def convert(self, event: str, outpath: str='.') -> str:
+    def convert(self, event_base64: str, outpath: str='.') -> str:
         """Convert gists using *.pandoc.yml"""
 
         try:
@@ -69,7 +69,7 @@ class GistOps():
               'in order to be accessable from downstream ops') from err
 
         convs: List[gists.ConvertedGist] = []
-        for gist in gists.from_event(event):
+        for gist in gists.from_event(event_base64):
             convs.extend(
               converting.convert(
                 shrun=self.__shrun, 

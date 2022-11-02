@@ -93,8 +93,6 @@ def convert(
     """Convert gists using pandoc configurations""" 
     logger = logging.getLogger()
 
-    outpath.mkdir(parents=True, exist_ok=True)
-
     convs: List[gists.ConvertedGist] = []
     for pandoc_j2_path in gist.path.parent.glob('*.pandoc.j2'):
 
@@ -107,6 +105,7 @@ def convert(
 
         logger.info(f'> echo "..." > {pandoc_yml_path} ')
         if not dry_run:
+            pandoc_yml_path.parent.mkdir(parents=True, exist_ok=True)
             with open(pandoc_yml_path,'w',encoding='utf-8') as pandoc_yml_file:
                 pandoc_yml_file.write( yaml.dump(pandoc_yml) )
 
@@ -119,6 +118,8 @@ def convert(
             if not dry_run:
                 output_filepath.unlink()
 
+        if not dry_run:
+          output_filepath.parent.mkdir(parents=True, exist_ok=True)
         shrun(
           cmd=[
             'pandoc',str(gist.path),
@@ -130,7 +131,7 @@ def convert(
         convs.append(gists.ConvertedGist(
           gist=gist,
           path=output_filepath,
-          deps=[gist.path.parent.joinpath(r) for r in pandoc_yml['resource-path']] ))
+          dependencies=[gist.path.parent.joinpath(r) for r in pandoc_yml['resource-path']] ))
     return convs
 
 

@@ -3,12 +3,14 @@
 Gist Representation and Factories
 """
 import json
+import base64
 from pathlib import Path
 from dataclasses import dataclass
 from typing import List
 from jsonschema import validate
 
 import version
+
 
 ##################
 # EXPORTED TYPES #
@@ -61,7 +63,16 @@ def to_event(gists: List[Gist]) -> str:
         "required": ["semver","record-type","records"]
     })
 
-    return json.dumps(json.dumps(event, separators=(',',':')))
+    def __to_base64(event_str: str) -> str:
+        message_bytes = event_str.encode('ascii')
+        base64_bytes = base64.b64encode(message_bytes)
+        return base64_bytes.decode('ascii')
+
+    return __to_base64(
+      json.dumps(event, separators=(',',':')))
+
+
+    # Encode base64
 
 
 def assert_git_root(gist_absolute_path: Path) -> Path:

@@ -3,6 +3,7 @@
 Gist Representation and Factories
 """
 import json
+import base64
 from pathlib import Path
 from dataclasses import dataclass
 from typing import List
@@ -27,10 +28,18 @@ class Gist:
     tags: dict
 
 
-def from_event(event_str: str) -> List[Gist]:
+def from_event(event_base64: str) -> List[Gist]:
     """ Read Gists Event """ 
 
-    event: dict = json.loads(event_str)
+    try:
+        def __from_base64(event_base64: str) -> str:
+            base64_bytes = event_base64.encode('ascii')
+            message_bytes = base64.b64decode(base64_bytes)
+            return message_bytes.decode('ascii')
+
+        event: dict = json.loads(__from_base64(event_base64))
+    except json.JSONDecodeError as err:
+        raise GistOpsError('Invalid event') from err
 
     validate(instance=event, schema={
         "type": "object",
@@ -60,7 +69,7 @@ def from_event(event_str: str) -> List[Gist]:
         raise GistOpsError(
           f"Event semver major version differ {event['semver']} != {version.__semver__}")
 
-    return [ Gist(rec['path'], rec['commit_id'], rec['tags']) for rec in event['records'] ]
+    return [ Gist(Path(rec['path']), rec['commit_id'], rec['tags']) for rec in event['records'] ]
 
 
 def __gist_as_dict(gist: Gist) -> dict:
@@ -134,7 +143,12 @@ def to_event(pckgs: List[ConvertedGist]) -> str:
         "required": ["semver","record-type","records"]
     })
 
-    return json.dumps(json.dumps(event))
+    def __to_base64(event_str: str) -> str:
+        message_bytes = event_str.encode('ascii')
+        base64_bytes = base64.b64encode(message_bytes)
+        return base64_bytes.decode('ascii')
+
+    return __to_base64(json.dumps(event))
 
 
 ######################
