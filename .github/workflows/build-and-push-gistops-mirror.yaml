@@ -1,0 +1,52 @@
+# https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry
+name: build-and-deploy-gistops-mirror
+run-name: Build and Push ghcr.io/dandens/gistops-mirror 
+on:
+  push:
+    branches:
+      - 'main'
+    paths:
+      - 'gistops/mirror/**'
+  workflow_run:
+    workflows: ["build-and-deploy-gistops-base"]
+    types:
+      - completed
+jobs:
+  build-and-push-gistops-mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Git Repository
+        uses: actions/checkout@v2
+
+      - name: Use Git Commit Id as IMAGE_TAG 
+        run: | 
+          GIT_COMMIT_SHORT_ID=$(git rev-parse --short HEAD)
+          echo "IMAGE_TAG=$GIT_COMMIT_SHORT_ID" >> $GITHUB_ENV
+
+      - name: Retrieve GITHUB_TOKEN
+        uses: actions/labeler@v4
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to Github Packages
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and Push Image
+        uses: docker/build-push-action@v2
+        with:
+          context: ./gistops/mirror
+          file: ./gistops/mirror/Dockerfile
+          build-args: |
+            GISTOPS_BASE_IMAGE_TAG=latest
+          tags: |
+            ghcr.io/dandens/gistops-mirror:${{ env.IMAGE_TAG }}
+            ghcr.io/dandens/gistops-mirror:latest
+          push: ${{ github.ref == 'refs/heads/main' }}
+          

@@ -1,12 +1,12 @@
 # https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry
-name: build-and-deploy-gistops
-run-name: Build and Push ghcr.io/dandens/gistops 
+name: build-and-deploy-gistops-iterate
+run-name: Build and Push ghcr.io/dandens/gistops-iterate
 on:
   push:
     branches:
       - 'main'
     paths:
-      - 'iterate/**'
+      - 'gistops/iterate/**'
   workflow_run:
     workflows: ["build-and-deploy-gistops-base"]
     types:
@@ -41,8 +41,10 @@ jobs:
       - name: Build and Push Image
         uses: docker/build-push-action@v2
         with:
-          context: ./iterate
-          file: ./iterate/Dockerfile
+          context: ./gistops/iterate
+          file: ./gistops/iterate/Dockerfile
+          build-args: |
+            GISTOPS_BASE_IMAGE_TAG=latest
           tags: |
             ghcr.io/dandens/gistops-iterate:${{ env.IMAGE_TAG }}
             ghcr.io/dandens/gistops-iterate:latest

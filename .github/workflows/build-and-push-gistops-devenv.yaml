@@ -8,7 +8,7 @@ on:
     paths:
       - 'dev/container/**'
   workflow_run:
-    workflows: ["build-and-deploy-gistops"]
+    workflows: ["build-and-deploy-gistops-base"]
     types:
       - completed
 
@@ -44,6 +44,8 @@ jobs:
         with:
           context: ./dev/container
           file: ./dev/container/Dockerfile
+          build-args: |
+            GISTOPS_BASE_IMAGE_TAG=latest
           tags: |
             ghcr.io/dandens/gistops-devenv:${{ env.IMAGE_TAG }}
             ghcr.io/dandens/gistops-devenv:latest
