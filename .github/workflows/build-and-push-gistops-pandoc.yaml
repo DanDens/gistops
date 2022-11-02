@@ -1,18 +1,18 @@
 # https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry
-name: build-and-deploy-gistops-convert
-run-name: Build and Push ghcr.io/dandens/gistops-convert
+name: build-and-deploy-gistops-pandoc
+run-name: Build and Push ghcr.io/dandens/gistops-pandoc
 on:
   push:
     branches:
       - 'main'
     paths:
-      - 'gistops/convert/**'
+      - 'gistops/pandoc/**'
   workflow_run:
     workflows: ["build-and-deploy-gistops-base"]
     types:
       - completed
 jobs:
-  build-and-push-gistops-convert:
+  build-and-push-gistops-pandoc:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Git Repository
@@ -41,12 +41,12 @@ jobs:
       - name: Build and Push Image
         uses: docker/build-push-action@v2
         with:
-          context: ./gistops/convert
-          file: ./gistops/convert/Dockerfile
+          context: ./gistops/pandoc
+          file: ./gistops/pandoc/Dockerfile
           build-args: |
             GISTOPS_BASE_IMAGE_TAG=latest
           tags: |
-            ghcr.io/dandens/gistops-convert:${{ env.IMAGE_TAG }}
-            ghcr.io/dandens/gistops-convert:latest
+            ghcr.io/dandens/gistops-pandoc:${{ env.IMAGE_TAG }}
+            ghcr.io/dandens/gistops-pandoc:latest
           push: ${{ github.ref == 'refs/heads/main' }}
           
