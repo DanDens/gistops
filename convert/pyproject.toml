@@ -6,11 +6,11 @@ build-backend = "setuptools.build_meta"
 name = "gistops"
 version = "0.1.0"
 authors = [
-  { name="Jens Orthmann", email="jens.orthmann@gmail.com" },
+  { name="DanDens" }
 ]
 description = "Operations on Gists"
 readme = "README.md"
-keywords = ["gist", "git", "pandoc", "git-secret", "markdown"]
+keywords = ["gist", "git", "pandoc", "convert", "markdown"]
 requires-python = ">=3.7"
 classifiers = [
     "Programming Language :: Python :: 3",
@@ -27,7 +27,6 @@ dependencies = [
 
 [project.urls]
 "Homepage" = "https://github.com/dandens/gistops"
-
 
 [project.scripts]
 gistops = "gistops.main:main"
