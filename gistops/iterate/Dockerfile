@@ -16,6 +16,7 @@ RUN python3 -m build
 # ----------
 FROM ghcr.io/dandens/gistops-base:latest
 LABEL maintainer="DanDens <dandens@github.com>"
+ARG USER=dandens
 
 USER root
 WORKDIR /root
@@ -24,7 +25,6 @@ COPY --from=builder /build/dist /home/$USER/tmp
 RUN chmod -R ugo+rwx /home/$USER/tmp
 
 # Run as USER from here
-ARG USER=dandens
 USER ${USER}
 WORKDIR /home/${USER}
 
