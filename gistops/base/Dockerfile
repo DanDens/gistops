@@ -33,9 +33,6 @@ COPY --from=builder /usr/local/bin/git-crypt /usr/local/bin/git-crypt
 ARG USER=dandens
 RUN adduser --disabled-password --gecos '' ${USER}
 
-COPY --from=builder /build/dist /home/$USER/tmp
-RUN chmod -R ugo+rwx /home/$USER/tmp
-
 # Run as USER from here
 USER ${USER}
 WORKDIR /home/${USER}
