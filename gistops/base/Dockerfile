@@ -25,6 +25,8 @@ RUN apt-get -y install git
 RUN apt-get -y install gnupg
 # Required for downstream scripts
 RUN apt-get -y install jq curl
+# Cleanup cache
+RUN apt-get clean
 
 # Copy git-crypt from build
 COPY --from=builder /usr/local/bin/git-crypt /usr/local/bin/git-crypt
