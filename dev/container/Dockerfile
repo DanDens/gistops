@@ -1,4 +1,5 @@
-FROM ghcr.io/dandens/gistops-base:latest
+ARG GISTOPS_BASE_IMAGE_TAG=latest
+FROM ghcr.io/dandens/gistops-base:${GISTOPS_BASE_IMAGE_TAG}
 LABEL maintainer="DanDens <dandens@github.com>"
 ARG USER=dandens
 
@@ -11,7 +12,7 @@ RUN apt-get update
 RUN apt-get -y install wget texlive-xetex librsvg2-bin
 
 # https://pandoc.org/installing.html
-RUN wget https://github.com/jgm/pandoc/releases/download/2.19.2/pandoc-2.19.2-linux-amd64.tar.gz && \
+RUN wget --quiet https://github.com/jgm/pandoc/releases/download/2.19.2/pandoc-2.19.2-linux-amd64.tar.gz && \
     tar xvzf pandoc-2.19.2-linux-amd64.tar.gz --strip-components 1 -C /usr/local && \
     rm pandoc-2.19.2-linux-amd64.tar.gz
  

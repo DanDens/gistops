@@ -14,7 +14,8 @@ RUN export PIP_DISABLE_PIP_VERSION_CHECK=1 && \
 RUN python3 -m build
 
 # ----------
-FROM ghcr.io/dandens/gistops-base:latest
+ARG GISTOPS_BASE_IMAGE_TAG=latest
+FROM ghcr.io/dandens/gistops-base:${GISTOPS_BASE_IMAGE_TAG}
 LABEL maintainer="DanDens <dandens@github.com>"
 ARG USER=dandens
 
