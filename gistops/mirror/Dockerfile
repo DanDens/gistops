@@ -14,9 +14,9 @@ RUN export PIP_DISABLE_PIP_VERSION_CHECK=1 && \
 RUN python3 -m build
 
 # ----------
-ARG GISTOPS_BASE_IMAGE_TAG
-FROM ghcr.io/dandens/gistops-base:$GISTOPS_BASE_IMAGE_TAG
+FROM ghcr.io/dandens/gistops-base:latest
 LABEL maintainer="DanDens <dandens@github.com>"
+ARG USER=dandens
 
 USER root
 WORKDIR /root
@@ -25,7 +25,6 @@ COPY --from=builder /build/dist /home/$USER/tmp
 RUN chmod -R ugo+rwx /home/$USER/tmp
 
 # Run as USER from here
-ARG USER=dandens
 USER ${USER}
 WORKDIR /home/${USER}
 
