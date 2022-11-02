@@ -1,5 +1,4 @@
-ARG GISTOPS_BASE_IMAGE_TAG=latest
-FROM ghcr.io/dandens/gistops-base:${GISTOPS_BASE_IMAGE_TAG}
+FROM ghcr.io/dandens/gistops-base:latest
 LABEL maintainer="DanDens <dandens@github.com>"
 ARG USER=dandens
 
