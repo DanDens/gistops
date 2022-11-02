@@ -27,19 +27,40 @@ class Gist:
     commit_id: str
 
 
-def j2_params(gist: Gist) -> dict:
-    """Returns the gist as dict"""
+def gist_to_basic_dict(gist: Gist) -> dict:
+    """Returns gist as dict using basic types"""
     return {
       'root': str(gist.root),
       'path': str(gist.path),
+      'tags': gist.tags,
+      'commit_id': gist.commit_id }
+
+
+def j2_params(gist: Gist) -> dict:
+    """Returns the gist as dict"""
+    return {
       'name': str(gist.path.name),
       'dir': str(gist.path.parent),
       'stem': str(gist.path.stem),
       'suffix': str(gist.path.suffix),
       'parent': str(gist.path.parent.name),
-      'tags': gist.tags,
-      'commit_id': str(gist.commit_id)
-    }
+      **gist_to_basic_dict(gist) }
+
+
+@dataclass
+class GistPackage:
+    """ Gist package """
+    gist: Gist
+    outpath: Path
+    dependencies: List[Path]
+
+
+def pckg_to_basic_dict(pckg: GistPackage) -> dict:
+    """Returns json string for gist package as dict using basic types"""
+    return {
+      'dependencies': [str(dep) for dep in pckg.dependencies],
+      'outpath': str(pckg.outpath),
+      'gist': { **gist_to_basic_dict(pckg.gist)} }
 
 #####################
 # PRIVATE FUNCTIONS #
@@ -100,11 +121,6 @@ def __assert_gistops_attribute(
 ######################
 # EXPORTED FUNCTIONS #
 ######################
-def gitignored_path() -> Path:
-    """Path used for hiding temporary files"""
-    return Path('.gistops')
-
-
 def ensure_gitignore(
   shrun: Callable[[List[str]], str], 
   gitignore_parent: Path,
@@ -161,9 +177,6 @@ def init_gistops(
           'a+', encoding='utf-8') as git_attributes_file:
             git_attributes_file.write(f'\n{__gistops_attribute()}')
 
-    # Ensure gitignored path is actually ignored
-    ensure_gitignore(shrun, git_root, gitignored_path())
-
 
 def iterate_gists(
   shrun: Callable[[List[str],bool], str], 
@@ -177,9 +190,7 @@ def iterate_gists(
 
     gist_absolute_path = git_root.joinpath(gist_path).resolve()
     git_commit_id = shrun(
-      cmd=['git', 'log', '-1', '--pretty=%h'],
-      log_cmd_level=logging.DEBUG, 
-      hide_streams=True).strip()
+      cmd=['git', 'log', '-1', '--pretty=%h']).strip()
 
     git_diff_files: List[Path] = None
     if git_diff_hash is not None:
@@ -208,8 +219,7 @@ def iterate_gists(
             for gitattr in shrun(
               cmd=[
                 'git','ls-files','|','git','check-attr',
-                'gistops',f'{str(git_dir)}/*.*'],
-              log_cmd_level=logging.DEBUG, hide_streams=True).splitlines():
+                'gistops',f'{str(git_dir)}/*.*']).splitlines():
 
                 if gitattr.split(': ')[-1] == 'unspecified':
                     continue # no gistops flag on this one

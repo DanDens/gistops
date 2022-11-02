@@ -6,12 +6,12 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "gistops render",
+      "name": "gistops convert",
       "type": "python",
       "request": "launch",
       "program": "${workspaceRoot}/src/gistops/main.py",
-      "args": ["render"],
-      "cwd": "/home/dandens/ws/devops-reports-2022",
+      "args": ["convert", "--outpath=trg"],
+      "cwd": "/home/dandens/ws/DevOps Reports/devops-reports-2022",
       "env": {},
       "console": "integratedTerminal",
       "justMyCode": true

@@ -114,7 +114,6 @@ def mirror(
     for branch in branches:
         # Fetch remote branch
         shrun(cmd=['git','fetch','-p',git_remote_src.name, branch])
-        # shrun(cmd=['git','fetch','-p',git_remote_trg.name, branch])
         
         # Push force branches
         shrun(
