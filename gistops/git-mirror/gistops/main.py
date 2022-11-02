@@ -91,6 +91,25 @@ class GistOps():
           dry_run = self.__dry_run)
 
 
+    def run(self,
+      branch_regex: str,
+      git_src_url: str = None,
+      git_trg_url: str = None,
+      git_src_username: str = None,
+      git_src_password: str = None,
+      git_trg_username: str = None,
+      git_trg_password: str = None ) -> str:
+        """Iterate gists in git tree (that have changed)"""
+        return self.mirror(
+          branch_regex,
+          git_src_url,
+          git_trg_url,
+          git_src_username,
+          git_src_password,
+          git_trg_username,
+          git_trg_password)
+
+
 def main():
     """gistops entrypoint"""
     fire.Fire(GistOps)

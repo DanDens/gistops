@@ -77,10 +77,15 @@ class GistOps():
         return version.__version__
 
 
-    def iterate(self) -> str:
+    def list(self) -> str:
         """Iterate gists in git tree (that have changed)"""
         return gists.to_event( 
           list(self.__iterate_gists(self.__shrun)) )
+
+
+    def run(self) -> str:
+        """Iterate gists in git tree (that have changed)"""
+        return self.list()
 
 
 def main():

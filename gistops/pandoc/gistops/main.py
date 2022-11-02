@@ -80,6 +80,11 @@ class GistOps():
         return gists.to_event( convs )
 
 
+    def run(self, event_base64: str, outpath: str='.') -> str:
+        """Convert gists using *.pandoc.yml"""
+        return self.convert(event_base64, outpath)
+
+
 def main():
     """gistops entrypoint"""
     fire.Fire(GistOps)
