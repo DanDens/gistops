@@ -1,19 +1,18 @@
 # https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry
-name: build-and-push-gistops-devenv
-run-name: Build and push ghcr.io/dandens/gistops-devenv
+name: build-and-deploy-gistops-mirror
+run-name: Build and Push ghcr.io/dandens/gistops-mirror 
 on:
   push:
     branches:
       - 'main'
     paths:
-      - 'dev/container/**'
+      - 'gistops/mirror/**'
   workflow_run:
     workflows: ["build-and-deploy-gistops-base"]
     types:
       - completed
-
 jobs:
-  build-and-push-gistops-devenv:
+  build-and-push-gistops-mirror:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Git Repository
@@ -42,11 +41,12 @@ jobs:
       - name: Build and Push Image
         uses: docker/build-push-action@v2
         with:
-          context: ./dev/container
-          file: ./dev/container/Dockerfile
+          context: ./gistops/mirror
+          file: ./gistops/mirror/Dockerfile
           build-args: |
             GISTOPS_BASE_IMAGE_TAG=latest
           tags: |
-            ghcr.io/dandens/gistops-devenv:${{ env.IMAGE_TAG }}
-            ghcr.io/dandens/gistops-devenv:latest
+            ghcr.io/dandens/gistops-mirror:${{ env.IMAGE_TAG }}
+            ghcr.io/dandens/gistops-mirror:latest
           push: ${{ github.ref == 'refs/heads/main' }}
+          

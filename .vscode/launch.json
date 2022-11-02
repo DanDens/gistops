@@ -6,10 +6,21 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "gistops convert",
+      "name": "gistops-iterate",
       "type": "python",
       "request": "launch",
-      "program": "${workspaceRoot}/src/gistops/main.py",
+      "program": "${workspaceRoot}/iterate/gistops/main.py",
+      "args": ["iterate"],
+      "cwd": "/home/dandens/ws/DevOps Reports/devops-reports-2022",
+      "env": {},
+      "console": "integratedTerminal",
+      "justMyCode": true
+    },
+    {
+      "name": "gistops-convert",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceRoot}/convert/gistops/main.py",
       "args": ["convert", "--outpath=trg"],
       "cwd": "/home/dandens/ws/DevOps Reports/devops-reports-2022",
       "env": {},

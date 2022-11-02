@@ -6,61 +6,11 @@ import os
 import json
 import logging
 from pathlib import Path
-from dataclasses import dataclass
 from typing import List, Callable, Iterator
 
 import shell
+import gists
 
-##################
-# EXPORTED TYPES #
-##################
-class GistOpsError(Exception):
-    """ GistOps representation error """
-
-
-@dataclass
-class Gist:
-    """ Gist representation """
-    root: Path
-    path: Path
-    tags: dict
-    commit_id: str
-
-
-def gist_to_basic_dict(gist: Gist) -> dict:
-    """Returns gist as dict using basic types"""
-    return {
-      'root': str(gist.root),
-      'path': str(gist.path),
-      'tags': gist.tags,
-      'commit_id': gist.commit_id }
-
-
-def j2_params(gist: Gist) -> dict:
-    """Returns the gist as dict"""
-    return {
-      'name': str(gist.path.name),
-      'dir': str(gist.path.parent),
-      'stem': str(gist.path.stem),
-      'suffix': str(gist.path.suffix),
-      'parent': str(gist.path.parent.name),
-      **gist_to_basic_dict(gist) }
-
-
-@dataclass
-class GistPackage:
-    """ Gist package """
-    gist: Gist
-    outpath: Path
-    dependencies: List[Path]
-
-
-def pckg_to_basic_dict(pckg: GistPackage) -> dict:
-    """Returns json string for gist package as dict using basic types"""
-    return {
-      'dependencies': [str(dep) for dep in pckg.dependencies],
-      'outpath': str(pckg.outpath),
-      'gist': { **gist_to_basic_dict(pckg.gist)} }
 
 #####################
 # PRIVATE FUNCTIONS #
@@ -112,7 +62,7 @@ def __assert_gistops_attribute(
         except IOError:
             pass
 
-    raise GistOpsError(
+    raise gists.GistOpsError(
         'Could not locate [attr]gistops in any known '
         '.gitattribute or gitattributes file. '
         'Please run "gistops init" first')
@@ -121,46 +71,6 @@ def __assert_gistops_attribute(
 ######################
 # EXPORTED FUNCTIONS #
 ######################
-def ensure_gitignore(
-  shrun: Callable[[List[str]], str], 
-  gitignore_parent: Path,
-  ignore_pattern: str ):
-    """Ensure gitignore added for pattern"""
-    try:
-        # https://git-scm.com/docs/git-check-ignore
-        shrun(cmd=['git','check-ignore','--quiet', 
-          f'{str(gitignore_parent)}/{ignore_pattern}' ])
-    except shell.ShellError:
-        # Ignore output file locally
-        gitignore_path: Path = gitignore_parent.joinpath('.gitignore')
-        with open(gitignore_path, 'a+', encoding='UTF-8') as gitignore_file:
-            gitignore_file.write(f'\n{ignore_pattern}')
-
-
-def assert_git_root(gist_absolute_path: Path) -> Path:
-    """Locate git root directory from gist_path"""
-    if not gist_absolute_path.exists():
-        raise GistOpsError(f'{gist_absolute_path} does not exist')
-
-    def traverse_upwards(gist_path: Path) -> Path:
-        if gist_path == gist_path.parent:
-            return None
-
-        if gist_path.is_dir():
-            if len(list(gist_path.glob('.git'))) == 1:
-                return gist_path
-
-        return traverse_upwards(gist_path.parent)
-
-    git_root_path = traverse_upwards(gist_absolute_path.resolve())
-    if not git_root_path:
-        raise GistOpsError(
-            f'{gist_absolute_path} is not in a git repository. '
-            'Please run from valid git repository')
-
-    return git_root_path
-
-
 def init_gistops(
   shrun: Callable[[List[str],bool], str],
   git_root: Path):
@@ -170,7 +80,7 @@ def init_gistops(
     # Ensure gistops attribute
     try:
         __assert_gistops_attribute(shrun, git_root)
-    except GistOpsError:
+    except gists.GistOpsError:
         # Create '.git/info/attributes' file
         logger.info(f'Adding {__gistops_attribute()} to .git/info/attributes')
         with open(git_root.joinpath('.git/info/attributes'),
@@ -182,7 +92,7 @@ def iterate_gists(
   shrun: Callable[[List[str],bool], str], 
   git_root: Path,
   gist_path: Path,
-  git_diff_hash: str) -> Iterator[Gist]:
+  git_diff_hash: str) -> Iterator[gists.Gist]:
     """Locate gists in path using gistops attribute stored in .gitattributes"""
     logger = logging.getLogger()
 
@@ -230,11 +140,10 @@ def iterate_gists(
                     logger.info(f'{gist_file} unchanged for {git_diff_hash}')
                     continue
 
-                yield Gist(
-                  git_root, 
-                  Path(gist_file), 
-                  json.loads(gist_tags) if gist_tags != 'set' else {}, 
-                  git_commit_id)
+                yield gists.Gist(
+                  path=Path(gist_file), 
+                  commit_id=git_commit_id,
+                  tags=json.loads(gist_tags) if gist_tags != 'set' else {} )
 
     elif gist_absolute_path.is_file():
         # https://git-scm.com/docs/git-check-attr
@@ -244,15 +153,14 @@ def iterate_gists(
             if git_diff_files is None or \
                 Path(gist_file) in git_diff_files:
 
-                yield Gist(
-                  git_root, 
-                  gist_absolute_path.relative_to(
+                yield gists.Gist(
+                  path=gist_absolute_path.relative_to(
                     git_root).joinpath(gist_file), 
-                  json.loads(gist_tags) if gist_tags != 'set' else {}, 
-                  git_commit_id)
+                  commit_id=git_commit_id,
+                  tags=json.loads(gist_tags) if gist_tags != 'set' else {})
 
     else:
-        raise GistOpsError(
+        raise gists.GistOpsError(
             f'{gist_path} is symbolic link. '
             'Symbolic links are not supported.'
             'Please provide file or directory')

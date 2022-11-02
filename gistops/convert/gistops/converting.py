@@ -10,6 +10,7 @@ from typing import Callable, List, Any
 import yaml
 from jinja2 import BaseLoader, Environment
 
+import shell
 import gists
 
 
@@ -35,6 +36,22 @@ def __render_j2(gist:gists.Gist, pandoc_j2_path: Path) -> dict:
     return pandoc_yml
 
 
+def __ensure_gitignore(
+  shrun: Callable[[List[str]], str], 
+  gitignore_parent: Path,
+  ignore_pattern: str ):
+    """Ensure gitignore added for pattern"""
+    try:
+        # https://git-scm.com/docs/git-check-ignore
+        shrun(cmd=['git','check-ignore','--quiet', 
+          f'{str(gitignore_parent)}/{ignore_pattern}' ])
+    except shell.ShellError:
+        # Ignore output file locally
+        gitignore_path: Path = gitignore_parent.joinpath('.gitignore')
+        with open(gitignore_path, 'a+', encoding='UTF-8') as gitignore_file:
+            gitignore_file.write(f'\n{ignore_pattern}')
+
+
 def __gitignore_new(func):
     """Can be used to ensure new files or directories are ignored"""
     @wraps(func)
@@ -44,30 +61,24 @@ def __gitignore_new(func):
              args[0] if len(args) >= 1 else kwargs['shrun']
         gist: gists.Gist = \
              args[1] if len(args) > 0 else kwargs['gist']
-        outpath: Path = \
-             args[2] if len(args) > 1 else kwargs['outpath']
 
-        try:
-            Path(outpath).resolve().relative_to(gist.root)
-            pre_existing = list(gist.path.parent.iterdir())
-        except ValueError:
-            pre_existing = None # outpath not in git -> no gitignore check
-
+        pre_existing = list(gist.path.parent.iterdir())
+        
         try:
             return func(*args, **kwargs)
         finally:
-            if pre_existing is not None:
-                for ignore_candidate in gist.path.parent.iterdir():
-                    if ignore_candidate in pre_existing:
-                        continue
+            for ignore_candidate in gist.path.parent.iterdir():
+                if ignore_candidate in pre_existing:
+                    continue
 
-                    if ignore_candidate.is_file():
-                        ignore_pattern = ignore_candidate.name
-                    elif ignore_candidate.is_dir():
-                        ignore_pattern = f'{ignore_candidate.name}/'
-                    
-                    gists.ensure_gitignore(
-                      shrun, gist.path.parent, ignore_pattern)
+                if ignore_candidate.is_file():
+                    ignore_pattern = ignore_candidate.name
+                elif ignore_candidate.is_dir():
+                    ignore_pattern = f'{ignore_candidate.name}/'
+                
+                __ensure_gitignore(
+                  shrun, gist.path.parent, ignore_pattern)
+
     return decorator_func
 
 ######################
@@ -78,13 +89,13 @@ def convert(
   shrun: Callable[[List[str]], str], 
   gist: gists.Gist,
   outpath: Path,
-  dry_run: bool = False) -> List[gists.GistPackage]:
+  dry_run: bool = False) -> List[gists.ConvertedGist]:
     """Convert gists using pandoc configurations""" 
     logger = logging.getLogger()
 
     outpath.mkdir(parents=True, exist_ok=True)
 
-    pcks = []
+    convs: List[gists.ConvertedGist] = []
     for pandoc_j2_path in gist.path.parent.glob('*.pandoc.j2'):
 
         # Render pandoc config
@@ -116,11 +127,11 @@ def convert(
             f'--resource-path={gist.path.parent}'],
           do_not_execute=dry_run)
 
-        pcks.append(gists.GistPackage(
-          gist,
-          output_filepath,
-          [gist.path.parent.joinpath(r) for r in pandoc_yml['resource-path']] ))
-    return pcks
+        convs.append(gists.ConvertedGist(
+          gist=gist,
+          path=output_filepath,
+          deps=[gist.path.parent.joinpath(r) for r in pandoc_yml['resource-path']] ))
+    return convs
 
 
 def cleanup(
