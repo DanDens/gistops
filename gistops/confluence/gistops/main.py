@@ -4,9 +4,7 @@ Command line arguments for GistOps Operations
 """
 import os
 import logging
-from functools import partial
 from pathlib import Path
-from typing import Callable, List
 
 import fire
 

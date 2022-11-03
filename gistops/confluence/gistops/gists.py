@@ -33,7 +33,8 @@ class ConvertedGist:
     """ Gist package """
     gist: Gist
     path: Path
-    dependencies: List[Path]
+    title: str
+    deps: List[Path]
 
 
 def from_event(event_base64: str) -> List[Gist]:
@@ -69,9 +70,10 @@ def from_event(event_base64: str) -> List[Gist]:
                             "required": ["path","commit_id","tags"]
                         },
                         "path": {"type": "string"},
+                        "title": {"type": "string"},
                         "deps": {"type":"array", "items": {"type":"string"}}
                     },
-                    "required": ["gist","path","deps"]
+                    "required": ["gist","path","title","deps"]
                 }
             }
         },
@@ -88,8 +90,9 @@ def from_event(event_base64: str) -> List[Gist]:
     def __to_converterted_gist(rec: dict) -> ConvertedGist:
         return ConvertedGist(
           gist=Gist(Path(rec['gist']['path']), rec['gist']['commit_id'], rec['gist']['tags']), 
-          path=Path(rec['path']), 
-          dependencies=rec['deps'] )
+          path=Path(rec['path']),
+          title=rec['title'], 
+          deps=[Path(r) for r in rec['deps']] )
 
     return [ __to_converterted_gist(rec) for rec in event['records'] ]
 

@@ -96,7 +96,8 @@ class ConvertedGist:
     """ Gist package """
     gist: Gist
     path: Path
-    dependencies: List[Path]
+    title: str
+    deps: List[Path]
 
 
 def to_event(pckgs: List[ConvertedGist]) -> str:
@@ -107,7 +108,8 @@ def to_event(pckgs: List[ConvertedGist]) -> str:
         return {
         'gist': __gist_as_dict(pckg.gist),
         'path': str(pckg.path),
-        'deps': [str(dep) for dep in pckg.dependencies] }
+        'title': pckg.title,
+        'deps': [str(dep) for dep in pckg.deps] }
 
     event = {
         "semver": version.__semver__,
@@ -134,9 +136,10 @@ def to_event(pckgs: List[ConvertedGist]) -> str:
                             "required": ["path","commit_id","tags"]
                         },
                         "path": {"type": "string"},
+                        "title": {"type": "string"},
                         "deps": {"type":"array", "items": {"type":"string"}}
                     },
-                    "required": ["gist","path","deps"]
+                    "required": ["gist","path","title","deps"]
                 }
             }
         },

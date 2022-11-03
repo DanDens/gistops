@@ -128,10 +128,16 @@ def convert(
             f'--resource-path={gist.path.parent}'],
           do_not_execute=dry_run)
 
+        if 'metadata' in pandoc_yml and 'title' in pandoc_yml['metadata']:
+            title = pandoc_yml['metadata']['title']
+        else:
+            title = f'{gist.path.parent.name}-{gist.path.name}'
+
         convs.append(gists.ConvertedGist(
           gist=gist,
+          title=title,
           path=output_filepath,
-          dependencies=[gist.path.parent.joinpath(r) for r in pandoc_yml['resource-path']] ))
+          deps=[gist.path.parent.joinpath(r) for r in pandoc_yml['resource-path']] ))
     return convs
 
 
