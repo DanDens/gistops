@@ -26,6 +26,24 @@
       "env": {},
       "console": "integratedTerminal",
       "justMyCode": true
+    },
+    {
+      "name": "gistops-confluence",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceRoot}/gistops/confluence/gistops/main.py",
+      "args": ["run", "--event_base64=eyJzZW12ZXIiOiAiMC4xLjAtYmV0YSIsICJyZWNvcmQtdHlwZSI6ICJDb252ZXJ0ZWRHaXN0IiwgInJlY29yZHMiOiBbeyJnaXN0IjogeyJwYXRoIjogImV4YW1zL2F3cy1jbG91ZC1wcmFjdGl0aW9uZXIvUkVBRE1FLm1kIiwgImNvbW1pdF9pZCI6ICIwMWRkZDc5IiwgInRhZ3MiOiB7fX0sICJwYXRoIjogIi5naXN0b3BzL2RhdGEvZXhhbXMvYXdzLWNsb3VkLXByYWN0aXRpb25lci9jb25mbHVlbmNlLnBhbmRvYy5wZGYiLCAiZGVwcyI6IFsiZXhhbXMvYXdzLWNsb3VkLXByYWN0aXRpb25lciIsICJleGFtcy9hd3MtY2xvdWQtcHJhY3RpdGlvbmVyL2ltZyJdfV19"],
+      "cwd": "/home/dandens/ws/DevOps Reports/devops-reports-2022",
+      "env": {
+        "GISTOPS_CONFLUENCE_URL": "https://verw.bssn.eu/wiki",
+        "GISTOPS_CONFLUENCE_PAGE_ID": "117605443",
+        "GISTOPS_CONFLUENCE_USERNAME": "bssnbot",
+        "GISTOPS_CONFLUENCE_PASSWORD": "w..T",
+        "SSL_CERT_FILE":"/etc/ssl/certs/ca-certificates.crt",
+        "REQUESTS_CA_BUNDLE":"/etc/ssl/certs/ca-certificates.crt"
+      },
+      "console": "integratedTerminal",
+      "justMyCode": true
     }
   ]
 }
