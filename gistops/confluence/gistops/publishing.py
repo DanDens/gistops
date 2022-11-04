@@ -26,7 +26,8 @@ class ConfluenceAPI:
 
 def connect_to_api( url: str, username: str, password: str ) -> ConfluenceAPI:
     """Connect to confluence Web API"""
-    return ConfluenceAPI(url=url, api=Confluence(url=url, username=username, password=password) )
+    return ConfluenceAPI(
+      url=url, api=Confluence(url=url, username=username, password=password) )
 
 
 def __tagged(tag_name: str):
@@ -77,7 +78,7 @@ def __attach_to_page(
     logger.info(
       'curl -u USERNAME:PASSWORD -X POST -H "X-Atlassian-Token: nocheck" '
       f'-F "file=@${attachpath}" '
-      f'-F "name={urllib.parse.quote(attachpath.name)}" '
+      f'-F "name={attachpath.name}" '
       f'-F "comment={gist.gist.commit_id}" '
       f'${cnfl.url}/rest/api/content/${page_id}/child/attachment')
 
@@ -86,17 +87,17 @@ def __attach_to_page(
 
     cnfl.api.attach_file(
         str(attachpath), 
-        name=urllib.parse.quote(attachpath.name),
+        name=attachpath.name,
         page_id=page_id, 
         comment=f'Matches {gist.gist.commit_id} git commit id')
 
 
-def __iterate_attachments(gist: gists.ConvertedGist, jira_wiki:str) -> List[Path]:
-    attachs = []
-    for attach in re.findall(r'!(.+)?(?=!)', jira_wiki, re.MULTILINE):
-        for candidate in [dep.joinpath(urllib.parse.unquote( attach )) for dep in gist.deps]:
+def __iterate_attachments(gist: gists.ConvertedGist, jira_wiki:str) -> dict:
+    attachs = {}
+    for attach in re.findall(r'(?<=!)\S+(?=!)', jira_wiki):
+        for candidate in [dep.joinpath(urllib.parse.unquote(attach)) for dep in gist.deps]:
             if candidate.exists():
-                attachs.append(candidate)
+                attachs[attach] = candidate
                 break
     return attachs
 
@@ -111,6 +112,10 @@ def __update_page(parent_id: str, cnfl: Confluence, gist: gists.ConvertedGist, d
     with open(gist.path, 'r', encoding='utf-8') as jira_wiki_file:
         jira_wiki = jira_wiki_file.read()
     attachs: List[Path] = __iterate_attachments(gist, jira_wiki)
+
+    # replace attach references to not include pathes
+    for attachref, attachpath in attachs.items():
+        jira_wiki = jira_wiki.replace( f'!{attachref}!', f'!{str(attachpath.name)}!' )
 
     # Upload page ...
     logger.info(
@@ -129,7 +134,7 @@ def __update_page(parent_id: str, cnfl: Confluence, gist: gists.ConvertedGist, d
         page_id = cnfl.api.get_page_id(space, gist.title)
 
     # Upload Attachments 
-    for attachpath in attachs:
+    for attachpath in attachs.values():
         __attach_to_page(
           page_id=page_id, attachpath=attachpath, cnfl=cnfl, gist=gist, dry_run=dry_run)
 

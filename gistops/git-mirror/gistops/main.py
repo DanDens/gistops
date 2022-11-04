@@ -67,11 +67,17 @@ class GistOps():
       git_trg_username: str = None,
       git_trg_password: str = None ):
         """Push mirror branch(s) to remote"""
+        logger = logging.getLogger()
 
         if git_src_url is None: 
-            git_src_url=os.environ['GISTOPS_GIT_SOURCE_URL']
+            git_src_url=os.environ.get('GISTOPS_GIT_SOURCE_URL', None)
         if git_trg_url is None: 
-            git_trg_url=os.environ['GISTOPS_GIT_TARGET_URL']
+            git_trg_url=os.environ.get('GISTOPS_GIT_TARGET_URL', None)
+
+        if git_src_url is None or git_trg_url is None:
+            logger.info('Either src or target is not set, skipping ...')
+            return
+
         if git_src_username is None:
             git_src_username=os.environ.get('GISTOPS_GIT_SOURCE_USERNAME', None)
         if git_src_password is None:
