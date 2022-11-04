@@ -37,7 +37,7 @@
       "env": {
         "GISTOPS_CONFLUENCE_URL": "https://verw.bssn.eu/wiki",
         "GISTOPS_CONFLUENCE_USERNAME": "bssnbot",
-        "GISTOPS_CONFLUENCE_PASSWORD": "wYydMa1FJh1xWGsfPNuT",
+        "GISTOPS_CONFLUENCE_PASSWORD": "w..T",
         "SSL_CERT_FILE":"/etc/ssl/certs/ca-certificates.crt",
         "REQUESTS_CA_BUNDLE":"/etc/ssl/certs/ca-certificates.crt"
       },
