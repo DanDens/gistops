@@ -2,5 +2,12 @@
   "python.linting.pylintEnabled": true,
   "python.linting.enabled": true,
   "python.linting.prospectorEnabled": false,
-  "editor.rulers": [100]
+  "editor.rulers": [
+    100
+  ],
+  "python.testing.pytestArgs": [
+    "gistops"
+  ],
+  "python.testing.unittestEnabled": false,
+  "python.testing.pytestEnabled": true
 }

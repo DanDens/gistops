@@ -36,7 +36,8 @@ def shrun(
                 shell='sh',
                 command=" ".join(cmd),
                 hide='stdout',
-                env=env 
+                env=env,
+                in_stream=False # no mirroring of stdin, pytest breaks otherwise
             ).stdout
     except UnexpectedExit as err:
         raise ShellError("unexpected exit") from err
