@@ -53,15 +53,12 @@ class GistOps():
     def publish(self,
       event_base64: str,
       confluence_url: str = None,
-      confluence_page_id: str = None,
       confluence_username: str = None,
       confluence_password: str = None):
         """Publish gist as page on confluence"""
 
         if confluence_url is None: 
             confluence_url=os.environ['GISTOPS_CONFLUENCE_URL']
-        if confluence_page_id is None: 
-            confluence_page_id=os.environ['GISTOPS_CONFLUENCE_PAGE_ID']
         if confluence_username is None:
             confluence_username=os.environ.get('GISTOPS_CONFLUENCE_USERNAME', None)
         if confluence_password is None:
@@ -71,17 +68,12 @@ class GistOps():
           confluence_url, confluence_username, confluence_password )
 
         for gist in gists.from_event(event_base64):
-            publishing.publish(
-              cnfl = cnfl,
-              gist = gist,
-              confluence_page_id = confluence_page_id,
-              dry_run = self.__dry_run)
+            publishing.publish(cnfl = cnfl, gist = gist, dry_run = self.__dry_run)
 
 
     def run(self,
       event_base64: str,
       confluence_url: str = None,
-      confluence_page_id: str = None,
       confluence_username: str = None,
       confluence_password: str = None) -> str:
         """Publish gist as page on confluence"""
@@ -89,7 +81,6 @@ class GistOps():
         return self.publish(
           event_base64=event_base64,
           confluence_url=confluence_url,
-          confluence_page_id=confluence_page_id,
           confluence_username=confluence_username,
           confluence_password=confluence_password)
 

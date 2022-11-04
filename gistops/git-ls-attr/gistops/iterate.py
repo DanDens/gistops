@@ -19,7 +19,20 @@ def __gistops_attribute() -> str:
     return '[attr]gistops'
 
 
-def __assert_gistops_attribute(
+def __init_gistops(
+  shrun: Callable[[List[str],bool], str],
+  git_root: Path):
+    """Configure git repository to use gistops"""
+    logger = logging.getLogger()
+
+    # Create '.git/info/attributes' file
+    logger.info(f'Adding {__gistops_attribute()} to .git/info/attributes')
+    with open(git_root.joinpath('.git/info/attributes'),
+      'a+', encoding='utf-8') as git_attributes_file:
+        git_attributes_file.write(f'\n{__gistops_attribute()}')
+
+
+def __ensure_gistops_attribute(
   shrun: Callable[[List[str],bool], str],
   git_root: Path) -> Path:  
     """Verify [attr]gistops definition stored in .gitattributes"""
@@ -62,32 +75,12 @@ def __assert_gistops_attribute(
         except IOError:
             pass
 
-    raise gists.GistOpsError(
-        'Could not locate [attr]gistops in any known '
-        '.gitattribute or gitattributes file. '
-        'Please run "gistops init" first')
+    __init_gistops(shrun=shrun, git_root=git_root)
 
 
 ######################
 # EXPORTED FUNCTIONS #
 ######################
-def init_gistops(
-  shrun: Callable[[List[str],bool], str],
-  git_root: Path):
-    """Configure git repository to use gistops"""
-    logger = logging.getLogger()
-
-    # Ensure gistops attribute
-    try:
-        __assert_gistops_attribute(shrun, git_root)
-    except gists.GistOpsError:
-        # Create '.git/info/attributes' file
-        logger.info(f'Adding {__gistops_attribute()} to .git/info/attributes')
-        with open(git_root.joinpath('.git/info/attributes'),
-          'a+', encoding='utf-8') as git_attributes_file:
-            git_attributes_file.write(f'\n{__gistops_attribute()}')
-
-
 def iterate_gists(
   shrun: Callable[[List[str],bool], str], 
   git_root: Path,
@@ -96,7 +89,7 @@ def iterate_gists(
     """Locate gists in path using gistops attribute stored in .gitattributes"""
     logger = logging.getLogger()
 
-    __assert_gistops_attribute(shrun=shrun, git_root=git_root)
+    __ensure_gistops_attribute(shrun=shrun, git_root=git_root)
 
     gist_absolute_path = git_root.joinpath(gist_path).resolve()
     git_commit_id = shrun(

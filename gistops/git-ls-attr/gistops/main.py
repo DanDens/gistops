@@ -66,12 +66,6 @@ class GistOps():
           git_diff_hash=self.__git_diff_hash)
 
 
-    def init(self):
-        """Initializes gistops for the git repository"""
-        
-        gists.init_gistops(self.__shrun,self.__git_root)
-
-
     def version(self) -> str:
         """Just print the version"""
         return version.__version__

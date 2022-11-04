@@ -1,5 +1,6 @@
 {
   "python.linting.pylintEnabled": true,
   "python.linting.enabled": true,
-  "python.linting.prospectorEnabled": false
+  "python.linting.prospectorEnabled": false,
+  "editor.rulers": [100]
 }

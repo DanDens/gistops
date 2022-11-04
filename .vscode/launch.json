@@ -21,7 +21,7 @@
       "type": "python",
       "request": "launch",
       "program": "${workspaceRoot}/gistops/pandoc/gistops/main.py",
-      "args": ["run", "--outpath=.gistops/data", "--event_base64=eyJzZW12ZXIiOiIwLjEuMC1iZXRhIiwicmVjb3JkLXR5cGUiOiJHaXN0IiwicmVjb3JkcyI6W3sicGF0aCI6Imhvd3Rvcy9ob3ctdG8tc2V0dXAtYS1zY2FsYWJsZS12cGMtYXJjaGl0ZWN0dXJlL1JFQURNRS5tZCIsInRhZ3MiOnt9LCJjb21taXRfaWQiOiJjMWE2MTRmIn1dfQ=="],
+      "args": ["run", "--outpath=.gistops/data", "--event_base64=eyJzZW12ZXIiOiIwLjEuMC1iZXRhIiwicmVjb3JkLXR5cGUiOiJHaXN0IiwicmVjb3JkcyI6W3sicGF0aCI6ImV4YW1zL2F3cy1jbG91ZC1wcmFjdGl0aW9uZXIvUkVBRE1FLm1kIiwidGFncyI6e30sImNvbW1pdF9pZCI6IjAxZGRkNzkifSx7InBhdGgiOiJob3d0b3MvaG93LXRvLXNldHVwLWEtc2NhbGFibGUtdnBjLWFyY2hpdGVjdHVyZS9SRUFETUUubWQiLCJ0YWdzIjp7ImNvbmZsdWVuY2UiOnsicGFnZSI6IjExNzYwNTc5OCIsImhvc3QiOiJ2ZXJ3LmJzc24uZXUifX0sImNvbW1pdF9pZCI6IjAxZGRkNzkifV19"],
       "cwd": "/home/dandens/ws/DevOps Reports/devops-reports-2022",
       "env": {},
       "console": "integratedTerminal",
@@ -32,31 +32,14 @@
       "type": "python",
       "request": "launch",
       "program": "${workspaceRoot}/gistops/confluence/gistops/main.py",
-      "args": ["run", "--event_base64=eyJzZW12ZXIiOiAiMC4xLjAtYmV0YSIsICJyZWNvcmQtdHlwZSI6ICJDb252ZXJ0ZWRHaXN0IiwgInJlY29yZHMiOiBbeyJnaXN0IjogeyJwYXRoIjogImV4YW1zL2F3cy1jbG91ZC1wcmFjdGl0aW9uZXIvUkVBRE1FLm1kIiwgImNvbW1pdF9pZCI6ICIwMWRkZDc5IiwgInRhZ3MiOiB7fX0sICJwYXRoIjogIi5naXN0b3BzL2RhdGEvZXhhbXMvYXdzLWNsb3VkLXByYWN0aXRpb25lci9jb25mbHVlbmNlLnBhbmRvYy5wZGYiLCAiZGVwcyI6IFsiZXhhbXMvYXdzLWNsb3VkLXByYWN0aXRpb25lciIsICJleGFtcy9hd3MtY2xvdWQtcHJhY3RpdGlvbmVyL2ltZyJdfV19"],
+      "args": ["run", "--event_base64=eyJzZW12ZXIiOiAiMC4xLjAtYmV0YSIsICJyZWNvcmQtdHlwZSI6ICJDb252ZXJ0ZWRHaXN0IiwgInJlY29yZHMiOiBbeyJnaXN0IjogeyJwYXRoIjogImhvd3Rvcy9ob3ctdG8tc2V0dXAtYS1zY2FsYWJsZS12cGMtYXJjaGl0ZWN0dXJlL1JFQURNRS5tZCIsICJjb21taXRfaWQiOiAiMDFkZGQ3OSIsICJ0YWdzIjogeyJjb25mbHVlbmNlIjogeyJwYWdlIjogIjExNzYwNTc5OCIsICJob3N0IjogInZlcncuYnNzbi5ldSJ9fX0sICJwYXRoIjogIi5naXN0b3BzL2RhdGEvaG93dG9zL2hvdy10by1zZXR1cC1hLXNjYWxhYmxlLXZwYy1hcmNoaXRlY3R1cmUvUkVBRE1FLnBkZiIsICJ0aXRsZSI6ICJIb3cgdG8gc2V0dXAgYSBzY2FsYWJsZSB2cGMgYXJjaGl0ZWN0dXJlIiwgImRlcHMiOiBbImhvd3Rvcy9ob3ctdG8tc2V0dXAtYS1zY2FsYWJsZS12cGMtYXJjaGl0ZWN0dXJlIiwgImhvd3Rvcy9ob3ctdG8tc2V0dXAtYS1zY2FsYWJsZS12cGMtYXJjaGl0ZWN0dXJlL2ltZyJdfSwgeyJnaXN0IjogeyJwYXRoIjogImhvd3Rvcy9ob3ctdG8tc2V0dXAtYS1zY2FsYWJsZS12cGMtYXJjaGl0ZWN0dXJlL1JFQURNRS5tZCIsICJjb21taXRfaWQiOiAiMDFkZGQ3OSIsICJ0YWdzIjogeyJjb25mbHVlbmNlIjogeyJwYWdlIjogIjExNzYwNTc5OCIsICJob3N0IjogInZlcncuYnNzbi5ldSJ9fX0sICJwYXRoIjogIi5naXN0b3BzL2RhdGEvaG93dG9zL2hvdy10by1zZXR1cC1hLXNjYWxhYmxlLXZwYy1hcmNoaXRlY3R1cmUvUkVBRE1FLmppcmEiLCAidGl0bGUiOiAiSG93IHRvIHNldHVwIGEgc2NhbGFibGUgdnBjIGFyY2hpdGVjdHVyZSIsICJkZXBzIjogWyJob3d0b3MvaG93LXRvLXNldHVwLWEtc2NhbGFibGUtdnBjLWFyY2hpdGVjdHVyZSIsICJob3d0b3MvaG93LXRvLXNldHVwLWEtc2NhbGFibGUtdnBjLWFyY2hpdGVjdHVyZS9pbWciXX1dfQ=="],
       "cwd": "/home/dandens/ws/DevOps Reports/devops-reports-2022",
       "env": {
         "GISTOPS_CONFLUENCE_URL": "https://verw.bssn.eu/wiki",
-        "GISTOPS_CONFLUENCE_PAGE_ID": "117605443",
         "GISTOPS_CONFLUENCE_USERNAME": "bssnbot",
-        "GISTOPS_CONFLUENCE_PASSWORD": "w..T",
+        "GISTOPS_CONFLUENCE_PASSWORD": "wYydMa1FJh1xWGsfPNuT",
         "SSL_CERT_FILE":"/etc/ssl/certs/ca-certificates.crt",
         "REQUESTS_CA_BUNDLE":"/etc/ssl/certs/ca-certificates.crt"
-      },
-      "console": "integratedTerminal",
-      "justMyCode": true
-    },
-    {
-      "name": "gistops-confluence-check-jira",
-      "type": "python",
-      "request": "launch",
-      "program": "${workspaceRoot}/gistops/confluence/gistops/main.py",
-      "args": ["run", "--event_base64=eyJzZW12ZXIiOiAiMC4xLjAtYmV0YSIsICJyZWNvcmQtdHlwZSI6ICJDb252ZXJ0ZWRHaXN0IiwgInJlY29yZHMiOiBbeyJnaXN0IjogeyJwYXRoIjogImhvd3Rvcy9ob3ctdG8tc2V0dXAtYS1zY2FsYWJsZS12cGMtYXJjaGl0ZWN0dXJlL1JFQURNRS5tZCIsICJjb21taXRfaWQiOiAiYzFhNjE0ZiIsICJ0YWdzIjoge319LCAicGF0aCI6ICIuZ2lzdG9wcy9kYXRhL2hvd3Rvcy9ob3ctdG8tc2V0dXAtYS1zY2FsYWJsZS12cGMtYXJjaGl0ZWN0dXJlL2NvbmZsdWVuY2UucGFuZG9jLmppcmEiLCAidGl0bGUiOiAiaG93LXRvLXNldHVwLWEtc2NhbGFibGUtdnBjLWFyY2hpdGVjdHVyZSAtIGMxYTYxNGYiLCAiZGVwcyI6IFsiaG93dG9zL2hvdy10by1zZXR1cC1hLXNjYWxhYmxlLXZwYy1hcmNoaXRlY3R1cmUiLCAiaG93dG9zL2hvdy10by1zZXR1cC1hLXNjYWxhYmxlLXZwYy1hcmNoaXRlY3R1cmUvaW1nIl19XX0="],
-      "cwd": "/home/dandens/ws/DevOps Reports/devops-reports-2022",
-      "env": {
-        "GISTOPS_CONFLUENCE_URL": "https://verw.bssn.eu/wiki",
-        "GISTOPS_CONFLUENCE_PAGE_ID": "117605443",
-        "GISTOPS_CONFLUENCE_USERNAME": "bssnbot",
-        "GISTOPS_CONFLUENCE_PASSWORD": "w..T"
       },
       "console": "integratedTerminal",
       "justMyCode": true
