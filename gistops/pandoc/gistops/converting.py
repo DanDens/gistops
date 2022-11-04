@@ -81,6 +81,7 @@ def __gitignore_new(func):
 
     return decorator_func
 
+
 ######################
 # EXPORTED FUNCTIONS #
 ######################
@@ -111,7 +112,7 @@ def convert(
 
         # Convert using Pandoc Configuration
         output_filepath = outpath.joinpath(pandoc_j2_path.parent).joinpath(
-          f'{pandoc_yml_path.stem}.{pandoc_yml["to"]}') 
+          f'{gist.path.stem}.{pandoc_yml["to"]}') 
 
         if output_filepath.exists():
             logger.info(f'> rm {output_filepath} ')
@@ -119,7 +120,7 @@ def convert(
                 output_filepath.unlink()
 
         if not dry_run:
-          output_filepath.parent.mkdir(parents=True, exist_ok=True)
+            output_filepath.parent.mkdir(parents=True, exist_ok=True)
         shrun(
           cmd=[
             'pandoc',str(gist.path),
@@ -128,10 +129,16 @@ def convert(
             f'--resource-path={gist.path.parent}'],
           do_not_execute=dry_run)
 
+        if 'metadata' in pandoc_yml and 'title' in pandoc_yml['metadata']:
+            title = pandoc_yml['metadata']['title']
+        else:
+            title = f'{gist.path.parent.name}-{gist.path.name}'
+
         convs.append(gists.ConvertedGist(
           gist=gist,
+          title=title,
           path=output_filepath,
-          dependencies=[gist.path.parent.joinpath(r) for r in pandoc_yml['resource-path']] ))
+          deps=[gist.path.parent.joinpath(r) for r in pandoc_yml['resource-path']] ))
     return convs
 
 
@@ -156,7 +163,7 @@ def cleanup(
                 pandoc_yml_path.unlink()
 
         output_filepath = outpath.joinpath(pandoc_j2_path.parent).joinpath(
-          f'{pandoc_yml_path.stem}.{pandoc_yml["to"]}') 
+          f'{gist.path.stem}.{pandoc_yml["to"]}') 
         if output_filepath.exists() and output_filepath.is_file():
             logger.info(f'> rm {output_filepath} ')
             if not dry_run:

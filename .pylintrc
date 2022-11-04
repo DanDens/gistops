@@ -3,6 +3,10 @@
 [DESIGN]
 max-args=8 ; Purely random number, just works
 
+[FORMAT]
+# Maximum number of characters on a single line.
+max-line-length=100
+
 [MISCELLANEOUS]
 notes=FIXME,TODO ; To make additional remarks
 

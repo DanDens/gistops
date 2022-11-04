@@ -9,4 +9,5 @@ source ./venv/bin/activate
 
 python3 -m pip install -r git-ls-attr/requirements.txt
 python3 -m pip install -r pandoc/requirements.txt
+python3 -m pip install -r confluence/requirements.txt
 python3 -m pip install pylint
