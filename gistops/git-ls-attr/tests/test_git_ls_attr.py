@@ -10,15 +10,15 @@ from pathlib import Path
 
 import pytest
 
-sys.path.append(str(Path(
-  os.path.realpath(__file__)).parent.parent.joinpath(
-    'git-ls-attr').joinpath('gistops')))
+sys.path.append(
+  str(Path(os.path.realpath(__file__)).parent.parent.joinpath('gistops')))
+
 import gists
 import main
 
 
 @pytest.fixture(scope="module", autouse=True)
-def extract_git_repository():
+def extract_git_ls_attr_repository():
     """Unpacks git repository used for tests as repos/*.repo"""
     # Unpack git repository
     this_filepath = Path(os.path.realpath(__file__))
@@ -35,7 +35,7 @@ def extract_git_repository():
     os.chdir(str(this_repopath))
 
     yield # Run the tests and come back to clean up ...
-    
+
     # Switch back 
     os.chdir(old_cwd)
 
@@ -45,6 +45,7 @@ def extract_git_repository():
 
 def test_git_root():
     """Tests whether git root directory can be found"""
+    
     git_root_path = gists.assert_git_root(Path.cwd().joinpath(
       'howtos').joinpath('how-to-zip-directories-recursively-with-hidden-files'))
     
@@ -53,8 +54,9 @@ def test_git_root():
 
 def test_all_gists_are_found():
     """Tests all gists are found"""
-    
-    event_base64:str = main.GistOps(cwd=Path.cwd()).list()
+
+    event_base64:str = main.GistOps(
+      cwd=str(Path.cwd())).list()
     assert event_base64 == \
       'eyJzZW12ZXIiOiIwLjEuMC1iZXRhIiwicmVjb3JkLXR5cGUiOiJHa' \
       'XN0IiwicmVjb3JkcyI6W3sicGF0aCI6Imhvd3Rvcy9ob3ctdG8tc2' \
@@ -81,7 +83,8 @@ def test_all_gists_are_found():
 def test_last_committed_gists_are_found():
     """Tests all gists are found"""
     
-    event_base64:str = main.GistOps(cwd=Path.cwd(),git_hash='HEAD').list()
+    event_base64:str = main.GistOps(
+      cwd=str(Path.cwd()),git_hash='HEAD').list()
     assert event_base64 == \
       'eyJzZW12ZXIiOiIwLjEuMC1iZXRhIiwicmVjb3JkLXR5cGUiOiJ' \
       'HaXN0IiwicmVjb3JkcyI6W3sicGF0aCI6Imhvd3Rvcy9ob3ctdG' \

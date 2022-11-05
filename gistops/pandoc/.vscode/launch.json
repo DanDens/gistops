@@ -1,0 +1,20 @@
+{
+  // 1. > ./setup-python-venv.sh
+  // 2. https://code.visualstudio.com/docs/python/environments
+  //    > ctrl+shift+P 
+  //    > Python: Select Interpreter 
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "gistops-pandoc",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceRoot}/gistops/main.py",
+      "args": ["run", "--outpath=.gistops/data", "--event_base64=eyJzZW12ZXIiOiIwLjEuMC1iZXRhIiwicmVjb3JkLXR5cGUiOiJHaXN0IiwicmVjb3JkcyI6W3sicGF0aCI6Imhvd3Rvcy9ob3ctdG8tc2V0dXAtYS1zY2FsYWJsZS12cGMtYXJjaGl0ZWN0dXJlL1JFQURNRS5tZCIsInRhZ3MiOnsiY29uZmx1ZW5jZSI6eyJwYWdlIjoiMTE3NjA1Nzk4IiwiaG9zdCI6InZlcncuYnNzbi5ldSJ9fSwiY29tbWl0X2lkIjoiY2NhYjQ0ZSJ9LHsicGF0aCI6Imhvd3Rvcy9ob3ctdG8temlwLWRpcmVjdG9yaWVzLXJlY3Vyc2l2ZWx5LXdpdGgtaGlkZGVuLWZpbGVzL1JFQURNRS5tZCIsInRhZ3MiOnsiY29uZmx1ZW5jZSI6eyJwYWdlIjoiMTE3NjA1Nzk4IiwiaG9zdCI6InZlcncuYnNzbi5ldSJ9fSwiY29tbWl0X2lkIjoiY2NhYjQ0ZSJ9XX0="],
+      "cwd": "/home/dandens/ws/test_git-ls-attr",
+      "env": {},
+      "console": "integratedTerminal",
+      "justMyCode": true
+    }
+  ]
+}

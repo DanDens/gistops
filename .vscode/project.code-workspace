@@ -1,0 +1,26 @@
+{
+  "folders": [
+    {
+      "name": "ROOT",
+      "path": "../"
+    },
+    {
+      "name": "gistops/git-ls-attr",
+      "path": "../gistops/git-ls-attr"
+    },
+    {
+      "name": "gistops/git-mirror",
+      "path": "../gistops/git-mirror"
+    },
+    {
+      "name": "gistops/pandoc",
+      "path": "../gistops/pandoc"
+    },
+    {
+      "name": "gistops/confluence",
+      "path": "../gistops/confluence"
+    }
+  ],
+  "settings": {
+  }
+}
