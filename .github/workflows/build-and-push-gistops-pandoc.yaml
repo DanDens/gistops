@@ -26,7 +26,7 @@ jobs:
         $GITHUB_WORKSPACE/gistops/pandoc/requirements.txt
     - run: > 
         cd $GITHUB_WORKSPACE/gistops/pandoc && 
-        python3 -m pytest
+        python3 -m pytest -v
 
   build-and-push:
     needs:
