@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Tests for pandoc gistops
+Tests for confluence gistops
 """
 import os
 import sys
@@ -14,6 +14,7 @@ sys.path.append(
   str(Path(os.path.realpath(__file__)).parent.parent.joinpath('gistops')))
 
 import main
+import publishing
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -42,37 +43,80 @@ def extract_pandoc_repository():
     shutil.rmtree(this_repopath)
 
 
-def test_pandoc_convert():
+class FakeConfluenceApi:
+    """ Replaces actual Confluence API for testing """
+
+    def attach_file(self,
+      filepath: str, 
+      name: str, 
+      page_id: str, 
+      comment: str):
+        """ Attaches a file to page """
+        assert len(comment)>0
+
+        assert Path(name).suffix in ['.pdf','.png']
+
+        if page_id == '117606000':
+            assert filepath in [
+              '.gistops/data/howtos/how-to-setup-a-scalable-vpc-architecture/README.pdf',
+              'howtos/how-to-setup-a-scalable-vpc-architecture/2022-10-28 19_26_26-snaphot.png'
+            ]
+            return
+        if page_id == '117607000':
+            assert filepath in [
+              '.gistops/data/howtos/how-to-zip-directories-recursively-with-hidden-files/README.pdf'
+            ]
+            return
+
+        pytest.fail(f'Unexpected page id {page_id}')
+            
+
+    def update_or_create(self,
+      parent_id: str,
+      title: str,
+      body: str, 
+      representation: str) -> dict:
+        """ Update or create page """
+
+        assert representation == 'wiki'
+        assert len(body)>0
+        assert parent_id == '117605798'
+
+        if title=='How to setup a scalable vpc architecture':
+            return {
+              'id': '117606000'
+            }
+
+        if title=='How to zip directories recursively with hidden files':
+            return {
+              'id': '117607000'
+            }
+
+        pytest.fail(f'Unexpected title {title}')
+
+    def get_page_space(self, page_id: str) -> str:
+        """ Returns the confluence space id of a page """
+
+        assert page_id == '117605798'
+        return 'docs'
+
+
+    def get_page_id(self, space: str, title: str) -> str:
+        """ Returns the confluence page id for page title and space """
+        assert space == 'docs'
+        
+        if title=='How to setup a scalable vpc architecture':
+            return '117606000'
+        if title=='How to zip directories recursively with hidden files':
+            return '117607000'
+
+        pytest.fail(f'Unexpected title {title}')
+
+
+def test_confluence_publish(mocker):
     """Tests all gists are converted"""
     
     in_base64 = \
-      'eyJzZW12ZXIiOiIwLjEuMC1iZXRhIiwicmVjb3JkLXR5cGUiOiJHa' \
-      'XN0IiwicmVjb3JkcyI6W3sicGF0aCI6Imhvd3Rvcy9ob3ctdG8tc2' \
-      'V0dXAtYS1zY2FsYWJsZS12cGMtYXJjaGl0ZWN0dXJlL1JFQURNRS5' \
-      'tZCIsInRhZ3MiOnsiY29uZmx1ZW5jZSI6eyJwYWdlIjoiMTE3NjA1' \
-      'Nzk4IiwiaG9zdCI6InZlcncuYnNzbi5ldSJ9fSwiY29tbWl0X2lkI' \
-      'joiY2NhYjQ0ZSJ9LHsicGF0aCI6Imhvd3Rvcy9ob3ctdG8temlwLW' \
-      'RpcmVjdG9yaWVzLXJlY3Vyc2l2ZWx5LXdpdGgtaGlkZGVuLWZpbGV' \
-      'zL1JFQURNRS5tZCIsInRhZ3MiOnsiY29uZmx1ZW5jZSI6eyJwYWdl' \
-      'IjoiMTE3NjA1Nzk4IiwiaG9zdCI6InZlcncuYnNzbi5ldSJ9fSwiY' \
-      '29tbWl0X2lkIjoiY2NhYjQ0ZSJ9XX0='
-    
-    # Base64 encoding of ...
-    #{"semver":"0.1.0-beta","record-type":"Gist","records":[{
-    #   "path":"howtos/how-to-setup-a-scalable-vpc-architecture/README.md",
-    #   "tags":{"confluence":{"page":"117605798","host":"verw.bssn.eu"}},
-    #   "commit_id":"ccab44e"
-    # },{
-    #   "path":"howtos/how-to-zip-directories-recursively-with-hidden-files/README.md",
-    #   "tags":{"confluence":{"page":"117605798","host":"verw.bssn.eu"}},
-    #   "commit_id":"ccab44e"
-    # }]}
-
-    out_base64:str = main.GistOps(cwd=str(Path.cwd())).run(
-      event_base64=in_base64, 
-      outpath=str(Path.cwd().joinpath('.gistops/data')))
-
-    assert out_base64 == \
       'eyJzZW12ZXIiOiAiMC4xLjAtYmV0YSIsICJyZWNvcmQtd'\
       'HlwZSI6ICJDb252ZXJ0ZWRHaXN0IiwgInJlY29yZHMiOi'\
       'BbeyJnaXN0IjogeyJwYXRoIjogImhvd3Rvcy9ob3ctdG8'\
@@ -183,3 +227,19 @@ def test_pandoc_convert():
     #   ]
     # }
     # ]}
+
+    def __connect_to_api( url: str, username: str, password: str ):
+        assert username == 'unknown'
+        assert password == 'unknown'
+
+        return publishing.ConfluenceAPI(
+          url=url, api=FakeConfluenceApi() )
+
+
+    mocker.patch('publishing.connect_to_api', side_effect=__connect_to_api)
+
+    main.GistOps(cwd=str(Path.cwd())).run( 
+      event_base64=in_base64,
+      confluence_url='https://verw.bssn.eu/wiki',
+      confluence_username='unknown',
+      confluence_password='unknown' )

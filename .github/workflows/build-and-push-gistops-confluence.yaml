@@ -12,7 +12,28 @@ on:
     types:
       - completed
 jobs:
-  build-and-push-gistops-confluence:
+
+  pytest:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/dandens/gistops-githubenv:latest
+    steps:
+    - name: Checkout Git Repository
+      uses: actions/checkout@v2
+    - run: >
+        python3 -m pip install pytest
+    - run: >
+        python3 -m pip install pytest-mock
+    - run: >
+        python3 -m pip install -r 
+        $GITHUB_WORKSPACE/gistops/confluence/requirements.txt
+    - run: > 
+        cd $GITHUB_WORKSPACE/gistops/confluence && 
+        python3 -m pytest
+
+  build-and-push:
+    needs:
+    - pytest
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Git Repository

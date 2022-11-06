@@ -130,7 +130,7 @@ def __update_page(parent_id: str, cnfl: Confluence, gist: gists.ConvertedGist, d
           parent_id=parent_id, title=gist.title, body=jira_wiki, representation='wiki')
         page_id = page["id"]
     else: 
-        space: str = cnfl.api.get_page_space(page_id)
+        space: str = cnfl.api.get_page_space(parent_id)
         page_id = cnfl.api.get_page_id(space, gist.title)
 
     # Upload Attachments 
