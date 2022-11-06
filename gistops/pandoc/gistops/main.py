@@ -62,7 +62,7 @@ class GistOps():
         """Convert gists using *.pandoc.yml"""
 
         try:
-            Path(outpath).resolve().relative_to(self.__git_root.resolve())
+            outpath = Path(outpath).resolve().relative_to(self.__git_root.resolve())
         except ValueError as err:
             raise gists.GistOpsError(
               'output path MUST be sub directory of git root'

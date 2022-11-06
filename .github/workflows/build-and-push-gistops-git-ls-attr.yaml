@@ -49,4 +49,10 @@ jobs:
             ghcr.io/dandens/gistops-git-ls-attr:${{ env.IMAGE_TAG }}
             ghcr.io/dandens/gistops-git-ls-attr:latest
           push: ${{ github.ref == 'refs/heads/main' }}
-          
+  pytest-gistops-git-ls-tree:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/dandens/gistops-git-ls-attr:latest
+      steps:
+      - name: Check for dockerenv file
+        run: gistops version
