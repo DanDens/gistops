@@ -57,5 +57,11 @@ jobs:
     steps:
     - name: Checkout Git Repository
       uses: actions/checkout@v2
-    - run: python3 -m pip install pytest
-    - run: cd $GITHUB_WORKSPACE/gistops/git-ls-attr && python3 -m pytest
+    - run: >
+        python3 -m pip install pytest
+    - run: >
+        python3 -m pip install -r 
+        $GITHUB_WORKSPACE/gistops/git-ls-attr/requirements.txt
+    - run: > 
+        cd $GITHUB_WORKSPACE/gistops/git-ls-attr && 
+        python3 -m pytest

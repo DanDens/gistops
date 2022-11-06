@@ -1,3 +1,3 @@
 # gistops - Operations on Gists
 
-.. documentation is coming asap
+.. documentation is coming soon
