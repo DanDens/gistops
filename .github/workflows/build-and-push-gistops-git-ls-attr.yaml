@@ -49,12 +49,12 @@ jobs:
             ghcr.io/dandens/gistops-git-ls-attr:${{ env.IMAGE_TAG }}
             ghcr.io/dandens/gistops-git-ls-attr:latest
           push: ${{ github.ref == 'refs/heads/main' }}
+  
   pytest-gistops-git-ls-tree:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/dandens/gistops-git-ls-attr:latest
+      image: ghcr.io/dandens/gistops-githubenv:latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Run box version	    
-      run: version
+    - name: Checkout Git Repository
+      uses: actions/checkout@v2
     - run: python3 -m pip install pytest
