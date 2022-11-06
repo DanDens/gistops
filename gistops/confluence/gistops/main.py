@@ -67,7 +67,9 @@ class GistOps():
         cnfl = publishing.connect_to_api(
           confluence_url, confluence_username, confluence_password )
 
-        for gist in gists.from_event(event_base64):
+        for gist in sorted(
+          gists.from_event(event_base64),
+          key=lambda g: 0 if g.path.suffix == '.jira' else 1 ):
             publishing.publish(cnfl = cnfl, gist = gist, dry_run = self.__dry_run)
 
 
