@@ -133,53 +133,53 @@ def test_pandoc_convert():
 
     # Base64 encoding of
     # {"semver": "0.1.0-beta", "record-type": "ConvertedGist", "records": [
-    #   {
-    #     "gist": {
-    #       "path": "howtos/how-to-setup-a-scalable-vpc-architecture/README.md", 
-    #       "commit_id": "ccab44e", 
-    #       "tags": {"confluence": {"page": "117605798", "host": "verw.bssn.eu"}}
-    #     }, 
-    #     "path": ".gistops/data/howtos/how-to-setup-a-scalable-vpc-architecture/README.pdf", 
-    #     "title": "How to setup a scalable vpc architecture", 
-    #     "deps": [
-    #       "howtos/how-to-setup-a-scalable-vpc-architecture", 
-    #       "howtos/how-to-setup-a-scalable-vpc-architecture/img"
-    #     ]
-    #   }, {
-    #     "gist": {
-    #       "path": "howtos/how-to-setup-a-scalable-vpc-architecture/README.md", 
-    #       "commit_id": "ccab44e", 
-    #       "tags": {"confluence": {"page": "117605798", "host": "verw.bssn.eu"}}
-    #     }, 
-    #     "path": ".gistops/data/howtos/how-to-setup-a-scalable-vpc-architecture/README.jira", 
-    #     "title": "How to setup a scalable vpc architecture", 
-    #     "deps": [
-    #       "howtos/how-to-setup-a-scalable-vpc-architecture", 
-    #       "howtos/how-to-setup-a-scalable-vpc-architecture/img"
-    #     ]
-    #   }, {
-    #     "gist": {
-    #       "path": "howtos/how-to-zip-directories-recursively-with-hidden-files/README.md", 
-    #       "commit_id": "ccab44e", 
-    #       "tags": {"confluence": {"page": "117605798", "host": "verw.bssn.eu"}}
-    #     }, 
-    #     "path": ".gistops/data/howtos/how-to-zip-directories-recursively-with-hidden-files/README.jira", 
-    #     "title": "How to zip directories recursively with hidden files", 
-    #     "deps": [
-    #       "howtos/how-to-zip-directories-recursively-with-hidden-files", 
-    #       "howtos/how-to-zip-directories-recursively-with-hidden-files/img"
-    #     ]
-    #   }, {
-    #     "gist": {
-    #       "path": "howtos/how-to-zip-directories-recursively-with-hidden-files/README.md", 
-    #       "commit_id": "ccab44e", 
-    #       "tags": {"confluence": {"page": "117605798", "host": "verw.bssn.eu"}}
-    #     }, 
-    #     "path": ".gistops/data/howtos/how-to-zip-directories-recursively-with-hidden-files/README.pdf", 
-    #     "title": "How to zip directories recursively with hidden files", 
-    #     "deps": [
-    #       "howtos/how-to-zip-directories-recursively-with-hidden-files", 
-    #       "howtos/how-to-zip-directories-recursively-with-hidden-files/img"
-    #     ]
-    #   }
+    # {
+    #   "gist": {
+    #     "path": "howtos/how-to-setup-a-scalable-vpc-architecture/README.md", 
+    #     "commit_id": "ccab44e", 
+    #     "tags": {"confluence": {"page": "117605798", "host": "verw.bssn.eu"}}
+    #   }, 
+    #   "path": ".gistops/data/howtos/how-to-setup-a-scalable-vpc-architecture/README.pdf",   
+    #   "title": "How to setup a scalable vpc architecture", 
+    #   "deps": [
+    #     "howtos/how-to-setup-a-scalable-vpc-architecture", 
+    #     "howtos/how-to-setup-a-scalable-vpc-architecture/img"
+    #   ]
+    # }, {
+    #   "gist": {
+    #     "path": "howtos/how-to-setup-a-scalable-vpc-architecture/README.md", 
+    #     "commit_id": "ccab44e", 
+    #     "tags": {"confluence": {"page": "117605798", "host": "verw.bssn.eu"}}
+    #   }, 
+    #   "path": ".gistops/data/howtos/how-to-setup-a-scalable-vpc-architecture/README.jira", 
+    #   "title": "How to setup a scalable vpc architecture", 
+    #   "deps": [
+    #     "howtos/how-to-setup-a-scalable-vpc-architecture", 
+    #     "howtos/how-to-setup-a-scalable-vpc-architecture/img"
+    #   ]
+    # }, {
+    #   "gist": {
+    #     "path": "howtos/how-to-zip-directories-recursively-with-hidden-files/README.md", 
+    #     "commit_id": "ccab44e", 
+    #     "tags": {"confluence": {"page": "117605798", "host": "verw.bssn.eu"}}
+    #   }, 
+    #   "path": ".gistops/data/howtos/how-to-zip-directories-recursively-with-hidden-files/README.pdf", 
+    #   "title": "How to zip directories recursively with hidden files", 
+    #   "deps": [
+    #     "howtos/how-to-zip-directories-recursively-with-hidden-files", 
+    #     "howtos/how-to-zip-directories-recursively-with-hidden-files/img"
+    #   ]
+    # }, {
+    #   "gist": {
+    #     "path": "howtos/how-to-zip-directories-recursively-with-hidden-files/README.md", 
+    #     "commit_id": "ccab44e", 
+    #     "tags": {"confluence": {"page": "117605798", "host": "verw.bssn.eu"}}
+    #   }, 
+    #   "path": ".gistops/data/howtos/how-to-zip-directories-recursively-with-hidden-files/README.jira", 
+    #   "title": "How to zip directories recursively with hidden files", 
+    #   "deps": [
+    #     "howtos/how-to-zip-directories-recursively-with-hidden-files", 
+    #     "howtos/how-to-zip-directories-recursively-with-hidden-files/img"
+    #   ]
+    # }
     # ]}
