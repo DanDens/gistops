@@ -95,7 +95,9 @@ def convert(
     logger = logging.getLogger()
 
     convs: List[gists.ConvertedGist] = []
-    for pandoc_j2_path in gist.path.parent.glob('*.pandoc.j2'):
+    for pandoc_j2_path in sorted(
+      list(gist.path.parent.glob('*.pandoc.j2')), 
+      key=str):
 
         # Render pandoc config
         pandoc_yml = __render_j2(gist, pandoc_j2_path)
