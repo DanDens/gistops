@@ -53,6 +53,6 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/dandens/gistops-git-ls-attr:latest
-      steps:
+    steps:
       - name: Check for dockerenv file
         run: gistops version
