@@ -12,7 +12,25 @@ on:
     types:
       - completed
 jobs:
-  build-and-push-gistops-git-ls-attr:
+  pytest:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/dandens/gistops-githubenv:latest
+    steps:
+    - name: Checkout Git Repository
+      uses: actions/checkout@v2
+    - run: >
+        python3 -m pip install pytest
+    - run: >
+        python3 -m pip install -r 
+        $GITHUB_WORKSPACE/gistops/git-ls-attr/requirements.txt
+    - run: > 
+        cd $GITHUB_WORKSPACE/gistops/git-ls-attr && 
+        python3 -m pytest
+
+  build-and-push:
+    needs: 
+    - pytest
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Git Repository
@@ -50,18 +68,3 @@ jobs:
             ghcr.io/dandens/gistops-git-ls-attr:latest
           push: ${{ github.ref == 'refs/heads/main' }}
   
-  pytest-gistops-git-ls-tree:
-    runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/dandens/gistops-githubenv:latest
-    steps:
-    - name: Checkout Git Repository
-      uses: actions/checkout@v2
-    - run: >
-        python3 -m pip install pytest
-    - run: >
-        python3 -m pip install -r 
-        $GITHUB_WORKSPACE/gistops/git-ls-attr/requirements.txt
-    - run: > 
-        cd $GITHUB_WORKSPACE/gistops/git-ls-attr && 
-        python3 -m pytest
