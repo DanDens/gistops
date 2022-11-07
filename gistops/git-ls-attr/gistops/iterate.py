@@ -20,15 +20,17 @@ def __gistops_attribute() -> str:
 
 
 def __init_gistops(
-  shrun: Callable[[List[str],bool], str],
   git_root: Path):
     """Configure git repository to use gistops"""
     logger = logging.getLogger()
 
+    # File directory
+    attributes_dir = git_root.joinpath('.git').joinpath('info')
+    attributes_dir.mkdir(parents=True,exist_ok=True)
+
     # Create '.git/info/attributes' file
-    logger.info(f'Adding {__gistops_attribute()} to .git/info/attributes')
-    with open(git_root.joinpath('.git/info/attributes'),
-      'a+', encoding='utf-8') as git_attributes_file:
+    logger.info(f'Adding {__gistops_attribute()} to {attributes_dir.joinpath("attributes")}')
+    with open(attributes_dir.joinpath("attributes"), 'a+', encoding='utf-8') as git_attributes_file:
         git_attributes_file.write(f'\n{__gistops_attribute()}')
 
 
@@ -75,7 +77,7 @@ def __ensure_gistops_attribute(
         except IOError:
             pass
 
-    __init_gistops(shrun=shrun, git_root=git_root)
+    __init_gistops(git_root=git_root)
 
 
 ######################
