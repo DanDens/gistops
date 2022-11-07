@@ -73,14 +73,12 @@ def __tagged(tag_name: str):
 
 
 def __attach_to_issue(
-  jira: Jira, issue_key: str, attachpath: Path, gist: gists.ConvertedGist, dry_run: bool):
+  jira: Jira, issue_key: str, attachpath: Path, dry_run: bool):
     logger = logging.getLogger()
     logger.info(
-      'curl -u USERNAME:PASSWORD -X POST -H "X-Atlassian-Token: nocheck" '
-      f'-F "file=@${attachpath}" '
-      f'-F "name={attachpath.name}" '
-      f'-F "comment={gist.gist.commit_id}" '
-      f'${jira.url}/rest/api/content/${issue_key}/child/attachment')
+      'curl -D- -u USERNAME:PASSWORD -X POST -H "X-Atlassian-Token: nocheck" '
+      f'-F "file=@{{{attachpath}}}" '
+      f'{jira.url}/rest/api/2/issue/{issue_key}/attachments')
 
     if dry_run:
         return # Do nothing, please ...
@@ -102,7 +100,7 @@ def __update_issue_summary(jira: Jira, issue_key: str, gist: gists.ConvertedGist
     logger = logging.getLogger()
 
     # https://atlassian-python-api.readthedocs.io/jira.html
-    # https://community.atlassian.com/t5/Confluence-questions/Insert-Confluence-Wiki-Markdown-via-API/qaq-p/667936
+    # https://developer.atlassian.com/server/jira/platform/rest-apis/
 
     # Open wiki ...
     with open(gist.path, 'r', encoding='utf-8') as jira_wiki_file:
@@ -113,13 +111,12 @@ def __update_issue_summary(jira: Jira, issue_key: str, gist: gists.ConvertedGist
     for attachref, attachpath in attachs.items():
         jira_wiki = jira_wiki.replace( f'!{attachref}!', f'!{str(attachpath.name)}!' )
 
-    # Upload issue summary ...
+    # Upload issue description ...
     logger.info(
       'curl -u USERNAME:PASSWORD -X PUT -H '
       '"X-Atlassian-Token: nocheck" -H "Content-Type: application/json" '
-      f'-d \'{{"id":"{issue_key}","title":"{gist.title}",'
-      f'"body":"...","representation":"wiki"}}\''
-      f'{jira.url}/rest/api/content/{issue_key}')
+      '-d \'{"fields":{"description","..."} }\''
+      f'{jira.url}/rest/api/2/issue/{issue_key}')
 
     if not dry_run:
         jira.api.update_issue_field(issue_key, {'description': jira_wiki})
@@ -127,7 +124,7 @@ def __update_issue_summary(jira: Jira, issue_key: str, gist: gists.ConvertedGist
     # Upload Attachments 
     for attachpath in attachs.values():
         __attach_to_issue(
-          jira=jira, issue_key=issue_key, attachpath=attachpath, gist=gist, dry_run=dry_run)
+          jira=jira, issue_key=issue_key, attachpath=attachpath, dry_run=dry_run)
 
 
 @__tagged('jira')
@@ -144,4 +141,4 @@ def publish(
           jira=jira, issue_key=issue_key, gist=gist, dry_run=dry_run )
     else:
         __attach_to_issue( 
-          jira=jira, issue_key=issue_key, attachpath=gist.path, gist=gist, dry_run=dry_run )
+          jira=jira, issue_key=issue_key, attachpath=gist.path, dry_run=dry_run )
