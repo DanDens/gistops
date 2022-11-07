@@ -19,6 +19,10 @@
     {
       "name": "gistops/confluence",
       "path": "../gistops/confluence"
+    },
+    {
+      "name": "gistops/jira",
+      "path": "../gistops/jira"
     }
   ],
   "settings": {
