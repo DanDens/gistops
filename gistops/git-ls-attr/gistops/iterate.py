@@ -20,7 +20,6 @@ def __gistops_attribute() -> str:
 
 
 def __init_gistops(
-  shrun: Callable[[List[str],bool], str],
   git_root: Path):
     """Configure git repository to use gistops"""
     logger = logging.getLogger()
@@ -78,7 +77,7 @@ def __ensure_gistops_attribute(
         except IOError:
             pass
 
-    __init_gistops(shrun=shrun, git_root=git_root)
+    __init_gistops(git_root=git_root)
 
 
 ######################
