@@ -1,7 +1,5 @@
-# gistops
-Automation around gists git repositories using Python 3.10 and later
+# Gistops - Automation for Gists stored in Git Repositories 
+
+![](docs/gistops-motivation.png)
 
 
-todo: 
-  https://www.freecodecamp.org/news/how-to-use-github-as-a-pypi-server-1c3b0d07db2/
-  https://gnupg.readthedocs.io/en/latest/
