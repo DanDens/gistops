@@ -97,6 +97,7 @@ def mirror(
     git_remote_src: GitRemote,
     git_remote_trg: GitRemote,
     branch_regex: str,
+    delete_src: bool = False,
     dry_run: bool = False):
     """Force mirror branches matching the given regex"""
     logger = logging.getLogger()
@@ -121,3 +122,6 @@ def mirror(
             'git','push','-q','--force', f'{git_remote_trg.name}',
             f'refs/remotes/{git_remote_src.name}/{branch}:refs/heads/{branch}'],
           do_not_execute=dry_run)
+
+        if delete_src:
+            shrun(cmd=['git', 'push', git_remote_src.name, '--delete', branch])

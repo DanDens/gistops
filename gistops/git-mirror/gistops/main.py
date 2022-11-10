@@ -65,8 +65,9 @@ class GistOps():
       git_src_username: str = None,
       git_src_password: str = None,
       git_trg_username: str = None,
-      git_trg_password: str = None ):
-        """Push mirror branch(s) to remote"""
+      git_trg_password: str = None,
+      delete_src: bool = False ):
+        """Copy branch(es) from src to trg remote"""
         logger = logging.getLogger()
 
         if git_src_url is None: 
@@ -94,6 +95,7 @@ class GistOps():
           git_remote_trg = mirroring.as_remote(
             self.__shrun, git_trg_url, git_trg_username, git_trg_password ),
           branch_regex = branch_regex,
+          delete_src = delete_src,
           dry_run = self.__dry_run)
 
 
@@ -104,8 +106,9 @@ class GistOps():
       git_src_username: str = None,
       git_src_password: str = None,
       git_trg_username: str = None,
-      git_trg_password: str = None ) -> str:
-        """Iterate gists in git tree (that have changed)"""
+      git_trg_password: str = None,
+      delete_src: bool = False ) -> str:
+        """Copy branch(es) from src to trg remote"""
         return self.mirror(
           branch_regex,
           git_src_url,
@@ -113,7 +116,8 @@ class GistOps():
           git_src_username,
           git_src_password,
           git_trg_username,
-          git_trg_password)
+          git_trg_password,
+          delete_src = delete_src)
 
 
 def main():
