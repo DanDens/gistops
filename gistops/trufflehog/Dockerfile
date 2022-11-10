@@ -21,10 +21,11 @@ WORKDIR /root
 # Copy executable
 COPY --from=builder /build/trufflehog /usr/local/bin/trufflehog
 RUN chmod -R ugo+x /usr/local/bin/trufflehog
-RUN ln -s /usr/local/bin/trufflehog /usr/local/bin/gistops
 
 # Run as USER from here
 USER ${USER}
 WORKDIR /home/${USER}
 
-CMD [ "gistops" ]
+RUN echo 'gistops () { trufflehog git "file://$1" --no-update --only-verified --json --fail; }' >> /home/${USER}/.bashrc 
+
+CMD [ "bash","-c", "gistops", "." ]
