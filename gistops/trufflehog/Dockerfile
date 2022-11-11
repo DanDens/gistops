@@ -30,4 +30,4 @@ RUN chmod ugo+x /etc/profile.d/gistops.sh
 USER ${USER}
 WORKDIR /home/${USER}
 
-CMD [ "sh","-c", "gistops", "." ]
+CMD [ "gistops" ]
