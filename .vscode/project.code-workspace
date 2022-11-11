@@ -5,6 +5,10 @@
       "path": "../"
     },
     {
+      "name": "gistops/base",
+      "path": "../gistops/base"
+    },
+    {
       "name": "gistops/git-ls-attr",
       "path": "../gistops/git-ls-attr"
     },
@@ -23,6 +27,10 @@
     {
       "name": "gistops/jira",
       "path": "../gistops/jira"
+    },
+    {
+      "name": "gistops/trufflehog",
+      "path": "../gistops/trufflehog"
     }
   ],
   "settings": {
