@@ -23,7 +23,7 @@ COPY --from=builder /build/trufflehog /usr/local/bin/trufflehog
 RUN chmod -R ugo+x /usr/local/bin/trufflehog
 
 # Make function available
-COPY ./gistops >> /usr/local/bin/gistops
+COPY ./gistops /usr/local/bin/gistops
 RUN chmod ugo+rwx /usr/local/bin/gistops 
 
 # Run as USER from here
