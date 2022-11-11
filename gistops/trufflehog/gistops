@@ -1,0 +1,3 @@
+#!/bin/bash
+
+trufflehog git "file://${1:-.}" --no-update --only-verified --json --fail
