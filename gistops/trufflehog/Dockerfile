@@ -26,6 +26,6 @@ RUN chmod -R ugo+x /usr/local/bin/trufflehog
 USER ${USER}
 WORKDIR /home/${USER}
 
-RUN echo 'gistops () { trufflehog git "file://$1" --no-update --only-verified --json --fail; }' >> /home/${USER}/.bashrc 
+RUN echo 'gistops () { trufflehog git "file://$1" --no-update --only-verified --json --fail; }' >> /home/${USER}/.profile 
 
 CMD [ "bash","-c", "gistops", "." ]
