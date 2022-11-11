@@ -22,10 +22,12 @@ WORKDIR /root
 COPY --from=builder /build/trufflehog /usr/local/bin/trufflehog
 RUN chmod -R ugo+x /usr/local/bin/trufflehog
 
+# Make function available
+RUN echo 'gistops () { trufflehog git "file://$1" --no-update --only-verified --json --fail; }' >> /etc/profile 
+
 # Run as USER from here
 USER ${USER}
 WORKDIR /home/${USER}
 
-RUN echo 'gistops () { trufflehog git "file://$1" --no-update --only-verified --json --fail; }' >> /home/${USER}/.profile 
 
 CMD [ "bash","-c", "gistops", "." ]
