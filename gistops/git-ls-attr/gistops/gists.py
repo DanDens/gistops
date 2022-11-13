@@ -27,20 +27,21 @@ class Gist:
     tags: dict
 
 
-def to_event(gists: List[Gist]) -> str:
-    """Returns gist as dict using basic types"""
-        
-    def __to_basic_dict(gist: Gist) -> dict:
+def to_basic_dict(gist: Gist) -> dict:
         """Returns gist as dict using basic types"""
         return {
         'path': str(gist.path),
         'tags': gist.tags,
         'commit_id': gist.commit_id }
-    
+
+
+def to_event(gists: List[Gist]) -> str:
+    """Returns gist as dict using basic types"""
+
     event = {
         "semver": version.__semver__,
         "record-type": 'Gist',
-        "records": [__to_basic_dict(gist) for gist in gists] }
+        "records": [to_basic_dict(gist) for gist in gists] }
 
     validate(instance=event, schema={
     "type": "object",
@@ -70,9 +71,6 @@ def to_event(gists: List[Gist]) -> str:
 
     return __to_base64(
       json.dumps(event, separators=(',',':')))
-
-
-    # Encode base64
 
 
 def assert_git_root(gist_absolute_path: Path) -> Path:

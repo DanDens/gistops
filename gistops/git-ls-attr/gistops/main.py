@@ -4,6 +4,7 @@ Command line arguments for GistOps Operations
 """
 import os
 import logging
+import json
 from functools import partial
 from pathlib import Path
 from typing import Callable, List
@@ -17,12 +18,11 @@ import version
 
 
 class GistOps():
-    """gistops - Operations on Gists managed by Git"""
+    """gistops - iterate gists stored in git"""
 
 
     def __init__(self, 
-      cwd: str = str( Path.cwd() ), 
-      git_hash: str = None):
+      cwd: str = str( Path.cwd() )):
 
         logger = logging.getLogger()
         logfile = logging.FileHandler(
@@ -37,8 +37,6 @@ class GistOps():
         ############
         # Git Root #
         ############
-        # Remember parameters
-        self.__git_diff_hash = git_hash
         # Make git root current working directory 
         # and make path relative to git root
         self.__git_root = gists.assert_git_root(
@@ -56,30 +54,34 @@ class GistOps():
           env=os.environ,
           cwd=self.__git_root.resolve()) 
 
-        ##########################
-        # Pre-configure Iterator #
-        ##########################
-        self.__iterate_gists = partial(
-          iterate.iterate_gists, 
-          git_root=self.__git_root, 
-          gist_path=self.__gist_path, 
-          git_diff_hash=self.__git_diff_hash)
-
 
     def version(self) -> str:
-        """Just print the version"""
+        """print the version"""
         return version.__version__
 
 
-    def list(self) -> str:
-        """Iterate gists in git tree (that have changed)"""
-        return gists.to_event( 
-          list(self.__iterate_gists(self.__shrun)) )
+    def list(self, git_hash: str = None) -> str:
+        """iterate gists in git"""
+
+        with open(Path.cwd().joinpath('gists.json'), 'w', encoding='utf-8') as gists_file:
+            gists_file.write(
+              json.dumps( [gists.to_basic_dict(gist) for gist in iterate.iterate_gists(
+                shrun=self.__shrun,
+                git_root=self.__git_root, 
+                gist_path=self.__gist_path, 
+                git_diff_hash=None)] ) )
+
+        return gists.to_event(
+          list(iterate.iterate_gists(
+            shrun=self.__shrun,
+            git_root=self.__git_root, 
+            gist_path=self.__gist_path, 
+            git_diff_hash=git_hash)) )
 
 
-    def run(self) -> str:
-        """Iterate gists in git tree (that have changed)"""
-        return self.list()
+    def run(self, git_hash: str = None) -> str:
+        """iterate gists in git"""
+        return self.list(git_hash=git_hash)
 
 
 def main():

@@ -6,6 +6,7 @@ import os
 import sys
 import zipfile
 import shutil
+import json
 from pathlib import Path
 
 import pytest
@@ -79,12 +80,14 @@ def test_all_gists_are_found():
     #   "commit_id":"ccab44e"
     # }]}
 
+    assert Path.cwd().joinpath('gists.json').exists()
+
 
 def test_last_committed_gists_are_found():
     """Tests all gists are found"""
     
     event_base64:str = main.GistOps(
-      cwd=str(Path.cwd()),git_hash='HEAD').list()
+      cwd=str(Path.cwd())).list(git_hash='HEAD')
     assert event_base64 == \
       'eyJzZW12ZXIiOiIwLjEuMC1iZXRhIiwicmVjb3JkLXR5cGUiOiJ' \
       'HaXN0IiwicmVjb3JkcyI6W3sicGF0aCI6Imhvd3Rvcy9ob3ctdG' \
@@ -99,3 +102,11 @@ def test_last_committed_gists_are_found():
     #   "tags":{"confluence":{"page":"117605798","host":"verw.bssn.eu"}},
     #   "commit_id":"ccab44e"
     # }]}
+
+    gists_json_path = Path.cwd().joinpath('gists.json')
+    assert gists_json_path.exists()
+
+    with open(str(gists_json_path),'r',encoding='utf-8') as gists_json_file:
+        gists_json: list = json.loads(gists_json_file.read())
+
+    assert len(gists_json) == 2
