@@ -28,8 +28,8 @@ class Gist:
 
 
 def to_basic_dict(gist: Gist) -> dict:
-        """Returns gist as dict using basic types"""
-        return {
+    """Returns gist as dict using basic types"""
+    return {
         'path': str(gist.path),
         'tags': gist.tags,
         'commit_id': gist.commit_id }
