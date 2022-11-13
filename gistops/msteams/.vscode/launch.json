@@ -1,0 +1,22 @@
+{
+  // 1. > ./setup-python-venv.sh
+  // 2. https://code.visualstudio.com/docs/python/environments
+  //    > ctrl+shift+P 
+  //    > Python: Select Interpreter 
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "gistops-msteams",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceRoot}/gistops/main.py",
+      "args": ["run"],
+      "cwd": "/home/dandens/ws/test_git-ls-attr",
+      "env": {
+        "GISTOPS_MSTEAMS_WEBHOOK_URL": "tobedefined"
+      },
+      "console": "integratedTerminal",
+      "justMyCode": true
+    }
+  ]
+}

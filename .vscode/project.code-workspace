@@ -31,6 +31,10 @@
     {
       "name": "gistops/trufflehog",
       "path": "../gistops/trufflehog"
+    },
+    {
+      "name": "gistops/msteams",
+      "path": "../gistops/msteams"
     }
   ],
   "settings": {
