@@ -72,6 +72,9 @@ def test_pandoc_convert():
       event_base64=in_base64, 
       outpath=str(Path.cwd().joinpath('.gistops/data')))
 
+    assert Path.cwd().joinpath('gistops.trail').exists()
+    assert Path.cwd().joinpath('gistops.log').exists()
+
     assert out_base64 == \
       'eyJzZW12ZXIiOiAiMC4xLjAtYmV0YSIsICJyZWNvcmQtd'\
       'HlwZSI6ICJDb252ZXJ0ZWRHaXN0IiwgInJlY29yZHMiOi'\

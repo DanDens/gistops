@@ -24,14 +24,26 @@ class GistOps():
       cwd: str = str(Path.cwd()), 
       dry_run: bool = False ):
 
+        datefmt='%Y-%m-%dT%H:%M:%SZ'
+
+        # Logs to gistops.log
         logger = logging.getLogger()
-        logfile = logging.FileHandler(Path(cwd).joinpath('gistops.log'))
+        logfile = logging.FileHandler(
+          Path(cwd).joinpath('gistops.log'))
         logfile.setFormatter(logging.Formatter(
-            '%(levelname)s %(asctime)s %(message)s'))
+            'git-mirror,%(levelname)s,%(asctime)s,%(message)s', datefmt=datefmt ))
         logger.addHandler(logfile)
         logger.setLevel(os.environ.get('LOG_LEVEL','INFO'))
-
         logger.info(version.__version__)
+
+        # Trailing to gistops.trail
+        traillog = logging.getLogger('gistops.trail')
+        traillogfile = logging.FileHandler(
+          Path(cwd).joinpath('gistops.trail'))
+        traillogfile.setFormatter(logging.Formatter(
+            'git-mirror,%(levelname)s,%(asctime)s,%(message)s', datefmt=datefmt ))
+        traillog.addHandler(traillogfile)
+        traillog.setLevel(os.environ.get('LOG_LEVEL','INFO'))
 
         ############
         # Git Root #
@@ -68,36 +80,43 @@ class GistOps():
       git_trg_password: str = None,
       delete_src: bool = False ):
         """Copy branch(es) from src to trg remote"""
-        logger = logging.getLogger()
+        try:
+            logger = logging.getLogger()
 
-        if git_src_url is None: 
-            git_src_url=os.environ.get('GISTOPS_GIT_SOURCE_URL', None)
-        if git_trg_url is None: 
-            git_trg_url=os.environ.get('GISTOPS_GIT_TARGET_URL', None)
+            if git_src_url is None: 
+                git_src_url=os.environ.get('GISTOPS_GIT_SOURCE_URL', None)
+            if git_trg_url is None: 
+                git_trg_url=os.environ.get('GISTOPS_GIT_TARGET_URL', None)
 
-        if git_src_url is None or git_trg_url is None:
-            logger.info('Either src or target is not set, skipping ...')
-            return
+            if git_src_url is None or git_trg_url is None:
+                logger.info('Either src or target is not set, skipping ...')
+                return
 
-        if git_src_username is None:
-            git_src_username=os.environ.get('GISTOPS_GIT_SOURCE_USERNAME', None)
-        if git_src_password is None:
-            git_src_password=os.environ.get('GISTOPS_GIT_SOURCE_PASSWORD', None)
-        if git_trg_username is None:
-            git_trg_username=os.environ.get('GISTOPS_GIT_TARGET_USERNAME', None)
-        if git_trg_password is None:
-            git_trg_password=os.environ.get('GISTOPS_GIT_TARGET_PASSWORD', None)
+            if git_src_username is None:
+                git_src_username=os.environ.get('GISTOPS_GIT_SOURCE_USERNAME', None)
+            if git_src_password is None:
+                git_src_password=os.environ.get('GISTOPS_GIT_SOURCE_PASSWORD', None)
+            if git_trg_username is None:
+                git_trg_username=os.environ.get('GISTOPS_GIT_TARGET_USERNAME', None)
+            if git_trg_password is None:
+                git_trg_password=os.environ.get('GISTOPS_GIT_TARGET_PASSWORD', None)
 
-        mirroring.mirror(
-          shrun = self.__shrun,
-          git_remote_src = mirroring.as_remote(
-            self.__shrun, git_src_url, git_src_username, git_src_password ),
-          git_remote_trg = mirroring.as_remote(
-            self.__shrun, git_trg_url, git_trg_username, git_trg_password ),
-          branch_regex = branch_regex,
-          delete_src = delete_src,
-          dry_run = self.__dry_run)
+            mirroring.mirror(
+              shrun = self.__shrun,
+              git_remote_src = mirroring.as_remote(
+                self.__shrun, git_src_url, git_src_username, git_src_password ),
+              git_remote_trg = mirroring.as_remote(
+                self.__shrun, git_trg_url, git_trg_username, git_trg_password ),
+              branch_regex = branch_regex,
+              delete_src = delete_src,
+              dry_run = self.__dry_run)
 
+            logging.getLogger('gistops.trail').info(f'*,mirrored to {git_trg_url}')
+
+        except Exception as err:
+            logging.getLogger('gistops.trail').error(f'*,mirroring to {git_trg_url} failed')
+            logging.getLogger().error(str(err))
+            raise err
 
     def run(self,
       branch_regex: str,

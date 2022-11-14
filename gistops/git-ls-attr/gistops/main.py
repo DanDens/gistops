@@ -24,15 +24,26 @@ class GistOps():
     def __init__(self, 
       cwd: str = str( Path.cwd() )):
 
+        datefmt='%Y-%m-%dT%H:%M:%SZ'
+
+        # Logs to gistops.log
         logger = logging.getLogger()
         logfile = logging.FileHandler(
           Path(cwd).joinpath('gistops.log'))
         logfile.setFormatter(logging.Formatter(
-            '%(levelname)s %(asctime)s %(message)s'))
+            'git-ls-attr,%(levelname)s,%(asctime)s,%(message)s', datefmt=datefmt ))
         logger.addHandler(logfile)
         logger.setLevel(os.environ.get('LOG_LEVEL','INFO'))
-
         logger.info(version.__version__)
+
+        # Trailing to gistops.trail
+        traillog = logging.getLogger('gistops.trail')
+        traillogfile = logging.FileHandler(
+          Path(cwd).joinpath('gistops.trail'))
+        traillogfile.setFormatter(logging.Formatter(
+            'git-ls-attr,%(levelname)s,%(asctime)s,%(message)s', datefmt=datefmt ))
+        traillog.addHandler(traillogfile)
+        traillog.setLevel(os.environ.get('LOG_LEVEL','INFO'))
 
         ############
         # Git Root #
@@ -63,20 +74,31 @@ class GistOps():
     def list(self, git_hash: str = None) -> str:
         """iterate gists in git"""
 
-        with open(Path.cwd().joinpath('gists.json'), 'w', encoding='utf-8') as gists_file:
-            gists_file.write(
-              json.dumps( [gists.to_basic_dict(gist) for gist in iterate.iterate_gists(
-                shrun=self.__shrun,
-                git_root=self.__git_root, 
-                gist_path=self.__gist_path, 
-                git_diff_hash=None)] ) )
+        try:
+            with open(Path.cwd().joinpath('gists.json'), 'w', encoding='utf-8') as gists_file:
+                gists_file.write(
+                  json.dumps( [gists.to_basic_dict(gist) for gist in iterate.iterate_gists(
+                    shrun=self.__shrun,
+                    git_root=self.__git_root, 
+                    gist_path=self.__gist_path, 
+                    git_diff_hash=None)] ) )
 
-        return gists.to_event(
-          list(iterate.iterate_gists(
-            shrun=self.__shrun,
-            git_root=self.__git_root, 
-            gist_path=self.__gist_path, 
-            git_diff_hash=git_hash)) )
+            gsts: List[gists.Gist] = list()
+            for gist in iterate.iterate_gists(
+              shrun=self.__shrun,
+              git_root=self.__git_root, 
+              gist_path=self.__gist_path, 
+              git_diff_hash=git_hash):
+
+                gsts.append(gist)
+                logging.getLogger('gistops.trail').info(f'{gist.path},triggered')
+
+            return gists.to_event(gsts)
+
+        except Exception as err:
+            logging.getLogger('gistops.trail').error('*,unexpected error')
+            logging.getLogger().error(str(err))
+            raise err
 
 
     def run(self, git_hash: str = None) -> str:

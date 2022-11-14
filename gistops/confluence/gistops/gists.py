@@ -37,7 +37,7 @@ class ConvertedGist:
     deps: List[Path]
 
 
-def from_event(event_base64: str) -> List[Gist]:
+def from_event(event_base64: str) -> List[ConvertedGist]:
     """ Read Converted Gists Event """ 
 
     try:

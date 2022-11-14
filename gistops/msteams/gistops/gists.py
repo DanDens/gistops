@@ -8,10 +8,8 @@ from pathlib import Path
 from dataclasses import dataclass
 from typing import List
 
-import semver
 from jsonschema import validate
 
-import version
 
 ##################
 # EXPORTED TYPES #
@@ -28,48 +26,29 @@ class Gist:
     tags: dict
 
 
-def from_event(event_base64: str) -> List[Gist]:
-    """ Read Gists Event """ 
+def from_file(gists_json_path: Path) -> List[Gist]:
+    """ Read Gists from File """ 
 
     try:
-        def __from_base64(event_base64: str) -> str:
-            base64_bytes = event_base64.encode('ascii')
-            message_bytes = base64.b64decode(base64_bytes)
-            return message_bytes.decode('ascii')
-
-        event: dict = json.loads(__from_base64(event_base64))
+        with open(gists_json_path, 'r', encoding='utf-8') as gists_json_file:
+            gsts: list = json.loads(gists_json_file.read())
     except json.JSONDecodeError as err:
         raise GistOpsError('Invalid event') from err
 
-    validate(instance=event, schema={
-        "type": "object",
-        "properties": {
-            "semver": {"type": "string"},
-            "record-type": {"const": "Gist"},
-            "records": {
-                "type": "array",
-                "items": {
-                    "type": "object",
-                    "properties": {
-                        "path": {"type": "string"},
-                        "commit_id": {"type": "string"},
-                        "tags": {"type":"object"}
-                    },
-                    "required": ["path","commit_id","tags"]
-                }
-            }
-        },
-        "required": ["semver","record-type","records"]
+    validate(instance=gsts, schema={
+        "type": "array",
+        "items": {
+            "type": "object",
+            "properties": {
+                "path": {"type": "string"},
+                "commit_id": {"type": "string"},
+                "tags": {"type":"object"}
+            },
+            "required": ["path","commit_id","tags"]
+        }
     })
 
-    # Check major version 
-    event_semver = semver.VersionInfo.parse(event['semver'])
-    this_semver = semver.VersionInfo.parse(version.__semver__)
-    if event_semver.major != this_semver.major:
-        raise GistOpsError(
-          f"Event semver major version differ {event['semver']} != {version.__semver__}")
-
-    return [ Gist(Path(rec['path']), rec['commit_id'], rec['tags']) for rec in event['records'] ]
+    return [ Gist(Path(gist['path']), gist['commit_id'], gist['tags']) for gist in gsts ]
 
 
 @dataclass

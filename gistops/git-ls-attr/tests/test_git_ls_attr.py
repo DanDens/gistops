@@ -81,6 +81,8 @@ def test_all_gists_are_found():
     # }]}
 
     assert Path.cwd().joinpath('gists.json').exists()
+    assert Path.cwd().joinpath('gistops.trail').exists()
+    assert Path.cwd().joinpath('gistops.log').exists()
 
 
 def test_last_committed_gists_are_found():
@@ -103,6 +105,8 @@ def test_last_committed_gists_are_found():
     #   "commit_id":"ccab44e"
     # }]}
 
+    assert Path.cwd().joinpath('gistops.trail').exists()
+    assert Path.cwd().joinpath('gistops.log').exists()
     gists_json_path = Path.cwd().joinpath('gists.json')
     assert gists_json_path.exists()
 

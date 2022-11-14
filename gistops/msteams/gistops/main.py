@@ -5,6 +5,7 @@ Command line arguments for GistOps Operations
 import os
 import logging
 from pathlib import Path
+from typing import List
 
 import fire
 
@@ -14,7 +15,7 @@ import version
 
 
 class GistOps():
-    """gistops - Operations on Gists managed by Git"""
+    """gistops - msteams notification"""
 
 
     def __init__(self, cwd: str = str( Path.cwd() )):
@@ -47,19 +48,25 @@ class GistOps():
 
     def report(self, 
       webhook_url: str=os.environ.get('GISTOPS_MSTEAMS_WEBHOOK_URL', None), 
-      logs_path: str=str(Path.cwd())):
+      logsdir: str=str(Path.cwd())):
         """Report status to msteams webhook"""
 
         # Todo: read gistops.logs and gists.json
+        # gistops_logs_path = Path(logsdir).joinpath('gistops.logs')
+
+        gsts: List[gists.Gist] = gists.from_file(
+          gists_json_path=Path(logsdir).joinpath('gists.json') )
+
+        nxg = graph.as_graph(gsts)
 
 
     def run(self, 
       webhook_url: str=os.environ.get('GISTOPS_MSTEAMS_WEBHOOK_URL', None), 
-      logs_path: str=str(Path.cwd())) -> str:
+      logsdir: str=str(Path.cwd())) -> str:
         """Report status to msteams webhook"""
         return self.report(
           webhook_url=webhook_url,
-          logs_path=logs_path)
+          logsdir=logsdir)
 
 
 def main():

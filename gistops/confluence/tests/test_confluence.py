@@ -243,3 +243,6 @@ def test_confluence_publish(mocker):
       confluence_url='https://verw.bssn.eu/wiki',
       confluence_username='unknown',
       confluence_password='unknown' )
+
+    assert Path.cwd().joinpath('gistops.trail').exists()
+    assert Path.cwd().joinpath('gistops.log').exists()

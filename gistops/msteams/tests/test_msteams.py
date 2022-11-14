@@ -13,7 +13,6 @@ import pytest
 sys.path.append(
   str(Path(os.path.realpath(__file__)).parent.parent.joinpath('gistops')))
 
-import gists
 import main
 
 
@@ -45,5 +44,8 @@ def extract_msteams_repository():
 
 def test_msteams():
     """Tests msteams reporting"""
+
+    main.GistOps( cwd=str(Path.cwd()) ).run( 
+      logsdir=str(Path.cwd()) )
     
     #assert True is True

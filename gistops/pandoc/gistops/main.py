@@ -24,14 +24,26 @@ class GistOps():
       cwd: str = str( Path.cwd() ), 
       dry_run: bool = False):
 
+        datefmt='%Y-%m-%dT%H:%M:%SZ'
+
+        # Logs to gistops.log
         logger = logging.getLogger()
-        logfile = logging.FileHandler(Path(cwd).joinpath('gistops.log'))
+        logfile = logging.FileHandler(
+          Path(cwd).joinpath('gistops.log'))
         logfile.setFormatter(logging.Formatter(
-            '%(levelname)s %(asctime)s %(message)s'))
+            'pandoc,%(levelname)s,%(asctime)s,%(message)s', datefmt=datefmt ))
         logger.addHandler(logfile)
         logger.setLevel(os.environ.get('LOG_LEVEL','INFO'))
-
         logger.info(version.__version__)
+
+        # Trailing to gistops.trail
+        traillog = logging.getLogger('gistops.trail')
+        traillogfile = logging.FileHandler(
+          Path(cwd).joinpath('gistops.trail'))
+        traillogfile.setFormatter(logging.Formatter(
+            'pandoc,%(levelname)s,%(asctime)s,%(message)s', datefmt=datefmt ))
+        traillog.addHandler(traillogfile)
+        traillog.setLevel(os.environ.get('LOG_LEVEL','INFO'))
 
         ############
         # Git Root #
@@ -60,24 +72,36 @@ class GistOps():
 
     def convert(self, event_base64: str, outpath: str='.') -> str:
         """Convert gists using *.pandoc.yml"""
-
         try:
-            outpath = Path(outpath).resolve().relative_to(self.__git_root.resolve())
-        except ValueError as err:
-            raise gists.GistOpsError(
-              'output path MUST be sub directory of git root'
-              'in order to be accessable from downstream ops') from err
+            try:
+                outpath = Path(outpath).resolve().relative_to(self.__git_root.resolve())
+            except ValueError as err:
+                raise gists.GistOpsError(
+                  'output path MUST be sub directory of git root'
+                  'in order to be accessable from downstream ops') from err
 
-        convs: List[gists.ConvertedGist] = []
-        for gist in gists.from_event(event_base64):
-            convs.extend(
-              converting.convert(
-                shrun=self.__shrun, 
-                gist=gist, 
-                outpath=Path(outpath),
-                dry_run=self.__dry_run) )
+            convs: List[gists.ConvertedGist] = []
+            for gist in gists.from_event(event_base64):
+                try:
+                    convs.extend(
+                      converting.convert(
+                        shrun=self.__shrun, 
+                        gist=gist, 
+                        outpath=Path(outpath),
+                        dry_run=self.__dry_run) )
 
-        return gists.to_event( convs )
+                    logging.getLogger('gistops.trail').info(f'{gist.path},convertion failed')
+
+                except Exception as err:
+                    logging.getLogger('gistops.trail').error(f'{gist.path},convertion failed')
+                    raise err
+                
+            return gists.to_event( convs )
+      
+        except Exception as err:
+            logging.getLogger('gistops.trail').error('*,unexpected error')
+            logging.getLogger().error(str(err))
+            raise err
 
 
     def run(self, event_base64: str, outpath: str='.') -> str:
