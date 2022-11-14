@@ -10,7 +10,7 @@ from typing import List
 import fire
 
 import gists
-import graph
+import trailing
 import version
 
 
@@ -51,13 +51,11 @@ class GistOps():
       logsdir: str=str(Path.cwd())):
         """Report status to msteams webhook"""
 
-        # Todo: read gistops.logs and gists.json
-        # gistops_logs_path = Path(logsdir).joinpath('gistops.logs')
-
         gsts: List[gists.Gist] = gists.from_file(
           gists_json_path=Path(logsdir).joinpath('gists.json') )
 
-        nxg = graph.as_graph(gsts)
+        html: str = trailing.to_html(
+          gsts=gsts, gistops_trail_path=Path(logsdir).joinpath('gistops.trail') )
 
 
     def run(self, 

@@ -3,7 +3,6 @@
 Gist Representation and Factories
 """
 import json
-import base64
 from pathlib import Path
 from dataclasses import dataclass
 from typing import List
@@ -50,74 +49,6 @@ def from_file(gists_json_path: Path) -> List[Gist]:
 
     return [ Gist(Path(gist['path']), gist['commit_id'], gist['tags']) for gist in gsts ]
 
-
-@dataclass
-class ConvertedGist:
-    """ Gist package """
-    gist: Gist
-    path: Path
-    title: str
-    deps: List[Path]
-
-
-def from_event(event_base64: str) -> List[Gist]:
-    """ Read Converted Gists Event """ 
-
-    try:
-        def __from_base64(event_base64: str) -> str:
-            base64_bytes = event_base64.encode('ascii')
-            message_bytes = base64.b64decode(base64_bytes)
-            return message_bytes.decode('ascii')
-
-        event: dict = json.loads(__from_base64(event_base64))
-    except json.JSONDecodeError as err:
-        raise GistOpsError('Invalid event') from err
-
-    validate(instance=event, schema={
-        "type": "object",
-        "properties": {
-            "semver": {"const": version.__semver__},
-            "record-type": {"const": "ConvertedGist"},
-            "records": {
-                "type": "array",
-                "items": {
-                    "type": "object",
-                    "properties": {
-                        "gist": {
-                            "type": "object", 
-                            "properties": {
-                                "path": {"type": "string"},
-                                "commit_id": {"type": "string"},
-                                "tags": {"type":"object"}
-                            },
-                            "required": ["path","commit_id","tags"]
-                        },
-                        "path": {"type": "string"},
-                        "title": {"type": "string"},
-                        "deps": {"type":"array", "items": {"type":"string"}}
-                    },
-                    "required": ["gist","path","title","deps"]
-                }
-            }
-        },
-        "required": ["semver","record-type","records"]
-    })
-
-    # Check major version 
-    event_semver = semver.VersionInfo.parse(event['semver'])
-    this_semver = semver.VersionInfo.parse(version.__semver__)
-    if event_semver.major != this_semver.major:
-        raise GistOpsError(
-          f"Event semver major version differ {event['semver']} != {version.__semver__}")
-
-    def __to_converterted_gist(rec: dict) -> ConvertedGist:
-        return ConvertedGist(
-          gist=Gist(Path(rec['gist']['path']), rec['gist']['commit_id'], rec['gist']['tags']), 
-          path=Path(rec['path']),
-          title=rec['title'], 
-          deps=[Path(r) for r in rec['deps']] )
-
-    return [ __to_converterted_gist(rec) for rec in event['records'] ]
 
 ######################
 # EXPORTED FUNCTIONS #
