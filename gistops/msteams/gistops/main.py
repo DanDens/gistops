@@ -5,12 +5,12 @@ Command line arguments for GistOps Operations
 import os
 import logging
 from pathlib import Path
-from typing import List
 
 import fire
 
 import gists
-import trailing
+import trails
+import reporting
 import version
 
 
@@ -20,14 +20,16 @@ class GistOps():
 
     def __init__(self, cwd: str = str( Path.cwd() )):
 
+        datefmt='%Y-%m-%dT%H:%M:%SZ'
+
+        # Logs to gistops.log
         logger = logging.getLogger()
         logfile = logging.FileHandler(
           Path(cwd).joinpath('gistops.log'))
         logfile.setFormatter(logging.Formatter(
-            '%(levelname)s %(asctime)s %(message)s'))
+            'msteams,%(levelname)s,%(asctime)s,%(message)s', datefmt=datefmt ))
         logger.addHandler(logfile)
         logger.setLevel(os.environ.get('LOG_LEVEL','INFO'))
-
         logger.info(version.__version__)
 
         ############
@@ -47,23 +49,31 @@ class GistOps():
 
 
     def report(self, 
-      webhook_url: str=os.environ.get('GISTOPS_MSTEAMS_WEBHOOK_URL', None), 
+      webhook_url: str=None, 
+      report_title: str=None,
       logsdir: str=str(Path.cwd())):
-        """Report status to msteams webhook"""
+        """Report status to msteams channel"""
 
-        gsts: List[gists.Gist] = gists.from_file(
-          gists_json_path=Path(logsdir).joinpath('gists.json') )
+        if webhook_url is None: 
+            webhook_url=os.environ['GISTOPS_MSTEAMS_WEBHOOK_URL']
+        if report_title is None:
+            report_title=os.environ['GISTOPS_MSTEAMS_REPORT_TITLE']
 
-        html: str = trailing.to_html(
-          gsts=gsts, gistops_trail_path=Path(logsdir).joinpath('gistops.trail') )
+        reporting.report(
+          webhook_api = reporting.to_webhook_api(webhook_url), 
+          report_title=report_title,
+          gsts=gists.from_file(gists_json_path=Path(logsdir).joinpath('gists.json')), 
+          traillogs=trails.from_file(Path(logsdir).joinpath('gistops.trail')) )
 
 
     def run(self, 
-      webhook_url: str=os.environ.get('GISTOPS_MSTEAMS_WEBHOOK_URL', None), 
+      webhook_url: str=None, 
+      report_title: str=None,
       logsdir: str=str(Path.cwd())) -> str:
-        """Report status to msteams webhook"""
+        """Report status to msteams channel"""
         return self.report(
           webhook_url=webhook_url,
+          report_title=report_title,
           logsdir=logsdir)
 
 
