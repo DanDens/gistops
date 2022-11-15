@@ -108,8 +108,7 @@ def test_msteams(mocker):
 
     main.GistOps( cwd=str(Path.cwd()) ).run( 
       webhook_url='https://not-a-real-webhook',
-      report_title='trails from the test',
-      logsdir=str(Path.cwd()) )
+      report_title='trails from the test' )
 
     assert Path.cwd().joinpath('gistops.log').exists()
     

@@ -18,14 +18,20 @@ class GistOps():
     """gistops - msteams notification"""
 
 
-    def __init__(self, cwd: str = str( Path.cwd() )):
+    def __init__(self, 
+      cwd: str = str(Path.cwd()),
+      logsdir: str = None ):
 
+        logspath = Path(logsdir) if logsdir is not None else Path(cwd)
+        logspath.mkdir(parents=True, exist_ok=True)
         datefmt='%Y-%m-%dT%H:%M:%SZ'
+
+        self.__logspath=logspath
 
         # Logs to gistops.log
         logger = logging.getLogger()
         logfile = logging.FileHandler(
-          Path(cwd).joinpath('gistops.log'))
+          logspath.joinpath('gistops.log'))
         logfile.setFormatter(logging.Formatter(
             'msteams,%(levelname)s,%(asctime)s,%(message)s', datefmt=datefmt ))
         logger.addHandler(logfile)
@@ -50,8 +56,7 @@ class GistOps():
 
     def report(self, 
       webhook_url: str=None, 
-      report_title: str=None,
-      logsdir: str=str(Path.cwd())):
+      report_title: str=None):
         """Report status to msteams channel"""
 
         if webhook_url is None: 
@@ -62,19 +67,17 @@ class GistOps():
         reporting.report(
           webhook_api = reporting.to_webhook_api(webhook_url), 
           report_title=report_title,
-          gsts=gists.from_file(gists_json_path=Path(logsdir).joinpath('gists.json')), 
-          traillogs=trails.from_file(Path(logsdir).joinpath('gistops.trail')) )
+          gsts=gists.from_file(gists_json_path=self.__logspath.joinpath('gists.json')), 
+          traillogs=trails.from_file(self.__logspath.joinpath('gistops.trail')) )
 
 
     def run(self, 
       webhook_url: str=None, 
-      report_title: str=None,
-      logsdir: str=str(Path.cwd())) -> str:
+      report_title: str=None) -> str:
         """Report status to msteams channel"""
         return self.report(
           webhook_url=webhook_url,
-          report_title=report_title,
-          logsdir=logsdir)
+          report_title=report_title)
 
 
 def main():

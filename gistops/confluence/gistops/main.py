@@ -19,14 +19,17 @@ class GistOps():
 
     def __init__(self, 
       cwd: str = str(Path.cwd()), 
+      logsdir: str = None,
       dry_run: bool = False ):
 
+        logspath = Path(logsdir) if logsdir is not None else Path(cwd)
+        logspath.mkdir(parents=True, exist_ok=True)
         datefmt='%Y-%m-%dT%H:%M:%SZ'
 
         # Logs to gistops.log
         logger = logging.getLogger()
         logfile = logging.FileHandler(
-          Path(cwd).joinpath('gistops.log'))
+          logspath.joinpath('gistops.log'))
         logfile.setFormatter(logging.Formatter(
             'confluence,%(levelname)s,%(asctime)s,%(message)s', datefmt=datefmt ))
         logger.addHandler(logfile)
@@ -36,7 +39,7 @@ class GistOps():
         # Trailing to gistops.trail
         traillog = logging.getLogger('gistops.trail')
         traillogfile = logging.FileHandler(
-          Path(cwd).joinpath('gistops.trail'))
+          logspath.joinpath('gistops.trail'))
         traillogfile.setFormatter(logging.Formatter(
             'confluence,%(levelname)s,%(asctime)s,%(message)s', datefmt=datefmt ))
         traillog.addHandler(traillogfile)
