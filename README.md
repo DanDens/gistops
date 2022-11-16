@@ -1,4 +1,4 @@
-# Gistops - Automation for Gists stored in Git 
+# Gistops - Operations for Gists stored in Git 
 
 ![](docs/gistops-motivation.png)
 
