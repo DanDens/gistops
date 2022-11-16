@@ -74,19 +74,26 @@ class GistOps():
         if confluence_url is None: 
             confluence_url=os.environ['GISTOPS_CONFLUENCE_URL']
 
-        if confluence_access_token is None:
+        if confluence_access_token is None or confluence_access_token == '':
             confluence_access_token=os.environ.get('GISTOPS_CONFLUENCE_ACCESS_TOKEN', None)
-        if confluence_access_token is not None:
+        if confluence_access_token is not None and confluence_access_token != '':
             return publishing.connect_to_api( 
               confluence_url, confluence_access_token )
-        else:
-            if confluence_username is None:
-                confluence_username=os.environ.get('GISTOPS_CONFLUENCE_USERNAME', None)
-            if confluence_password is None:
-                confluence_password=os.environ.get('GISTOPS_CONFLUENCE_PASSWORD', None)
 
+        if confluence_username is None or confluence_username == '':
+            confluence_username=os.environ.get('GISTOPS_CONFLUENCE_USERNAME', None)
+        if confluence_password is None or confluence_password == '':
+            confluence_password=os.environ.get('GISTOPS_CONFLUENCE_PASSWORD', None)
+
+        if confluence_username is not None and confluence_username != '' and  \
+            confluence_password is not None and confluence_password != '':
             return publishing.connect_to_api_via_password( 
               confluence_url, confluence_username, confluence_password )
+
+        raise gists.GistOpsError(
+          'No credentials provided to authenticate with jira server, '
+          'please provide either GISTOPS_CONFLUENCE_ACCESS_TOKEN or '
+          'GISTOPS_CONFLUENCE_USERNAME and GISTOPS_CONFLUENCE_PASSWORD combination' )
 
 
     def publish(self,

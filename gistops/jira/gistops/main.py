@@ -74,19 +74,26 @@ class GistOps():
         if jira_url is None: 
             jira_url=os.environ['GISTOPS_JIRA_URL']
 
-        if jira_access_token is None:
+        if jira_access_token is None or jira_access_token == '':
             jira_access_token=os.environ.get('GISTOPS_JIRA_ACCESS_TOKEN', None)
-        if jira_access_token is not None:
+        if jira_access_token is not None and jira_access_token != '':
             return publishing.connect_to_api( 
               jira_url, jira_access_token )
-        else:
-            if jira_username is None:
-                jira_username=os.environ.get('GISTOPS_JIRA_USERNAME', None)
-            if jira_password is None:
-                jira_password=os.environ.get('GISTOPS_JIRA_PASSWORD', None)
+        
+        if jira_username is None or jira_username == '':
+            jira_username=os.environ.get('GISTOPS_JIRA_USERNAME', None)
+        if jira_password is None or jira_password == '':
+            jira_password=os.environ.get('GISTOPS_JIRA_PASSWORD', None)
 
+        if jira_username is not None and jira_username != '' and  \
+            jira_password is not None and jira_password != '':
             return publishing.connect_to_api_via_password( 
               jira_url, jira_username, jira_password )
+
+        raise gists.GistOpsError(
+          'No credentials provided to authenticate with jira server, '
+          'please provide either GISTOPS_JIRA_ACCESS_TOKEN or '
+          'GISTOPS_JIRA_USERNAME and GISTOPS_JIRA_PASSWORD combination' )
 
 
     def publish(self,
