@@ -25,7 +25,7 @@ __TRAILLOG_TEMPLATE_J2 = '''
 {%- for gist in gists -%}
 <tr>
 <td class="operation"><p style="color:#{{-traillevel_2_rgbcolor(gist.level)-}}; vertical-align:bottom; text-align: left;">
-<span style="font-size: 0.6em">{{- gist.prefix -}}%2F</span><br />{{- gist.path -}}
+<span style="font-size: 0.6em">{{- gist.prefix -}}/</span><br />{{- gist.path -}}
 </td>
 </p><td class="action">
 {%- for trail in gist.trails -%}
