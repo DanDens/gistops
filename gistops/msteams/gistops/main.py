@@ -18,25 +18,27 @@ class GistOps():
     """gistops - msteams notification"""
 
 
-    def __init__(self, 
-      cwd: str = str(Path.cwd()),
-      logsdir: str = None ):
-
-        logspath = Path(logsdir) if logsdir is not None else Path(cwd)
+    def __logs(self, logspath: Path, prefix: str='msteams'):
         logspath.mkdir(parents=True, exist_ok=True)
         datefmt='%Y-%m-%dT%H:%M:%SZ'
-
-        self.__logspath=logspath
 
         # Logs to gistops.log
         logger = logging.getLogger()
         logfile = logging.FileHandler(
-          logspath.joinpath('gistops.log'))
+          logspath.joinpath(f'{prefix}.gistops.log'))
         logfile.setFormatter(logging.Formatter(
-            'msteams,%(levelname)s,%(asctime)s,%(message)s', datefmt=datefmt ))
+            f'{prefix},%(levelname)s,%(asctime)s,%(message)s', datefmt=datefmt ))
         logger.addHandler(logfile)
         logger.setLevel(os.environ.get('LOG_LEVEL','INFO'))
         logger.info(version.__version__)
+
+
+    def __init__(self, 
+      cwd: str = str(Path.cwd()),
+      logsdir: str = None ):
+
+        self.__logspath=Path(logsdir) if logsdir is not None else Path(cwd)
+        self.__logs( logspath=self.__logspath )
 
         ############
         # Git Root #
@@ -68,7 +70,9 @@ class GistOps():
           webhook_api = reporting.to_webhook_api(webhook_url), 
           report_title=report_title,
           gsts=gists.from_file(gists_json_path=self.__logspath.joinpath('gists.json')), 
-          traillogs=trails.from_file(self.__logspath.joinpath('gistops.trail')) )
+          traillogs=trails.from_files(
+            gistops_trail_dir=self.__logspath, 
+            gistops_trail_postfix='gistops.trail') )
 
 
     def run(self, 

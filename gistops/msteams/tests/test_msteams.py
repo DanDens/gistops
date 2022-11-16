@@ -94,7 +94,7 @@ def test_example_repo(mocker):
       webhook_url='https://not-a-real-webhook',
       report_title='trails from the test' )
 
-    assert Path.cwd().joinpath('gistops.log').exists()
+    assert Path.cwd().joinpath('msteams.gistops.log').exists()
 
     ###############
     # Test output #

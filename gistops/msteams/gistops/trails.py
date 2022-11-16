@@ -21,11 +21,16 @@ class TrailLog:
     action: str
 
 
-def from_file(gistops_trail_path: Path) -> List[TrailLog]:
+def from_files(gistops_trail_dir: Path, gistops_trail_postfix: str) -> List[TrailLog]:
     """Deserializes traillogs from file"""
 
-    with open(gistops_trail_path, 'r', encoding='utf-8') as gistops_trail_file:
-        gistops_trail = gistops_trail_file.read()
+    gistops_trail=''
+    for gistops_trail_path in gistops_trail_dir.iterdir():
+        if str(gistops_trail_path.name).find(gistops_trail_postfix) < 0:
+            continue # not a file of interest 
+
+        with open(gistops_trail_path, 'r', encoding='utf-8') as gistops_trail_file:
+            gistops_trail += gistops_trail_file.read()
 
     traillogs: List[TrailLog] = list()
     for trail in gistops_trail.splitlines():

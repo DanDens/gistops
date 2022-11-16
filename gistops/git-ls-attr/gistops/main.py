@@ -20,21 +20,16 @@ import version
 class GistOps():
     """gistops - iterate gists stored in git"""
 
-
-    def __init__(self, 
-      cwd: str = str( Path.cwd() ),
-      logsdir: str=None ):
-
-        logspath = Path(logsdir) if logsdir is not None else Path(cwd)
+    def __logs(self, logspath: Path, prefix: str='git-ls-attr'):
         logspath.mkdir(parents=True, exist_ok=True)
         datefmt='%Y-%m-%dT%H:%M:%SZ'
 
         # Logs to gistops.log
         logger = logging.getLogger()
         logfile = logging.FileHandler(
-          logspath.joinpath('gistops.log'))
+          logspath.joinpath(f'{prefix}.gistops.log'))
         logfile.setFormatter(logging.Formatter(
-            'git-ls-attr,%(levelname)s,%(asctime)s,%(message)s', datefmt=datefmt ))
+            f'{prefix},%(levelname)s,%(asctime)s,%(message)s', datefmt=datefmt ))
         logger.addHandler(logfile)
         logger.setLevel(os.environ.get('LOG_LEVEL','INFO'))
         logger.info(version.__version__)
@@ -42,11 +37,18 @@ class GistOps():
         # Trailing to gistops.trail
         traillog = logging.getLogger('gistops.trail')
         traillogfile = logging.FileHandler(
-          logspath.joinpath('gistops.trail'))
+          logspath.joinpath(f'{prefix}.gistops.trail'))
         traillogfile.setFormatter(logging.Formatter(
-            'git-ls-attr,%(levelname)s,%(asctime)s,%(message)s', datefmt=datefmt ))
+            f'{prefix},%(levelname)s,%(asctime)s,%(message)s', datefmt=datefmt ))
         traillog.addHandler(traillogfile)
         traillog.setLevel(os.environ.get('LOG_LEVEL','INFO'))
+
+
+    def __init__(self, 
+      cwd: str = str( Path.cwd() ),
+      logsdir: str=None ):
+
+        self.__logs( logspath=Path(logsdir) if logsdir is not None else Path(cwd) )
 
         ############
         # Git Root #

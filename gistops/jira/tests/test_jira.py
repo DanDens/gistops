@@ -184,5 +184,5 @@ def test_jira_publish(mocker):
       jira_url='https://verw.bssn.eu/wiki',
       jira_access_token='unknown')
 
-    assert Path.cwd().joinpath('gistops.trail').exists()
-    assert Path.cwd().joinpath('gistops.log').exists()
+    assert Path.cwd().joinpath('jira.gistops.trail').exists()
+    assert Path.cwd().joinpath('jira.gistops.log').exists()
