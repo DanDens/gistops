@@ -228,9 +228,8 @@ def test_confluence_publish(mocker):
     # }
     # ]}
 
-    def __connect_to_api( url: str, username: str, password: str ):
-        assert username == 'unknown'
-        assert password == 'unknown'
+    def __connect_to_api( url: str, access_token: str ):
+        assert access_token == 'unknown'
 
         return publishing.ConfluenceAPI(
           url=url, api=FakeConfluenceApi() )
@@ -241,8 +240,7 @@ def test_confluence_publish(mocker):
     main.GistOps(cwd=str(Path.cwd())).run( 
       event_base64=in_base64,
       confluence_url='https://verw.bssn.eu/wiki',
-      confluence_username='unknown',
-      confluence_password='unknown' )
+      confluence_access_token='unknown' )
 
     assert Path.cwd().joinpath('gistops.trail').exists()
     assert Path.cwd().joinpath('gistops.log').exists()

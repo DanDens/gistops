@@ -24,10 +24,9 @@ class JiraAPI:
     api: Jira
 
 
-def connect_to_api(url: str, username: str, password: str) -> JiraAPI:
+def connect_to_api(url: str, access_token: str) -> JiraAPI:
     """Connect to jira Web API"""
-    return JiraAPI(
-      url=url, api=Jira(url=url, username=username, password=password) )
+    return JiraAPI(url=url, api=Jira(url=url, token=access_token) )
 
 
 def __tagged(tag_name: str):

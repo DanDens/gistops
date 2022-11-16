@@ -24,10 +24,11 @@ class ConfluenceAPI:
     api: Confluence
 
 
-def connect_to_api( url: str, username: str, password: str ) -> ConfluenceAPI:
+def connect_to_api( url: str, access_token: str ) -> ConfluenceAPI:
     """Connect to confluence Web API"""
+
     return ConfluenceAPI(
-      url=url, api=Confluence(url=url, username=username, password=password) )
+      url=url, api=Confluence(url=url, token=access_token) )
 
 
 def __tagged(tag_name: str):

@@ -170,9 +170,8 @@ def test_jira_publish(mocker):
     # }
     # ]}
 
-    def __connect_to_api( url: str, username: str, password: str ):
-        assert username == 'unknown'
-        assert password == 'unknown'
+    def __connect_to_api( url: str, access_token: str ):
+        assert access_token == 'unknown'
 
         return publishing.JiraAPI(
           url=url, api=FakeJiraApi() )
@@ -183,8 +182,7 @@ def test_jira_publish(mocker):
     main.GistOps(cwd=str(Path.cwd())).run( 
       event_base64=in_base64,
       jira_url='https://verw.bssn.eu/wiki',
-      jira_username='unknown',
-      jira_password='unknown' )
+      jira_access_token='unknown')
 
     assert Path.cwd().joinpath('gistops.trail').exists()
     assert Path.cwd().joinpath('gistops.log').exists()

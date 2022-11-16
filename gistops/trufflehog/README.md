@@ -1,3 +1,3 @@
 # gistops - scanning repository for accidentally leaked secrets
 
-.. documentation coming
+.. documentation coming soon

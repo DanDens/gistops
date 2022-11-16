@@ -1,3 +1,3 @@
 # gistops - reporting to msteams
 
-.. documentation is coming
+.. documentation is coming soon
