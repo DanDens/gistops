@@ -17,21 +17,21 @@ import gists
 
 __TRAILLOG_TEMPLATE_J2 = '''
 {%- if gists | length > 0 -%}
-<table style="border:1px solid #1e81b0; border-radius: 2px;">
+<table style="border:1px solid #1e81b0; border-radius: 2px; background-color:#f5faff;">
 <tr>
-<th style="border: 1px solid #1e81b0; border-radius: 2px;">gist</th>
-<th style="border: 1px solid #1e81b0; border-radius: 2px;">actions</th>
+<th style="border: 1px solid #1e81b0; border-radius: 2px; color:#1e81b0; text-align: center;">gist</th>
+<th style="border: 1px solid #1e81b0; border-radius: 2px; color:#1e81b0; text-align: center;">actions</th>
 </tr>
 {%- for gist in gists -%}
 <tr>
-<td class="operation"><p style="color:#{{-traillevel_2_rgbcolor(gist.level)-}}";>
-<span style="font-size: 0.2em";>{{- gist.prefix -}}%2F</span><br />{{- gist.path -}}
+<td class="operation"><p style="color:#{{-traillevel_2_rgbcolor(gist.level)-}}; vertical-align:bottom; text-align: left;">
+<span style="font-size: 0.2em">{{- gist.prefix -}}%2F</span><br />{{- gist.path -}}
 </td>
 </p><td class="action">
 {%- for trail in gist.trails -%}
-<p style="color:#{{-traillevel_2_rgbcolor(trail.level)-}}";>
+<span style="color:#{{-traillevel_2_rgbcolor(trail.level)-}}; text-align: left;">
 {{- trail.operation }}: {{ trail.action -}}  
-</p><br />
+</span><br />
 {%- endfor -%}
 </td></tr>
 {%- endfor -%}
