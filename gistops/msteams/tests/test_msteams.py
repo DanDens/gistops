@@ -18,6 +18,8 @@ sys.path.append(
   str(Path(os.path.realpath(__file__)).parent.parent.joinpath('gistops')))
 
 import main
+import reporting
+import gists
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -48,6 +50,8 @@ def extract_msteams_repository():
 
 class FakeMsTeamsWebhookApi:
     """ Replaces actual MsTeams Webhook API for testing """
+    def __init__(self):
+        self.soup = None
 
     def send(self, message_card: str):
         """Check POST request to msteams webhook is correct"""
@@ -65,45 +69,25 @@ class FakeMsTeamsWebhookApi:
           'required': ['@context','@type','themeColor','title','text']
         })
 
-        soup = BeautifulSoup(f'<html><body>{msg["text"]}</body></html>', 'html.parser')
-        assert bool(soup.find()) # is it valid html?
+        self.soup = BeautifulSoup(f'<html><body>{msg["text"]}</body></html>', 'html.parser')
+        assert bool(self.soup.find()) # is it valid html?
 
 
-        def __ensure_td_class_keywords(
-          soup: BeautifulSoup, td_class: str, num:int, keywords: List[str]):
-            tds = soup.find_all('td', {'class': td_class})
-            assert len(tds) == num
+def test_example_repo(mocker):
+    """Tests reporting with small example"""
 
-            for this_td in tds:
-                for keyword in keywords:
-                    if this_td.text.find(keyword) >= 0:
-                        break
-                else:
-                    assert False
+    ################
+    # Mock msteams #
+    ################
+    fk_api = FakeMsTeamsWebhookApi()
 
-        ##############
-        # Operations #
-        ##############
-        __ensure_td_class_keywords(
-          soup, 'operation', 2, [
-          'how-to-setup-a-scalable-vpc-architecture', 
-          'how-to-zip-directories-recursively-with-hidden-files'])
+    def __to_fake_webhook_api(_: str) -> FakeMsTeamsWebhookApi:
+        """Create fake webhook api from url"""
+        return fk_api
 
-        ###########
-        # Actions #
-        ###########
-        __ensure_td_class_keywords(
-          soup, 'action', 2, ['confluence', 'git-ls-attr', 'jira', 'pandoc'])
-
-
-def __to_fake_webhook_api(_: str) -> FakeMsTeamsWebhookApi:
-    """Create fake webhook api from url"""
-    return FakeMsTeamsWebhookApi()
-
-
-def test_msteams(mocker):
-    """Tests msteams reporting"""
-
+    ###############
+    # Run msteams #
+    ###############
     mocker.patch('reporting.to_webhook_api', side_effect=__to_fake_webhook_api)
 
     main.GistOps( cwd=str(Path.cwd()) ).run( 
@@ -111,4 +95,41 @@ def test_msteams(mocker):
       report_title='trails from the test' )
 
     assert Path.cwd().joinpath('gistops.log').exists()
-    
+
+    ###############
+    # Test output #
+    ###############
+    def __ensure_td_class_keywords(
+      soup: BeautifulSoup, td_class: str, num:int, keywords: List[str]):
+        tds = soup.find_all('td', {'class': td_class})
+        assert len(tds) == num
+
+        for this_td in tds:
+            for keyword in keywords:
+                if this_td.text.find(keyword) >= 0:
+                    break
+            else:
+                assert False
+
+    __ensure_td_class_keywords(
+      fk_api.soup, 'operation', 2, [
+      'how-to-setup-a-scalable-vpc-architecture', 
+      'how-to-zip-directories-recursively-with-hidden-files'])
+
+    __ensure_td_class_keywords(
+      fk_api.soup, 'action', 2, ['confluence', 'git-ls-attr', 'jira', 'pandoc'])
+
+
+def test_no_changes():
+    """Tests msteams reporting with no changes"""
+
+    ################
+    # Mock msteams #
+    ################
+    fk_api = FakeMsTeamsWebhookApi()
+
+    reporting.report(
+          webhook_api = fk_api, 
+          report_title='trails from the test',
+          gsts=gists.from_file(gists_json_path=Path.cwd().joinpath('gists.json')), 
+          traillogs=[] )

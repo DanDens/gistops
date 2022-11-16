@@ -17,12 +17,15 @@ import gists
 
 __TRAILLOG_TEMPLATE_J2 = '''
 {%- if gists | length > 0 -%}
-<table>
-<tr><th>gist</th><th>actions</th></tr>
+<table style="border:1px solid #1e81b0; border-radius: 2px;">
+<tr>
+<th style="border: 1px solid #1e81b0; border-radius: 2px;">gist</th>
+<th style="border: 1px solid #1e81b0; border-radius: 2px;">actions</th>
+</tr>
 {%- for gist in gists -%}
 <tr>
 <td class="operation"><p style="color:#{{-traillevel_2_rgbcolor(gist.level)-}}";>
-<tiny>{{- gist.prefix -}}</tiny><br />{{- gist.path -}}
+<span style="font-size: 0.2em";>{{- gist.prefix -}}%2F</span><br />{{- gist.path -}}
 </td>
 </p><td class="action">
 {%- for trail in gist.trails -%}
@@ -97,10 +100,11 @@ def __as_j2_params(gsts: List[gists.Gist], traillogs: List[trails.TrailLog]) -> 
 
 def __traillevel_2_rgbcolor( level: int ):
     match level:
+        case logging.INFO: return '00b32d'
         case logging.WARN: return 'fc7e05'
-        case logging.ERROR: return 'fd6b6b'
-        case logging.FATAL: return 'fd6b6b'
-        case logging.CRITICAL: return 'fd6b6b'
+        case logging.ERROR: return 'fb0404'
+        case logging.FATAL: return 'fb0404'
+        case logging.CRITICAL: return 'fb0404'
         case _: return '000000'
 
 
