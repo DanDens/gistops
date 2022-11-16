@@ -57,5 +57,8 @@ def from_file(gistops_trail_path: Path) -> List[TrailLog]:
 
 def max_severity(traillogs: List[TrailLog]) -> int:
     """Returns the maximum severity found in the traillogs"""
+    if len(traillogs) == 0:
+        return logging.NOTSET
+        
     max_trail: TrailLog = max(traillogs, key=lambda trail: trail.level)
     return max_trail.level
