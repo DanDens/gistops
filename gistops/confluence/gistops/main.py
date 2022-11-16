@@ -65,19 +65,44 @@ class GistOps():
         return version.__version__
 
 
+    def __cnfl_api(self,
+      confluence_url: str = None,
+      confluence_access_token: str = None,
+      confluence_username: str = None,
+      confluence_password: str = None) -> publishing.ConfluenceAPI:
+
+        if confluence_url is None: 
+            confluence_url=os.environ['GISTOPS_CONFLUENCE_URL']
+
+        if confluence_access_token is None:
+            confluence_access_token=os.environ.get('GISTOPS_CONFLUENCE_ACCESS_TOKEN', None)
+        if confluence_access_token is not None:
+            return publishing.connect_to_api( 
+              confluence_url, confluence_access_token )
+        else:
+            if confluence_username is None:
+                confluence_username=os.environ.get('GISTOPS_CONFLUENCE_USERNAME', None)
+            if confluence_password is None:
+                confluence_password=os.environ.get('GISTOPS_CONFLUENCE_PASSWORD', None)
+
+            return publishing.connect_to_api_via_password( 
+              confluence_url, confluence_username, confluence_password )
+
+
     def publish(self,
       event_base64: str,
       confluence_url: str = None,
-      confluence_access_token: str = None):
+      confluence_access_token: str = None,
+      confluence_username: str = None,
+      confluence_password: str = None):
         """Publish gist as page on confluence"""
 
         try:
-            if confluence_url is None: 
-                confluence_url=os.environ['GISTOPS_CONFLUENCE_URL']
-            if confluence_access_token is None:
-                confluence_access_token=os.environ.get('GISTOPS_CONFLUENCE_ACCESS_TOKEN', None)
-
-            cnfl = publishing.connect_to_api( confluence_url, confluence_access_token )
+            cnfl = self.__cnfl_api( 
+              confluence_url=confluence_url, 
+              confluence_access_token=confluence_access_token, 
+              confluence_username=confluence_username, 
+              confluence_password=confluence_password )
 
             try:
                 if Path(event_base64).exists() and Path(event_base64).is_file():
@@ -108,13 +133,17 @@ class GistOps():
     def run(self,
       event_base64: str,
       confluence_url: str = None,
-      confluence_access_token: str = None) -> str:
+      confluence_access_token: str = None,
+      confluence_username: str = None,
+      confluence_password: str = None) -> str:
         """Publish gist as page on confluence"""
 
         return self.publish(
           event_base64=event_base64,
           confluence_url=confluence_url,
-          confluence_access_token=confluence_access_token)
+          confluence_access_token=confluence_access_token,
+          confluence_username=confluence_username,
+          confluence_password=confluence_password)
 
 
 def main():

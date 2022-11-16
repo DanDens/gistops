@@ -65,19 +65,39 @@ class GistOps():
         return version.__version__
 
 
+    def __jira_api(self,
+      jira_url: str = None,
+      jira_access_token: str = None,
+      jira_username: str = None,
+      jira_password: str = None) -> publishing.JiraAPI:
+
+        if jira_url is None: 
+            jira_url=os.environ['GISTOPS_JIRA_URL']
+
+        if jira_access_token is None:
+            jira_access_token=os.environ.get('GISTOPS_JIRA_ACCESS_TOKEN', None)
+        if jira_access_token is not None:
+            return publishing.connect_to_api( 
+              jira_url, jira_access_token )
+        else:
+            if jira_username is None:
+                jira_username=os.environ.get('GISTOPS_JIRA_USERNAME', None)
+            if jira_password is None:
+                jira_password=os.environ.get('GISTOPS_JIRA_PASSWORD', None)
+
+            return publishing.connect_to_api_via_password( 
+              jira_url, jira_username, jira_password )
+
+
     def publish(self,
       event_base64: str,
       jira_url: str = None,
-      jira_access_token: str = None):
+      jira_access_token: str = None,
+      jira_username: str = None,
+      jira_password: str = None):
         """Publish gist as ticket description on jira"""
         try:
-            if jira_url is None: 
-                jira_url=os.environ['GISTOPS_JIRA_URL']
-            if jira_access_token is None:
-                jira_access_token=os.environ.get('GISTOPS_JIRA_ACCESS_TOKEN', None)
-
-            jira = publishing.connect_to_api(
-              jira_url, jira_access_token )
+            jira = self.__jira_api(jira_url, jira_access_token, jira_username, jira_password)
 
             try:
                 if Path(event_base64).exists() and Path(event_base64).is_file():
@@ -108,13 +128,17 @@ class GistOps():
     def run(self,
       event_base64: str,
       jira_url: str = None,
-      jira_access_token: str = None) -> str:
+      jira_access_token: str = None,
+      jira_username: str = None,
+      jira_password: str = None) -> str:
         """Publish gist as ticket description on jira"""
 
         return self.publish(
           event_base64=event_base64,
           jira_url=jira_url,
-          jira_access_token=jira_access_token)
+          jira_access_token=jira_access_token,
+          jira_username=jira_username,
+          jira_password=jira_password)
 
 
 def main():

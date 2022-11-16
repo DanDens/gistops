@@ -30,6 +30,12 @@ def connect_to_api( url: str, access_token: str ) -> ConfluenceAPI:
     return ConfluenceAPI(
       url=url, api=Confluence(url=url, token=access_token) )
 
+def connect_to_api_via_password( url: str, username: str, password: str ) -> ConfluenceAPI:
+    """Connect to confluence Web API"""
+
+    return ConfluenceAPI(
+      url=url, api=Confluence(url=url, username=username, password=password) )
+
 
 def __tagged(tag_name: str):
     def inner_tagged(func):
