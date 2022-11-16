@@ -82,6 +82,13 @@ class GistOps():
             jira = publishing.connect_to_api(
               jira_url, jira_username, jira_password )
 
+            try:
+                if Path(event_base64).exists() and Path(event_base64).is_file():
+                    with open(Path(event_base64), 'r', encoding='utf-8') as event_base64_file:
+                        event_base64 = event_base64_file.read()
+            except OSError:
+                pass # e.g. filename to long for base64
+
             for gist in sorted(
               gists.from_event(event_base64),
               key=lambda g: 0 if g.path.suffix == '.jira' else 1 ):

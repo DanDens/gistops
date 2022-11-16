@@ -83,6 +83,13 @@ class GistOps():
                   'output path MUST be sub directory of git root'
                   'in order to be accessable from downstream ops') from err
 
+            try:
+                if Path(event_base64).exists() and Path(event_base64).is_file():
+                    with open(Path(event_base64), 'r', encoding='utf-8') as event_base64_file:
+                        event_base64 = event_base64_file.read()
+            except OSError:
+                pass # e.g. filename to long for base64
+
             convs: List[gists.ConvertedGist] = []
             for gist in gists.from_event(event_base64):
                 try:
