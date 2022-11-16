@@ -100,7 +100,7 @@ class GistOps():
                         outpath=Path(outpath),
                         dry_run=self.__dry_run) )
 
-                    logging.getLogger('gistops.trail').info(f'{gist.path},convertion failed')
+                    logging.getLogger('gistops.trail').info(f'{gist.path},converted')
 
                 except Exception as err:
                     logging.getLogger('gistops.trail').error(f'{gist.path},convertion failed')
