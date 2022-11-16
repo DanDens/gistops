@@ -20,12 +20,12 @@ __TRAILLOG_TEMPLATE_J2 = '''
 <table style="border:1px solid #1e81b0; border-radius: 2px; background-color:#f5faff;">
 <tr>
 <th style="border: 1px solid #1e81b0; border-radius: 2px; color:#1e81b0; text-align: center;">gist</th>
-<th style="border: 1px solid #1e81b0; border-radius: 2px; color:#1e81b0; text-align: center;">actions</th>
+<th style="border: 1px solid #1e81b0; border-radius: 2px; color:#1e81b0; text-align: center;">gistops</th>
 </tr>
 {%- for gist in gists -%}
 <tr>
 <td class="operation"><p style="color:#{{-traillevel_2_rgbcolor(gist.level)-}}; vertical-align:bottom; text-align: left;">
-<span style="font-size: 0.2em">{{- gist.prefix -}}%2F</span><br />{{- gist.path -}}
+<span style="font-size: 0.6em">{{- gist.prefix -}}%2F</span><br />{{- gist.path -}}
 </td>
 </p><td class="action">
 {%- for trail in gist.trails -%}
