@@ -104,58 +104,47 @@ def iterate_gists(
             cmd=['git','diff-tree','--no-commit-id','--name-only','-r', git_diff_hash]
           ).splitlines()]
 
-    if gist_absolute_path.is_dir():
-        for git_abspath in gist_absolute_path.glob('**/'):
-            if not git_abspath.is_dir():
-                continue # not a directory
-
-            try:
-                if git_abspath.relative_to(git_root.joinpath('.git')):
-                    continue # ignore .git sub directory
-            except ValueError:
-                pass
-
-            git_dir = git_abspath.relative_to(git_root)
-
-            # https://git-scm.com/docs/git-check-attr and 
-            # https://git-scm.com/docs/git-ls-files
-            # Files with gistops .gitattribute listed as 
-            # README.md: gistops: {"render":{...}}
-            for gitattr in shrun(
-              cmd=[
-                'git','ls-files','|','git','check-attr',
-                'gistops',f'{str(git_dir)}/*.*']).splitlines():
-
-                if gitattr.split(': ')[-1] == 'unspecified':
-                    continue # no gistops flag on this one
-
-                gist_file, _, gist_tags = gitattr.split(': ')
-                if git_diff_files is not None and \
-                    Path(gist_file) not in git_diff_files:
-                    logger.info(f'{gist_file} unchanged for {git_diff_hash}')
-                    continue
-
-                yield gists.Gist(
-                  path=Path(gist_file), 
-                  commit_id=git_commit_id,
-                  tags=json.loads(gist_tags) if gist_tags != 'set' else {} )
-
-    elif gist_absolute_path.is_file():
-        # https://git-scm.com/docs/git-check-attr
-        gitattr = shrun(cmd=['git','check-attr','gistops', str(gist_path)])
-        if gitattr != '': 
-            gist_file, _, gist_tags = gitattr.split(' ')
-            if git_diff_files is None or \
-                Path(gist_file) in git_diff_files:
-
-                yield gists.Gist(
-                  path=gist_absolute_path.relative_to(
-                    git_root).joinpath(gist_file), 
-                  commit_id=git_commit_id,
-                  tags=json.loads(gist_tags) if gist_tags != 'set' else {})
-
-    else:
+    if not gist_absolute_path.is_dir():
         raise gists.GistOpsError(
-            f'{gist_path} is symbolic link. '
+            f'{gist_path} is file or symbolic link. '
             'Symbolic links are not supported.'
-            'Please provide file or directory')
+            'Please provide directory as input')
+
+    for git_abspath in gist_absolute_path.glob('**/'):
+        if not git_abspath.is_dir():
+            continue # not a directory
+
+        try:
+            if git_abspath.relative_to(git_root.joinpath('.git')):
+                continue # ignore .git sub directory
+        except ValueError:
+            pass
+
+        git_dir = git_abspath.relative_to(git_root)
+
+        # https://git-scm.com/docs/git-check-attr and 
+        # https://git-scm.com/docs/git-ls-files
+        # Files with gistops .gitattribute listed as 
+        # README.md: gistops: {"render":{...}}
+        for git_ls_file in shrun(
+          cmd=['git','ls-files','--directory',f'"{str(git_dir)}"']).splitlines():
+
+            if Path(git_ls_file).parent != git_dir:
+                continue # ... only files of this directory please
+
+            gitattr = shrun(
+              cmd=['git', 'check-attr', 'gistops', '--', f'"{git_ls_file}"']).rstrip('\r\n')
+
+            if gitattr.split(': ')[-1].find('unspecified') >= 0:
+                continue # no gistops flag on this one
+
+            gist_file, _, gist_tags = gitattr.split(': ')
+            if git_diff_files is not None and \
+                Path(gist_file) not in git_diff_files:
+                logger.info(f'{gist_file} unchanged for {git_diff_hash}')
+                continue
+
+            yield gists.Gist(
+              path=Path(gist_file), 
+              commit_id=git_commit_id,
+              tags=json.loads(gist_tags) if gist_tags != 'set' else {} )
