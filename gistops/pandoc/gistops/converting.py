@@ -125,10 +125,10 @@ def convert(
             output_filepath.parent.mkdir(parents=True, exist_ok=True)
         shrun(
           cmd=[
-            'pandoc',str(gist.path),
+            'pandoc',f'"{str(gist.path)}"',
             '-d', f'"{str(pandoc_yml_path)}"', 
             '-o', f'"{str(output_filepath)}"',
-            f'--resource-path={gist.path.parent}'],
+            f'--resource-path="{gist.path.parent}"'],
           do_not_execute=dry_run)
 
         if 'metadata' in pandoc_yml and 'title' in pandoc_yml['metadata']:
