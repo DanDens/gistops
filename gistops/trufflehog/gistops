@@ -1,3 +1,13 @@
 #!/bin/bash
+set -e
 
-trufflehog git "file://${1:-.}" --no-update --only-verified --json --fail
+if [ "$#" -ge 2 ]; 
+then
+  trufflehog_args=("${@:2}")
+else
+  # default: silent but fail if detected in current commit
+  trufflehog_args=("--fail" "--max-depth=1" "--json")
+fi
+
+echo "trufflehog git file://${1:-.} --no-update ${trufflehog_args[@]}" >> trufflehog.gistops.log 2>&1
+trufflehog git "file://${1:-.}" --no-update "${trufflehog_args[@]}" >> trufflehog.gistops.log 2>&1

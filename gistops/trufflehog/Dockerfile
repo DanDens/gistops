@@ -18,6 +18,10 @@ ARG USER=dandens
 USER root
 WORKDIR /root
 
+RUN DEBIAN_FRONTEND=noninteractive apt-get update 
+RUN DEBIAN_FRONTEND=noninteractive && apt install -y bash
+SHELL ["/bin/bash", "-c"]
+
 # Copy executable
 COPY --from=builder /build/trufflehog /usr/local/bin/trufflehog
 RUN chmod -R ugo+x /usr/local/bin/trufflehog
@@ -30,4 +34,4 @@ RUN chmod ugo+rwx /usr/local/bin/gistops
 USER ${USER}
 WORKDIR /home/${USER}
 
-CMD [ "gistops" ]
+CMD ["gistops"]
