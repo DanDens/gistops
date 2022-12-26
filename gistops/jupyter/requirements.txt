@@ -1,0 +1,4 @@
+jsonschema==4.16.0
+fire==0.4.0
+semver==2.13.0
+jupyter==1.0.0

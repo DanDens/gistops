@@ -35,6 +35,10 @@
     {
       "name": "gistops/msteams",
       "path": "../gistops/msteams"
+    },
+    {
+      "name": "gistops/jupyter",
+      "path": "../gistops/jupyter"
     }
   ],
   "settings": {

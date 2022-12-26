@@ -6,13 +6,14 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "gistops-git-ls-attr",
+      "name": "gistops-jupyter",
       "type": "python",
       "request": "launch",
       "program": "${workspaceRoot}/gistops/main.py",
-      "args": ["run"],
+      "args": ["run", "--event_base64==eyJzZW12ZXIiOiIwLjEuMC1iZXRhIiwicmVjb3JkLXR5cGUiOiJHaXN0IiwicmVjb3JkcyI6W3sicGF0aCI6InNvbWUgbm90ZWJvb2tzL3NvbWUta3Bpcy9rcGlzLmlweW5iIiwidGFncyI6e30sImNvbW1pdF9pZCI6IjM0NmU0ZWIifV19"],
       "cwd": "/home/dandens/ws/test_jupyter.unpack",
-      "env": {},
+      "env": {
+      },
       "console": "integratedTerminal",
       "justMyCode": true
     }
