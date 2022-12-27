@@ -46,27 +46,42 @@ def test_pandoc_convert():
     """Tests all gists are converted"""
     
     in_base64 = \
-      'eyJzZW12ZXIiOiIwLjEuMC1iZXRhIiwicmVjb3JkLXR5cGUiOiJHa' \
-      'XN0IiwicmVjb3JkcyI6W3sicGF0aCI6Imhvd3Rvcy9ob3ctdG8tc2' \
-      'V0dXAtYS1zY2FsYWJsZS12cGMtYXJjaGl0ZWN0dXJlL1JFQURNRS5' \
-      'tZCIsInRhZ3MiOnsiY29uZmx1ZW5jZSI6eyJwYWdlIjoiMTE3NjA1' \
-      'Nzk4IiwiaG9zdCI6InZlcncuYnNzbi5ldSJ9fSwiY29tbWl0X2lkI' \
-      'joiY2NhYjQ0ZSJ9LHsicGF0aCI6Imhvd3Rvcy9ob3ctdG8temlwLW' \
-      'RpcmVjdG9yaWVzLXJlY3Vyc2l2ZWx5LXdpdGgtaGlkZGVuLWZpbGV' \
-      'zL1JFQURNRS5tZCIsInRhZ3MiOnsiY29uZmx1ZW5jZSI6eyJwYWdl' \
-      'IjoiMTE3NjA1Nzk4IiwiaG9zdCI6InZlcncuYnNzbi5ldSJ9fSwiY' \
-      '29tbWl0X2lkIjoiY2NhYjQ0ZSJ9XX0='
+      'eyJzZW12ZXIiOiIwLjEuMC1iZXRhIiwicmVjb3JkLX' \
+      'R5cGUiOiJHaXN0IiwicmVjb3JkcyI6W3sicGF0aCI6' \
+      'Imhvd3Rvcy9ob3ctdG8tc2V0dXAtYS1zY2FsYWJsZS' \
+      '12cGMtYXJjaGl0ZWN0dXJlL1JFQURNRS5tZCIsInRh' \
+      'Z3MiOnsiY29uZmx1ZW5jZSI6eyJwYWdlIjoiMTE3Nj' \
+      'A1Nzk4IiwiaG9zdCI6InZlcncuYnNzbi5ldSJ9fSwi' \
+      'Y29tbWl0X2lkIjoiNjA4YWJiOSJ9LHsicGF0aCI6Im' \
+      'hvd3Rvcy9ob3ctdG8temlwLWRpcmVjdG9yaWVzLXJl' \
+      'Y3Vyc2l2ZWx5LXdpdGgtaGlkZGVuLWZpbGVzL1JFQU' \
+      'RNRS5tZCIsInRhZ3MiOnsiY29uZmx1ZW5jZSI6eyJw' \
+      'YWdlIjoiMTE3NjA1Nzk4IiwiaG9zdCI6InZlcncuYn' \
+      'Nzbi5ldSJ9fSwiY29tbWl0X2lkIjoiNjA4YWJiOSJ9' \
+      'LHsicGF0aCI6InNvbWUgbm90ZWJvb2tzL3NvbWUta3' \
+      'Bpcy9rcGlzLmlweW5iLmh0bWwiLCJ0YWdzIjp7fSwi' \
+      'Y29tbWl0X2lkIjoiNjA4YWJiOSJ9XX0='
     
     # Base64 encoding of ...
-    #{"semver":"0.1.0-beta","record-type":"Gist","records":[{
-    #   "path":"howtos/how-to-setup-a-scalable-vpc-architecture/README.md",
-    #   "tags":{"confluence":{"page":"117605798","host":"verw.bssn.eu"}},
-    #   "commit_id":"ccab44e"
-    # },{
-    #   "path":"howtos/how-to-zip-directories-recursively-with-hidden-files/README.md",
-    #   "tags":{"confluence":{"page":"117605798","host":"verw.bssn.eu"}},
-    #   "commit_id":"ccab44e"
-    # }]}
+    # {
+    #     "semver":"0.1.0-beta",
+    #     "record-type":"Gist",
+    #     "records":[
+    #         {
+    #             "path":"howtos/how-to-setup-a-scalable-vpc-architecture/README.md",
+    #             "tags":{"confluence":{"page":"117605798","host":"verw.bssn.eu"}},
+    #             "commit_id":"608abb9"
+    #         },{
+    #             "path":"howtos/how-to-zip-directories-recursively-with-hidden-files/README.md",
+    #             "tags":{"confluence":{"page":"117605798","host":"verw.bssn.eu"}},
+    #             "commit_id":"608abb9"
+    #         },{
+    #             "path":"some notebooks/some-kpis/kpis.ipynb.html",
+    #             "tags":{},
+    #             "commit_id":"608abb9"
+    #         }
+    #     ]
+    # }
 
     out_base64:str = main.GistOps(cwd=str(Path.cwd())).run(
       event_base64=in_base64, 
@@ -76,113 +91,132 @@ def test_pandoc_convert():
     assert Path.cwd().joinpath('pandoc.gistops.log').exists()
 
     assert out_base64 == \
-      'eyJzZW12ZXIiOiAiMC4xLjAtYmV0YSIsICJyZWNvcmQtd'\
-      'HlwZSI6ICJDb252ZXJ0ZWRHaXN0IiwgInJlY29yZHMiOi'\
-      'BbeyJnaXN0IjogeyJwYXRoIjogImhvd3Rvcy9ob3ctdG8'\
-      'tc2V0dXAtYS1zY2FsYWJsZS12cGMtYXJjaGl0ZWN0dXJl'\
-      'L1JFQURNRS5tZCIsICJjb21taXRfaWQiOiAiY2NhYjQ0Z'\
-      'SIsICJ0YWdzIjogeyJjb25mbHVlbmNlIjogeyJwYWdlIj'\
-      'ogIjExNzYwNTc5OCIsICJob3N0IjogInZlcncuYnNzbi5'\
-      'ldSJ9fX0sICJwYXRoIjogIi5naXN0b3BzL2RhdGEvaG93'\
-      'dG9zL2hvdy10by1zZXR1cC1hLXNjYWxhYmxlLXZwYy1hc'\
-      'mNoaXRlY3R1cmUvUkVBRE1FLnBkZiIsICJ0aXRsZSI6IC'\
-      'JIb3cgdG8gc2V0dXAgYSBzY2FsYWJsZSB2cGMgYXJjaGl'\
-      '0ZWN0dXJlIiwgImRlcHMiOiBbImhvd3Rvcy9ob3ctdG8t'\
-      'c2V0dXAtYS1zY2FsYWJsZS12cGMtYXJjaGl0ZWN0dXJlI'\
-      'iwgImhvd3Rvcy9ob3ctdG8tc2V0dXAtYS1zY2FsYWJsZS'\
-      '12cGMtYXJjaGl0ZWN0dXJlL2ltZyJdfSwgeyJnaXN0Ijo'\
-      'geyJwYXRoIjogImhvd3Rvcy9ob3ctdG8tc2V0dXAtYS1z'\
-      'Y2FsYWJsZS12cGMtYXJjaGl0ZWN0dXJlL1JFQURNRS5tZ'\
-      'CIsICJjb21taXRfaWQiOiAiY2NhYjQ0ZSIsICJ0YWdzIj'\
-      'ogeyJjb25mbHVlbmNlIjogeyJwYWdlIjogIjExNzYwNTc'\
-      '5OCIsICJob3N0IjogInZlcncuYnNzbi5ldSJ9fX0sICJw'\
-      'YXRoIjogIi5naXN0b3BzL2RhdGEvaG93dG9zL2hvdy10b'\
-      'y1zZXR1cC1hLXNjYWxhYmxlLXZwYy1hcmNoaXRlY3R1cm'\
-      'UvUkVBRE1FLmppcmEiLCAidGl0bGUiOiAiSG93IHRvIHN'\
-      'ldHVwIGEgc2NhbGFibGUgdnBjIGFyY2hpdGVjdHVyZSIs'\
-      'ICJkZXBzIjogWyJob3d0b3MvaG93LXRvLXNldHVwLWEtc'\
-      '2NhbGFibGUtdnBjLWFyY2hpdGVjdHVyZSIsICJob3d0b3'\
-      'MvaG93LXRvLXNldHVwLWEtc2NhbGFibGUtdnBjLWFyY2h'\
-      'pdGVjdHVyZS9pbWciXX0sIHsiZ2lzdCI6IHsicGF0aCI6'\
-      'ICJob3d0b3MvaG93LXRvLXppcC1kaXJlY3Rvcmllcy1yZ'\
-      'WN1cnNpdmVseS13aXRoLWhpZGRlbi1maWxlcy9SRUFETU'\
-      'UubWQiLCAiY29tbWl0X2lkIjogImNjYWI0NGUiLCAidGF'\
-      'ncyI6IHsiY29uZmx1ZW5jZSI6IHsicGFnZSI6ICIxMTc2'\
-      'MDU3OTgiLCAiaG9zdCI6ICJ2ZXJ3LmJzc24uZXUifX19L'\
-      'CAicGF0aCI6ICIuZ2lzdG9wcy9kYXRhL2hvd3Rvcy9ob3'\
-      'ctdG8temlwLWRpcmVjdG9yaWVzLXJlY3Vyc2l2ZWx5LXd'\
-      'pdGgtaGlkZGVuLWZpbGVzL1JFQURNRS5wZGYiLCAidGl0'\
-      'bGUiOiAiSG93IHRvIHppcCBkaXJlY3RvcmllcyByZWN1c'\
-      'nNpdmVseSB3aXRoIGhpZGRlbiBmaWxlcyIsICJkZXBzIj'\
-      'ogWyJob3d0b3MvaG93LXRvLXppcC1kaXJlY3Rvcmllcy1'\
-      'yZWN1cnNpdmVseS13aXRoLWhpZGRlbi1maWxlcyIsICJo'\
-      'b3d0b3MvaG93LXRvLXppcC1kaXJlY3Rvcmllcy1yZWN1c'\
-      'nNpdmVseS13aXRoLWhpZGRlbi1maWxlcy9pbWciXX0sIH'\
-      'siZ2lzdCI6IHsicGF0aCI6ICJob3d0b3MvaG93LXRvLXp'\
-      'pcC1kaXJlY3Rvcmllcy1yZWN1cnNpdmVseS13aXRoLWhp'\
-      'ZGRlbi1maWxlcy9SRUFETUUubWQiLCAiY29tbWl0X2lkI'\
-      'jogImNjYWI0NGUiLCAidGFncyI6IHsiY29uZmx1ZW5jZS'\
-      'I6IHsicGFnZSI6ICIxMTc2MDU3OTgiLCAiaG9zdCI6ICJ'\
-      '2ZXJ3LmJzc24uZXUifX19LCAicGF0aCI6ICIuZ2lzdG9w'\
-      'cy9kYXRhL2hvd3Rvcy9ob3ctdG8temlwLWRpcmVjdG9ya'\
-      'WVzLXJlY3Vyc2l2ZWx5LXdpdGgtaGlkZGVuLWZpbGVzL1'\
-      'JFQURNRS5qaXJhIiwgInRpdGxlIjogIkhvdyB0byB6aXA'\
-      'gZGlyZWN0b3JpZXMgcmVjdXJzaXZlbHkgd2l0aCBoaWRk'\
-      'ZW4gZmlsZXMiLCAiZGVwcyI6IFsiaG93dG9zL2hvdy10b'\
-      'y16aXAtZGlyZWN0b3JpZXMtcmVjdXJzaXZlbHktd2l0aC'\
-      '1oaWRkZW4tZmlsZXMiLCAiaG93dG9zL2hvdy10by16aXA'\
-      'tZGlyZWN0b3JpZXMtcmVjdXJzaXZlbHktd2l0aC1oaWRk'\
-      'ZW4tZmlsZXMvaW1nIl19XX0='
+      'eyJzZW12ZXIiOiAiMC4xLjAtYmV0YSIsICJyZWNvcmQtdHlwZSI6ICJDb' \
+      '252ZXJ0ZWRHaXN0IiwgInJlY29yZHMiOiBbeyJnaXN0IjogeyJwYXRoIj' \
+      'ogImhvd3Rvcy9ob3ctdG8tc2V0dXAtYS1zY2FsYWJsZS12cGMtYXJjaGl' \
+      '0ZWN0dXJlL1JFQURNRS5tZCIsICJjb21taXRfaWQiOiAiNjA4YWJiOSIs' \
+      'ICJ0YWdzIjogeyJjb25mbHVlbmNlIjogeyJwYWdlIjogIjExNzYwNTc5O' \
+      'CIsICJob3N0IjogInZlcncuYnNzbi5ldSJ9fX0sICJwYXRoIjogIi5naX' \
+      'N0b3BzL2RhdGEvaG93dG9zL2hvdy10by1zZXR1cC1hLXNjYWxhYmxlLXZ' \
+      'wYy1hcmNoaXRlY3R1cmUvUkVBRE1FLnBkZiIsICJ0aXRsZSI6ICJIb3cg' \
+      'dG8gc2V0dXAgYSBzY2FsYWJsZSB2cGMgYXJjaGl0ZWN0dXJlIiwgImRlc' \
+      'HMiOiBbImhvd3Rvcy9ob3ctdG8tc2V0dXAtYS1zY2FsYWJsZS12cGMtYX' \
+      'JjaGl0ZWN0dXJlIiwgImhvd3Rvcy9ob3ctdG8tc2V0dXAtYS1zY2FsYWJ' \
+      'sZS12cGMtYXJjaGl0ZWN0dXJlL2ltZyJdfSwgeyJnaXN0IjogeyJwYXRo' \
+      'IjogImhvd3Rvcy9ob3ctdG8tc2V0dXAtYS1zY2FsYWJsZS12cGMtYXJja' \
+      'Gl0ZWN0dXJlL1JFQURNRS5tZCIsICJjb21taXRfaWQiOiAiNjA4YWJiOS' \
+      'IsICJ0YWdzIjogeyJjb25mbHVlbmNlIjogeyJwYWdlIjogIjExNzYwNTc' \
+      '5OCIsICJob3N0IjogInZlcncuYnNzbi5ldSJ9fX0sICJwYXRoIjogIi5n' \
+      'aXN0b3BzL2RhdGEvaG93dG9zL2hvdy10by1zZXR1cC1hLXNjYWxhYmxlL' \
+      'XZwYy1hcmNoaXRlY3R1cmUvUkVBRE1FLmppcmEiLCAidGl0bGUiOiAiSG' \
+      '93IHRvIHNldHVwIGEgc2NhbGFibGUgdnBjIGFyY2hpdGVjdHVyZSIsICJ' \
+      'kZXBzIjogWyJob3d0b3MvaG93LXRvLXNldHVwLWEtc2NhbGFibGUtdnBj' \
+      'LWFyY2hpdGVjdHVyZSIsICJob3d0b3MvaG93LXRvLXNldHVwLWEtc2Nhb' \
+      'GFibGUtdnBjLWFyY2hpdGVjdHVyZS9pbWciXX0sIHsiZ2lzdCI6IHsicG' \
+      'F0aCI6ICJob3d0b3MvaG93LXRvLXppcC1kaXJlY3Rvcmllcy1yZWN1cnN' \
+      'pdmVseS13aXRoLWhpZGRlbi1maWxlcy9SRUFETUUubWQiLCAiY29tbWl0' \
+      'X2lkIjogIjYwOGFiYjkiLCAidGFncyI6IHsiY29uZmx1ZW5jZSI6IHsic' \
+      'GFnZSI6ICIxMTc2MDU3OTgiLCAiaG9zdCI6ICJ2ZXJ3LmJzc24uZXUifX' \
+      '19LCAicGF0aCI6ICIuZ2lzdG9wcy9kYXRhL2hvd3Rvcy9ob3ctdG8teml' \
+      'wLWRpcmVjdG9yaWVzLXJlY3Vyc2l2ZWx5LXdpdGgtaGlkZGVuLWZpbGVz' \
+      'L1JFQURNRS5wZGYiLCAidGl0bGUiOiAiSG93IHRvIHppcCBkaXJlY3Rvc' \
+      'mllcyByZWN1cnNpdmVseSB3aXRoIGhpZGRlbiBmaWxlcyIsICJkZXBzIj' \
+      'ogWyJob3d0b3MvaG93LXRvLXppcC1kaXJlY3Rvcmllcy1yZWN1cnNpdmV' \
+      'seS13aXRoLWhpZGRlbi1maWxlcyIsICJob3d0b3MvaG93LXRvLXppcC1k' \
+      'aXJlY3Rvcmllcy1yZWN1cnNpdmVseS13aXRoLWhpZGRlbi1maWxlcy9pb' \
+      'WciXX0sIHsiZ2lzdCI6IHsicGF0aCI6ICJob3d0b3MvaG93LXRvLXppcC' \
+      '1kaXJlY3Rvcmllcy1yZWN1cnNpdmVseS13aXRoLWhpZGRlbi1maWxlcy9' \
+      'SRUFETUUubWQiLCAiY29tbWl0X2lkIjogIjYwOGFiYjkiLCAidGFncyI6' \
+      'IHsiY29uZmx1ZW5jZSI6IHsicGFnZSI6ICIxMTc2MDU3OTgiLCAiaG9zd' \
+      'CI6ICJ2ZXJ3LmJzc24uZXUifX19LCAicGF0aCI6ICIuZ2lzdG9wcy9kYX' \
+      'RhL2hvd3Rvcy9ob3ctdG8temlwLWRpcmVjdG9yaWVzLXJlY3Vyc2l2ZWx' \
+      '5LXdpdGgtaGlkZGVuLWZpbGVzL1JFQURNRS5qaXJhIiwgInRpdGxlIjog' \
+      'IkhvdyB0byB6aXAgZGlyZWN0b3JpZXMgcmVjdXJzaXZlbHkgd2l0aCBoa' \
+      'WRkZW4gZmlsZXMiLCAiZGVwcyI6IFsiaG93dG9zL2hvdy10by16aXAtZG' \
+      'lyZWN0b3JpZXMtcmVjdXJzaXZlbHktd2l0aC1oaWRkZW4tZmlsZXMiLCA' \
+      'iaG93dG9zL2hvdy10by16aXAtZGlyZWN0b3JpZXMtcmVjdXJzaXZlbHkt' \
+      'd2l0aC1oaWRkZW4tZmlsZXMvaW1nIl19LCB7Imdpc3QiOiB7InBhdGgiO' \
+      'iAic29tZSBub3RlYm9va3Mvc29tZS1rcGlzL2twaXMuaXB5bmIuaHRtbC' \
+      'IsICJjb21taXRfaWQiOiAiNjA4YWJiOSIsICJ0YWdzIjoge319LCAicGF' \
+      '0aCI6ICIuZ2lzdG9wcy9kYXRhL3NvbWUgbm90ZWJvb2tzL3NvbWUta3Bp' \
+      'cy9rcGlzLmlweW5iLnBkZiIsICJ0aXRsZSI6ICJTb21lIGtwaXMiLCAiZ' \
+      'GVwcyI6IFsic29tZSBub3RlYm9va3Mvc29tZS1rcGlzIl19LCB7Imdpc3' \
+      'QiOiB7InBhdGgiOiAic29tZSBub3RlYm9va3Mvc29tZS1rcGlzL2twaXM' \
+      'uaXB5bmIuaHRtbCIsICJjb21taXRfaWQiOiAiNjA4YWJiOSIsICJ0YWdz' \
+      'Ijoge319LCAicGF0aCI6ICIuZ2lzdG9wcy9kYXRhL3NvbWUgbm90ZWJvb' \
+      '2tzL3NvbWUta3Bpcy9rcGlzLmlweW5iLmppcmEiLCAidGl0bGUiOiAiU2' \
+      '9tZSBrcGlzIiwgImRlcHMiOiBbInNvbWUgbm90ZWJvb2tzL3NvbWUta3B' \
+      'pcyJdfV19'
 
     # Base64 encoding of
-    # {"semver": "0.1.0-beta", "record-type": "ConvertedGist", "records": [
     # {
-    #   "gist": {
-    #     "path": "howtos/how-to-setup-a-scalable-vpc-architecture/README.md", 
-    #     "commit_id": "ccab44e", 
-    #     "tags": {"confluence": {"page": "117605798", "host": "verw.bssn.eu"}}
-    #   }, 
-    #   "path": ".gistops/data/howtos/how-to-setup-a-scalable-vpc-architecture/README.pdf",   
-    #   "title": "How to setup a scalable vpc architecture", 
-    #   "deps": [
-    #     "howtos/how-to-setup-a-scalable-vpc-architecture", 
-    #     "howtos/how-to-setup-a-scalable-vpc-architecture/img"
-    #   ]
-    # }, {
-    #   "gist": {
-    #     "path": "howtos/how-to-setup-a-scalable-vpc-architecture/README.md", 
-    #     "commit_id": "ccab44e", 
-    #     "tags": {"confluence": {"page": "117605798", "host": "verw.bssn.eu"}}
-    #   }, 
-    #   "path": ".gistops/data/howtos/how-to-setup-a-scalable-vpc-architecture/README.jira", 
-    #   "title": "How to setup a scalable vpc architecture", 
-    #   "deps": [
-    #     "howtos/how-to-setup-a-scalable-vpc-architecture", 
-    #     "howtos/how-to-setup-a-scalable-vpc-architecture/img"
-    #   ]
-    # }, {
-    #   "gist": {
-    #     "path": "howtos/how-to-zip-directories-recursively-with-hidden-files/README.md", 
-    #     "commit_id": "ccab44e", 
-    #     "tags": {"confluence": {"page": "117605798", "host": "verw.bssn.eu"}}
-    #   }, 
-    #   "path": ".gistops/data/howtos/how-to-zip-directories-recursively-with-hidden-files/README.pdf", 
-    #   "title": "How to zip directories recursively with hidden files", 
-    #   "deps": [
-    #     "howtos/how-to-zip-directories-recursively-with-hidden-files", 
-    #     "howtos/how-to-zip-directories-recursively-with-hidden-files/img"
-    #   ]
-    # }, {
-    #   "gist": {
-    #     "path": "howtos/how-to-zip-directories-recursively-with-hidden-files/README.md", 
-    #     "commit_id": "ccab44e", 
-    #     "tags": {"confluence": {"page": "117605798", "host": "verw.bssn.eu"}}
-    #   }, 
-    #   "path": ".gistops/data/howtos/how-to-zip-directories-recursively-with-hidden-files/README.jira", 
-    #   "title": "How to zip directories recursively with hidden files", 
-    #   "deps": [
-    #     "howtos/how-to-zip-directories-recursively-with-hidden-files", 
-    #     "howtos/how-to-zip-directories-recursively-with-hidden-files/img"
+    #     "semver": "0.1.0-beta", 
+    #     "record-type": "ConvertedGist", 
+    #     "records": [
+    #         {
+    #         "gist": {
+    #             "path": "howtos/how-to-setup-a-scalable-vpc-architecture/README.md", 
+    #             "commit_id": "608abb9", 
+    #             "tags": {"confluence": {"page": "117605798", "host": "verw.bssn.eu"}}
+    #             }, 
+    #         "path": ".gistops/data/howtos/how-to-setup-a-scalable-vpc-architecture/README.pdf", 
+    #         "title": "How to setup a scalable vpc architecture", 
+    #         "deps": [
+    #             "howtos/how-to-setup-a-scalable-vpc-architecture", 
+    #             "howtos/how-to-setup-a-scalable-vpc-architecture/img"]
+    #         }, {
+    #         "gist": {
+    #             "path": "howtos/how-to-setup-a-scalable-vpc-architecture/README.md", 
+    #             "commit_id": "608abb9", 
+    #             "tags": {"confluence": {"page": "117605798", "host": "verw.bssn.eu"}}
+    #           }, 
+    #           "path": ".gistops/data/howtos/how-to-setup-a-scalable-vpc-architecture/README.jira", 
+    #           "title": "How to setup a scalable vpc architecture", 
+    #           "deps": [
+    #             "howtos/how-to-setup-a-scalable-vpc-architecture", 
+    #             "howtos/how-to-setup-a-scalable-vpc-architecture/img"]
+    #         }, {
+    #         "gist": {
+    #             "path": "howtos/how-to-zip-directories-recursively-with-hidden-files/README.md", 
+    #             "commit_id": "608abb9", 
+    #             "tags": {"confluence": {"page": "117605798", "host": "verw.bssn.eu"}}
+    #         }, 
+    #         "path": ".gistops/data/howtos/how-to-zip-directories-recursively-with-hidden-files/README.pdf", 
+    #         "title": "How to zip directories recursively with hidden files", 
+    #         "deps": [
+    #             "howtos/how-to-zip-directories-recursively-with-hidden-files", 
+    #             "howtos/how-to-zip-directories-recursively-with-hidden-files/img"]
+    #         }, {
+    #         "gist": {
+    #             "path": "howtos/how-to-zip-directories-recursively-with-hidden-files/README.md", 
+    #             "commit_id": "608abb9", 
+    #             "tags": {"confluence": {"page": "117605798", "host": "verw.bssn.eu"}}
+    #         }, 
+    #         "path": ".gistops/data/howtos/how-to-zip-directories-recursively-with-hidden-files/README.jira", 
+    #         "title": "How to zip directories recursively with hidden files", 
+    #         "deps": [
+    #             "howtos/how-to-zip-directories-recursively-with-hidden-files", 
+    #             "howtos/how-to-zip-directories-recursively-with-hidden-files/img"]
+    #       }, {
+    #         "gist": {
+    #             "path": "some notebooks/some-kpis/kpis.ipynb.html", 
+    #             "commit_id": "608abb9", 
+    #             "tags": {}
+    #         }, 
+    #         "path": ".gistops/data/some notebooks/some-kpis/kpis.ipynb.pdf", 
+    #         "title": "Some kpis", 
+    #         "deps": [
+    #             "some notebooks/some-kpis"]
+    #       }, {
+    #         "gist": {
+    #             "path": "some notebooks/some-kpis/kpis.ipynb.html", 
+    #             "commit_id": "608abb9", 
+    #             "tags": {}
+    #           }, 
+    #           "path": ".gistops/data/some notebooks/some-kpis/kpis.ipynb.jira", 
+    #           "title": "Some kpis", 
+    #           "deps": [
+    #             "some notebooks/some-kpis"]
+    #       }
     #   ]
     # }
-    # ]}

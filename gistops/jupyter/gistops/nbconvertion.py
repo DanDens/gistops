@@ -4,6 +4,7 @@ use nbconvert to export notebook
 """
 import logging
 from pathlib import Path
+import shutil
 
 import nbformat
 from nbconvert import HTMLExporter
@@ -44,6 +45,17 @@ def convert(gist: gists.Gist, outpath: Path) -> gists.Gist:
       str(output_filepath), 
       mode='w+', encoding='utf-8') as output_file:
         output_file.write(html_body)
+
+    ############
+    # Copy j2s #
+    ############
+    if outpath != Path('.'):
+        for any_j2_path in sorted(
+          list(gist.path.parent.glob('*.j2')), key=str):
+            shutil.copy(
+              str(any_j2_path),
+              str(outpath.joinpath(
+                any_j2_path.parent).joinpath(any_j2_path.name)) )
 
     return gists.Gist(
       output_filepath,
