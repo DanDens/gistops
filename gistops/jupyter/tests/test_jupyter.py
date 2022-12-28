@@ -83,7 +83,7 @@ def test_jupyter_convert():
     # "record-type":"Gist",
     # "records":[
     #   {
-    #     "path":".gistops/data/some notebooks/some-kpis/kpis.ipynb.html",
+    #     "path":".gistops/data/some notebooks/some-kpis/kpis.ipynb.md",
     #     "tags":{},
     #     "commit_id":"346e4eb"
     #   }
