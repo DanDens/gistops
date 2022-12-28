@@ -10,7 +10,7 @@
       "type": "python",
       "request": "launch",
       "program": "${workspaceRoot}/gistops/main.py",
-      "args": ["run","--outpath","data","--event_base64","eyJzZW12ZXIiOiIwLjEuMC1iZXRhIiwicmVjb3JkLXR5cGUiOiJHaXN0IiwicmVjb3JkcyI6W3sicGF0aCI6InNvbWUgbm90ZWJvb2tzL3NvbWUta3Bpcy9rcGlzLmlweW5iIiwidGFncyI6e30sImNvbW1pdF9pZCI6IjM0NmU0ZWIifV19"],
+      "args": ["run","--outpath","data","--outformat","markdown","--launch","--event_base64","eyJzZW12ZXIiOiIwLjEuMC1iZXRhIiwicmVjb3JkLXR5cGUiOiJHaXN0IiwicmVjb3JkcyI6W3sicGF0aCI6InNvbWUgbm90ZWJvb2tzL3NvbWUta3Bpcy9rcGlzLmlweW5iIiwidGFncyI6e30sImNvbW1pdF9pZCI6IjM0NmU0ZWIifV19"],
       "cwd": "/home/dandens/ws/test_jupyter.unpack",
       "env": {
       },

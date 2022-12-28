@@ -11,11 +11,11 @@ import fire
 
 import gists
 import version
-import nbconvertion
+import extract
 
 
 class GistOps():
-    """gistops - Create static html reports from jupyter notebooks"""
+    """gistops - Extract static reports from jupyter notebooks"""
 
 
     def __logs(self, logspath: Path, prefix: str='jupyter'):
@@ -63,8 +63,12 @@ class GistOps():
         return version.__version__
 
 
-    def convert(self, event_base64: str, outpath: str='.'):
-        """Create static html reports from jupyter notebooks"""
+    def extract(self, 
+      event_base64: str, 
+      outpath: str='.', 
+      outformat: str='markdown', 
+      launch: bool=False):
+        """Extract static reports from jupyter notebooks"""
         try:
             try:
                 outpath = Path(outpath).resolve().relative_to(self.__git_root.resolve())
@@ -87,9 +91,11 @@ class GistOps():
 
                 try:
                     nbs.append( 
-                      nbconvertion.convert(
+                      extract.extract(
                         gist = gist,
-                        outpath = Path(outpath)) )
+                        outpath = Path(outpath),
+                        outformat = outformat,
+                        launch = launch) )
 
                     logging.getLogger('gistops.trail').info(f'{gist.path},converted')
 
@@ -105,10 +111,18 @@ class GistOps():
             raise err
 
 
-    def run(self, event_base64: str, outpath: str='.') -> str:
-        """Create static html reports from jupyter notebooks"""
+    def run(self, 
+      event_base64: str, 
+      outpath: str='.', 
+      outformat: str='markdown', 
+      launch: bool=False) -> str:
+        """Extract static reports from jupyter notebooks"""
 
-        return self.convert(event_base64=event_base64, outpath=outpath)
+        return self.extract(
+            event_base64=event_base64, 
+            outpath=outpath, 
+            outformat=outformat, 
+            launch=launch)
 
 
 def main():
