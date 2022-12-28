@@ -71,10 +71,11 @@ def test_jupyter_convert():
     assert Path.cwd().joinpath('jupyter.gistops.log').exists()
 
     assert out_base64 == \
-      'eyJzZW12ZXIiOiIwLjEuMC1iZXRhIiwicmVjb3JkLXR5cGUiOiJHaXN' \
-      '0IiwicmVjb3JkcyI6W3sicGF0aCI6Ii5naXN0b3BzL2RhdGEvc29tZS' \
-      'Bub3RlYm9va3Mvc29tZS1rcGlzL2twaXMuaXB5bmIuaHRtbCIsInRhZ' \
-      '3MiOnt9LCJjb21taXRfaWQiOiIzNDZlNGViIn1dfQ=='
+      'eyJzZW12ZXIiOiIwLjEuMC1iZXRhIiwicmVjb3JkLXR5cGUiO' \
+      'iJHaXN0IiwicmVjb3JkcyI6W3sicGF0aCI6Ii5naXN0b3BzL2' \
+      'RhdGEvc29tZSBub3RlYm9va3Mvc29tZS1rcGlzL2twaXMuaXB' \
+      '5bmIubWQiLCJ0YWdzIjp7fSwiY29tbWl0X2lkIjoiMzQ2ZTRl' \
+      'YiJ9XX0='
 
     # Base64 encoding of ...
     #{
