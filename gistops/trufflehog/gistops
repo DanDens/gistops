@@ -1,6 +1,16 @@
 #!/bin/bash
 set -e
 
+GISTOPS_GIT_ROOT=$(pwd)
+if ! [ -d "$GISTOPS_GIT_ROOT/.git" ]; then
+    echo "\"$GISTOPS_GIT_ROOT\" is not a git root directory."\
+      "Please run on git root directory."
+    exit 1
+fi
+
+GISTOPS_DIR="${GISTOPS_GIT_ROOT}/.gistops"
+[ -d "$GISTOPS_DIR" ] || mkdir -p "$GISTOPS_DIR"
+
 if [ "$#" -ge 2 ]; 
 then
   trufflehog_args=("${@:2}")
@@ -9,5 +19,5 @@ else
   trufflehog_args=("--fail" "--max-depth=1" "--json")
 fi
 
-echo "trufflehog git file://${1:-.} --no-update ${trufflehog_args[@]}" >> trufflehog.gistops.log 2>&1
-trufflehog git "file://${1:-.}" --no-update "${trufflehog_args[@]}" >> trufflehog.gistops.log 2>&1
+echo "trufflehog git file://${1:-.} --no-update ${trufflehog_args[@]}" >> "$GISTOPS_DIR/trufflehog.gistops.log" 2>&1
+trufflehog git "file://${1:-.}" --no-update "${trufflehog_args[@]}" >> "$GISTOPS_DIR/trufflehog.gistops.log" 2>&1

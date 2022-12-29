@@ -33,12 +33,7 @@ class GistOps():
         logger.info(version.__version__)
 
 
-    def __init__(self, 
-      cwd: str = str(Path.cwd()),
-      logsdir: str = None ):
-
-        self.__logspath=Path(logsdir) if logsdir is not None else Path(cwd)
-        self.__logs( logspath=self.__logspath )
+    def __init__(self, cwd: str = str(Path.cwd())):
 
         ############
         # Git Root #
@@ -48,7 +43,11 @@ class GistOps():
         self.__git_root = gists.assert_git_root(
           Path(cwd).resolve())
         # Important as gist.path is a unique key
-        os.chdir(str(self.__git_root)) 
+        os.chdir(str(self.__git_root))
+
+        self.__gistops_path = self.__git_root.joinpath('.gistops')
+        self.__gistops_path.mkdir(parents=True, exist_ok=True)
+        self.__logs( logspath=self.__gistops_path )
 
 
     def version(self) -> str:
@@ -69,9 +68,9 @@ class GistOps():
         reporting.report(
           webhook_api = reporting.to_webhook_api(webhook_url), 
           report_title=report_title,
-          gsts=gists.from_file(gists_json_path=self.__logspath.joinpath('gists.json')), 
+          gsts=gists.from_file(gists_json_path=self.__gistops_path.joinpath('gists.json')), 
           traillogs=trails.from_files(
-            gistops_trail_dir=self.__logspath, 
+            gistops_trail_dir=self.__gistops_path, 
             gistops_trail_postfix='gistops.trail') )
 
 

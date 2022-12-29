@@ -84,11 +84,10 @@ def test_pandoc_convert():
     # }
 
     out_base64:str = main.GistOps(cwd=str(Path.cwd())).run(
-      event_base64=in_base64, 
-      outpath=str(Path.cwd().joinpath('.gistops/data')))
+      event_base64=in_base64)
 
-    assert Path.cwd().joinpath('pandoc.gistops.trail').exists()
-    assert Path.cwd().joinpath('pandoc.gistops.log').exists()
+    assert Path.cwd().joinpath('.gistops').joinpath('pandoc.gistops.trail').exists()
+    assert Path.cwd().joinpath('.gistops').joinpath('pandoc.gistops.log').exists()
 
     assert out_base64 == \
       'eyJzZW12ZXIiOiAiMC4xLjAtYmV0YSIsICJyZWNvcmQtdHlwZSI6ICJDb' \

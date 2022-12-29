@@ -64,11 +64,10 @@ def test_jupyter_convert():
     # ]}
 
     out_base64:str = main.GistOps(cwd=str(Path.cwd())).run(
-      event_base64=in_base64, 
-      outpath=str(Path.cwd().joinpath('.gistops/data')))
+      event_base64=in_base64)
 
-    assert Path.cwd().joinpath('jupyter.gistops.trail').exists()
-    assert Path.cwd().joinpath('jupyter.gistops.log').exists()
+    assert Path.cwd().joinpath('.gistops').joinpath('jupyter.gistops.trail').exists()
+    assert Path.cwd().joinpath('.gistops').joinpath('jupyter.gistops.log').exists()
 
     assert out_base64 == \
       'eyJzZW12ZXIiOiIwLjEuMC1iZXRhIiwicmVjb3JkLXR5cGUiO' \

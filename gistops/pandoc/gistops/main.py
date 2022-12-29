@@ -45,11 +45,8 @@ class GistOps():
 
 
     def __init__(self, 
-      cwd: str = str(Path.cwd()), 
-      logsdir: str = None,
+      cwd: str = str(Path.cwd()),
       dry_run: bool = False):
-
-        self.__logs( logspath=Path(logsdir) if logsdir is not None else Path(cwd) )
 
         ############
         # Git Root #
@@ -58,7 +55,11 @@ class GistOps():
         # and make path relative to git root
         self.__git_root = gists.assert_git_root(Path(cwd).resolve())
         # Important as gist.path is a unique key
-        os.chdir(str(self.__git_root)) 
+        os.chdir(str(self.__git_root))
+
+        self.__gistops_path = self.__git_root.joinpath('.gistops')
+        self.__gistops_path.mkdir(parents=True, exist_ok=True)
+        self.__logs( logspath=self.__gistops_path )
 
         #######################
         # Pre-configure Shell #
@@ -76,7 +77,7 @@ class GistOps():
         return version.__version__
 
 
-    def convert(self, event_base64: str, outpath: str='.') -> str:
+    def convert(self, event_base64: str, outpath: str='.gistops/data') -> str:
         """Convert gists using *.pandoc.yml"""
         try:
             try:
@@ -117,7 +118,7 @@ class GistOps():
             raise err
 
 
-    def run(self, event_base64: str, outpath: str='.') -> str:
+    def run(self, event_base64: str, outpath: str='.gistops/data') -> str:
         """Convert gists using *.pandoc.yml"""
         return self.convert(event_base64, outpath)
 

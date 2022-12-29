@@ -42,11 +42,7 @@ class GistOps():
         traillog.setLevel(os.environ.get('LOG_LEVEL','INFO'))
 
 
-    def __init__(self, 
-      cwd: str = str(Path.cwd()), 
-      logsdir: str = None ):
-
-        self.__logs( logspath=Path(logsdir) if logsdir is not None else Path(cwd) )
+    def __init__(self, cwd: str = str(Path.cwd())):
 
         ############
         # Git Root #
@@ -57,6 +53,10 @@ class GistOps():
         # Important as gist.path is a unique key
         os.chdir(str(self.__git_root))
 
+        self.__gistops_path = self.__git_root.joinpath('.gistops')
+        self.__gistops_path.mkdir(parents=True, exist_ok=True)
+        self.__logs( logspath=self.__gistops_path )
+
 
     def version(self) -> str:
         """Just print the version"""
@@ -65,8 +65,8 @@ class GistOps():
 
     def extract(self, 
       event_base64: str, 
-      outpath: str='.', 
-      outformat: str='markdown', 
+      outpath: str='.gistops/data',
+      outformat: str='markdown',
       launch: bool=False):
         """Extract static reports from jupyter notebooks"""
         try:
@@ -113,7 +113,7 @@ class GistOps():
 
     def run(self, 
       event_base64: str, 
-      outpath: str='.', 
+      outpath: str='.gistops/data', 
       outformat: str='markdown', 
       launch: bool=False) -> str:
         """Extract static reports from jupyter notebooks"""

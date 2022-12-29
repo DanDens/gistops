@@ -80,9 +80,9 @@ def test_all_gists_are_found():
     #   "commit_id":"ccab44e"
     # }]}
 
-    assert Path.cwd().joinpath('gists.json').exists()
-    assert Path.cwd().joinpath('git-ls-attr.gistops.trail').exists()
-    assert Path.cwd().joinpath('git-ls-attr.gistops.log').exists()
+    assert Path.cwd().joinpath('.gistops').joinpath('gists.json').exists()
+    assert Path.cwd().joinpath('.gistops').joinpath('git-ls-attr.gistops.trail').exists()
+    assert Path.cwd().joinpath('.gistops').joinpath('git-ls-attr.gistops.log').exists()
 
 
 def test_last_committed_gists_are_found():
@@ -105,9 +105,9 @@ def test_last_committed_gists_are_found():
     #   "commit_id":"ccab44e"
     # }]}
 
-    assert Path.cwd().joinpath('git-ls-attr.gistops.trail').exists()
-    assert Path.cwd().joinpath('git-ls-attr.gistops.log').exists()
-    gists_json_path = Path.cwd().joinpath('gists.json')
+    assert Path.cwd().joinpath('.gistops').joinpath('git-ls-attr.gistops.trail').exists()
+    assert Path.cwd().joinpath('.gistops').joinpath('git-ls-attr.gistops.log').exists()
+    gists_json_path = Path.cwd().joinpath('.gistops').joinpath('gists.json')
     assert gists_json_path.exists()
 
     with open(str(gists_json_path),'r',encoding='utf-8') as gists_json_file:

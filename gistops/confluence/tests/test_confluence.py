@@ -242,5 +242,5 @@ def test_confluence_publish(mocker):
       confluence_url='https://verw.bssn.eu/wiki',
       confluence_access_token='unknown' )
 
-    assert Path.cwd().joinpath('confluence.gistops.trail').exists()
-    assert Path.cwd().joinpath('confluence.gistops.log').exists()
+    assert Path.cwd().joinpath('.gistops').joinpath('confluence.gistops.trail').exists()
+    assert Path.cwd().joinpath('.gistops').joinpath('confluence.gistops.log').exists()

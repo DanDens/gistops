@@ -94,7 +94,7 @@ def test_example_repo(mocker):
       webhook_url='https://not-a-real-webhook',
       report_title='trails from the test' )
 
-    assert Path.cwd().joinpath('msteams.gistops.log').exists()
+    assert Path.cwd().joinpath('.gistops').joinpath('msteams.gistops.log').exists()
 
     ###############
     # Test output #
@@ -131,5 +131,6 @@ def test_no_changes():
     reporting.report(
           webhook_api = fk_api, 
           report_title='trails from the test',
-          gsts=gists.from_file(gists_json_path=Path.cwd().joinpath('gists.json')), 
+          gsts=gists.from_file(
+            gists_json_path=Path.cwd().joinpath('.gistops').joinpath('gists.json')), 
           traillogs=[] )

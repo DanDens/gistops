@@ -44,11 +44,7 @@ class GistOps():
         traillog.setLevel(os.environ.get('LOG_LEVEL','INFO'))
 
 
-    def __init__(self, 
-      cwd: str = str( Path.cwd() ),
-      logsdir: str=None ):
-
-        self.__logs( logspath=Path(logsdir) if logsdir is not None else Path(cwd) )
+    def __init__(self, cwd: str = str( Path.cwd() ) ):
 
         ############
         # Git Root #
@@ -59,8 +55,12 @@ class GistOps():
           Path(cwd).resolve())
         # Important as gist.path is a unique key
         os.chdir(str(self.__git_root)) 
-        self.__gist_path = Path(
-          cwd).relative_to(self.__git_root)
+        self.__gist_path = Path(cwd).relative_to(self.__git_root)
+
+        # Set logs path
+        self.__gistops_path = self.__git_root.joinpath('.gistops')
+        self.__gistops_path.mkdir(parents=True, exist_ok=True)
+        self.__logs(logspath=self.__gistops_path )
 
         #######################
         # Pre-configure Shell #
@@ -80,7 +80,8 @@ class GistOps():
         """iterate gists in git"""
 
         try:
-            with open(Path.cwd().joinpath('gists.json'), 'w', encoding='utf-8') as gists_file:
+            with open(
+              self.__gistops_path.joinpath('gists.json'), 'w', encoding='utf-8') as gists_file:
                 gists_file.write(
                   json.dumps( [gists.to_basic_dict(gist) for gist in iterate.iterate_gists(
                     shrun=self.__shrun,
