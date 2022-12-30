@@ -26,6 +26,9 @@ class Gist:
     path: Path
     commit_id: str
     tags: dict
+    resources: List[str]
+    trace_id: Path
+    title: str
 
 
 def from_event(event_base64: str) -> List[Gist]:
@@ -44,7 +47,7 @@ def from_event(event_base64: str) -> List[Gist]:
     validate(instance=event, schema={
         "type": "object",
         "properties": {
-            "semver": {"type": "string"},
+            "semver": {"const": version.__semver__},
             "record-type": {"const": "Gist"},
             "records": {
                 "type": "array",
@@ -53,9 +56,15 @@ def from_event(event_base64: str) -> List[Gist]:
                     "properties": {
                         "path": {"type": "string"},
                         "commit_id": {"type": "string"},
-                        "tags": {"type":"object"}
+                        "tags": {"type":"object"},
+                        "resources": {
+                            "type": "array",
+                            "items": { "type": "string" }
+                        },
+                        "trace_id": {"type": "string"},
+                        "title": {"type": "string"}
                     },
-                    "required": ["path","commit_id","tags"]
+                    "required": ["path", "commit_id", "tags", "resources", "trace_id", "title"]
                 }
             }
         },
@@ -69,77 +78,55 @@ def from_event(event_base64: str) -> List[Gist]:
         raise GistOpsError(
           f"Event semver major version differ {event['semver']} != {version.__semver__}")
 
-    return [ Gist(Path(rec['path']), rec['commit_id'], rec['tags']) for rec in event['records'] ]
+    return [ Gist(
+        Path(rec['path']), 
+        rec['commit_id'], 
+        rec['tags'], 
+        rec['resources'], 
+        Path(rec['trace_id']), 
+        rec['title'] ) for rec in event['records'] ]
 
 
-def __gist_as_dict(gist: Gist) -> dict:
+def __to_basic_dict(gist: Gist) -> dict:
     """Returns gist as dict using basic types"""
     return {
-      'path': str(gist.path),
-      'commit_id': gist.commit_id,
-      'tags': gist.tags }
+        'path': str(gist.path),
+        'tags': gist.tags,
+        'commit_id': gist.commit_id,
+        'resources': gist.resources,
+        'trace_id': str(gist.trace_id),
+        'title': gist.title }
 
 
-def j2_params(gist: Gist) -> dict:
-    """Returns the gist as dict"""
-    return {
-      'name': str(gist.path.name),
-      'dir': str(gist.path.parent),
-      'stem': str(gist.path.stem),
-      'suffix': str(gist.path.suffix),
-      'parent': str(gist.path.parent.name),
-      **__gist_as_dict(gist) }
-
-
-@dataclass
-class ConvertedGist:
-    """ Gist package """
-    gist: Gist
-    path: Path
-    title: str
-    deps: List[Path]
-
-
-def to_event(pckgs: List[ConvertedGist]) -> str:
-    """Returns event for gist packages"""
-
-    def __pckg_as_dict(pckg: ConvertedGist) -> dict:
-        """Returns gist as dict using basic types"""
-        return {
-        'gist': __gist_as_dict(pckg.gist),
-        'path': str(pckg.path),
-        'title': pckg.title,
-        'deps': [str(dep) for dep in pckg.deps] }
+def to_event(gists: List[Gist]) -> str:
+    """Returns gist as dict using basic types"""
 
     event = {
         "semver": version.__semver__,
-        "record-type": 'ConvertedGist',
-        "records": [__pckg_as_dict(pckg) for pckg in pckgs] }
+        "record-type": 'Gist',
+        "records": [__to_basic_dict(gist) for gist in gists] }
 
     validate(instance=event, schema={
-        "type": "object",
+    "type": "object",
         "properties": {
             "semver": {"const": version.__semver__},
-            "record-type": {"const": "ConvertedGist"},
+            "record-type": {"const": "Gist"},
             "records": {
                 "type": "array",
                 "items": {
                     "type": "object",
                     "properties": {
-                        "gist": {
-                            "type": "object", 
-                            "properties": {
-                                "path": {"type": "string"},
-                                "commit_id": {"type": "string"},
-                                "tags": {"type":"object"}
-                            },
-                            "required": ["path","commit_id","tags"]
-                        },
                         "path": {"type": "string"},
-                        "title": {"type": "string"},
-                        "deps": {"type":"array", "items": {"type":"string"}}
+                        "commit_id": {"type": "string"},
+                        "tags": {"type":"object"},
+                        "resources": {
+                            "type": "array",
+                            "items": { "type": "string" }
+                        },
+                        "trace_id": {"type": "string"},
+                        "title": {"type": "string"}
                     },
-                    "required": ["gist","path","title","deps"]
+                    "required": ["path", "commit_id", "tags", "resources", "trace_id", "title"]
                 }
             }
         },
@@ -151,7 +138,19 @@ def to_event(pckgs: List[ConvertedGist]) -> str:
         base64_bytes = base64.b64encode(message_bytes)
         return base64_bytes.decode('ascii')
 
-    return __to_base64(json.dumps(event))
+    return __to_base64(
+      json.dumps(event, separators=(',',':')))
+
+
+def j2_params(gist: Gist) -> dict:
+    """Returns the gist as dict"""
+    return {
+      'name': str(gist.path.name),
+      'dir': str(gist.path.parent),
+      'stem': str(gist.path.stem),
+      'suffix': str(gist.path.suffix),
+      'parent': str(gist.path.parent.name),
+      **__to_basic_dict(gist) }
 
 
 ######################

@@ -26,19 +26,13 @@ class Gist:
     path: Path
     commit_id: str
     tags: dict
-
-
-@dataclass
-class ConvertedGist:
-    """ Gist package """
-    gist: Gist
-    path: Path
+    resources: List[str]
+    trace_id: Path
     title: str
-    deps: List[Path]
 
 
-def from_event(event_base64: str) -> List[ConvertedGist]:
-    """ Read Converted Gists Event """ 
+def from_event(event_base64: str) -> List[Gist]:
+    """ Read Gists Event """ 
 
     try:
         def __from_base64(event_base64: str) -> str:
@@ -54,26 +48,23 @@ def from_event(event_base64: str) -> List[ConvertedGist]:
         "type": "object",
         "properties": {
             "semver": {"const": version.__semver__},
-            "record-type": {"const": "ConvertedGist"},
+            "record-type": {"const": "Gist"},
             "records": {
                 "type": "array",
                 "items": {
                     "type": "object",
                     "properties": {
-                        "gist": {
-                            "type": "object", 
-                            "properties": {
-                                "path": {"type": "string"},
-                                "commit_id": {"type": "string"},
-                                "tags": {"type":"object"}
-                            },
-                            "required": ["path","commit_id","tags"]
-                        },
                         "path": {"type": "string"},
-                        "title": {"type": "string"},
-                        "deps": {"type":"array", "items": {"type":"string"}}
+                        "commit_id": {"type": "string"},
+                        "tags": {"type":"object"},
+                        "resources": {
+                            "type": "array",
+                            "items": { "type": "string" }
+                        },
+                        "trace_id": {"type": "string"},
+                        "title": {"type": "string"}
                     },
-                    "required": ["gist","path","title","deps"]
+                    "required": ["path", "commit_id", "tags", "resources", "trace_id", "title"]
                 }
             }
         },
@@ -87,14 +78,13 @@ def from_event(event_base64: str) -> List[ConvertedGist]:
         raise GistOpsError(
           f"Event semver major version differ {event['semver']} != {version.__semver__}")
 
-    def __to_converterted_gist(rec: dict) -> ConvertedGist:
-        return ConvertedGist(
-          gist=Gist(Path(rec['gist']['path']), rec['gist']['commit_id'], rec['gist']['tags']), 
-          path=Path(rec['path']),
-          title=rec['title'], 
-          deps=[Path(r) for r in rec['deps']] )
-
-    return [ __to_converterted_gist(rec) for rec in event['records'] ]
+    return [ Gist(
+        Path(rec['path']), 
+        rec['commit_id'], 
+        rec['tags'], 
+        rec['resources'], 
+        Path(rec['trace_id']), 
+        rec['title'] ) for rec in event['records'] ]
 
 
 ######################

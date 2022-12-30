@@ -11,10 +11,21 @@
       "request": "launch",
       "program": "${workspaceRoot}/gistops/main.py",
       "args": ["run"],
+      "cwd": "/home/dandens/ws/test_git-ls-attr.unpack",
+      "env": {},
+      "console": "integratedTerminal",
+      "justMyCode": false
+    },
+    {
+      "name": "gistops-git-ls-attr on other",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceRoot}/gistops/main.py",
+      "args": ["run"],
       "cwd": "/home/dandens/ws/test_pandoc.unpack",
       "env": {},
       "console": "integratedTerminal",
-      "justMyCode": true
+      "justMyCode": false
     }
   ]
 }

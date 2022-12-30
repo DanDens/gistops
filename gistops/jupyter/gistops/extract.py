@@ -3,8 +3,9 @@
 use nbconvert to export notebook
 """
 import logging
-from pathlib import Path
 import shutil
+from pathlib import Path
+from typing import List, Tuple
 
 from traitlets.config import Config
 from nbconvert import MarkdownExporter, HTMLExporter
@@ -13,7 +14,7 @@ from nbconvert.preprocessors import ExecutePreprocessor
 import gists
 
 
-def __render_html(gist: gists.Gist, outdir: Path, launch: bool) -> Path:
+def __render_html(gist: gists.Gist, outdir: Path, launch: bool) -> Tuple[Path, List[str]]:
     # See https://nbconvert.readthedocs.io/en/latest/nbconvert_library.html
 
     logger = logging.getLogger()
@@ -34,10 +35,10 @@ def __render_html(gist: gists.Gist, outdir: Path, launch: bool) -> Path:
       mode='w+', encoding='utf-8') as output_file:
         output_file.write(body)
 
-    return output_filepath
+    return output_filepath, []
 
 
-def __render_markdown(gist: gists.Gist, outdir: Path, launch: bool) -> Path:
+def __render_markdown(gist: gists.Gist, outdir: Path, launch: bool) -> Tuple[Path, List[str]]:
     # See https://nbconvert.readthedocs.io/en/latest/nbconvert_library.html
 
     logger = logging.getLogger()
@@ -48,7 +49,7 @@ def __render_markdown(gist: gists.Gist, outdir: Path, launch: bool) -> Path:
 
     exp = MarkdownExporter(config=cnf)
     logger.info(f'Export markdown from {str(gist.path)}')
-    (body, resources) = exp.from_filename(str(gist.path))
+    (body, generated) = exp.from_filename(str(gist.path))
 
     output_filepath = outdir.joinpath(f'{gist.path.name}.md')
     logger.info(f'Write {str(output_filepath)}')
@@ -58,12 +59,17 @@ def __render_markdown(gist: gists.Gist, outdir: Path, launch: bool) -> Path:
       mode='w+', encoding='utf-8') as output_file:
         output_file.write(body)
 
-    for resource_name, resource_data in resources['outputs'].items():
-        logger.info(f'Write {str(outdir.joinpath(resource_name))}')
-        with open(str(outdir.joinpath(resource_name)), mode='wb+') as resource_file:
+    resources = []
+    for resource_name, resource_data in generated['outputs'].items():
+        resource_path = outdir.joinpath(resource_name)
+        
+        logger.info(f'Write {str(resource_path)}')
+        with open( str(resource_path), mode='wb+') as resource_file:
             resource_file.write(resource_data)
 
-    return output_filepath
+        resources.append(f'{str(resource_path.parent)}:{resource_path.name}')
+
+    return output_filepath, resources
 
 
 def extract(
@@ -82,10 +88,10 @@ def extract(
     # See https://nbconvert.readthedocs.io/en/latest/nbconvert_library.html
     nocase_outformat = outformat.lower().strip()
     if nocase_outformat == 'markdown':
-        output_filepath = __render_markdown(
+        output_filepath, resources = __render_markdown(
           gist=gist, outdir=outdir, launch=launch)
     elif nocase_outformat == 'html':
-        output_filepath = __render_html(
+        output_filepath, resources = __render_html(
           gist=gist, outdir=outdir, launch=launch)
     else:
         raise gists.GistOpsError(
@@ -105,5 +111,8 @@ def extract(
     return gists.Gist(
       output_filepath,
       gist.commit_id,
-      gist.tags
+      gist.tags,
+      resources,
+      gist.trace_id,
+      gist.title
     )

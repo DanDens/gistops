@@ -82,100 +82,14 @@ class FakeJiraApi:
 def test_jira_publish(mocker):
     """Tests all gists are converted"""
     
-    in_base64 = \
-      'eyJzZW12ZXIiOiAiMC4xLjAtYmV0YSIsICJyZWNvcmQtdHlwZSI6ICJDb252ZXJ0ZWRHaXN0Iiwg'\
-      'InJlY29yZHMiOiBbeyJnaXN0IjogeyJwYXRoIjogImhvd3Rvcy9ob3ctdG8tc2V0dXAtYS1zY2Fs'\
-      'YWJsZS12cGMtYXJjaGl0ZWN0dXJlL1JFQURNRS5tZCIsICJjb21taXRfaWQiOiAiY2NhYjQ0ZSIs'\
-      'ICJ0YWdzIjogeyJqaXJhIjogeyJpc3N1ZSI6ICJVQ0ItMjIiLCAiaG9zdCI6ICJ2ZXJ3LmJzc24u'\
-      'ZXUifX19LCAicGF0aCI6ICIuZ2lzdG9wcy9kYXRhL2hvd3Rvcy9ob3ctdG8tc2V0dXAtYS1zY2Fs'\
-      'YWJsZS12cGMtYXJjaGl0ZWN0dXJlL1JFQURNRS5wZGYiLCAidGl0bGUiOiAiSG93IHRvIHNldHVw'\
-      'IGEgc2NhbGFibGUgdnBjIGFyY2hpdGVjdHVyZSIsICJkZXBzIjogWyJob3d0b3MvaG93LXRvLXNl'\
-      'dHVwLWEtc2NhbGFibGUtdnBjLWFyY2hpdGVjdHVyZSIsICJob3d0b3MvaG93LXRvLXNldHVwLWEt'\
-      'c2NhbGFibGUtdnBjLWFyY2hpdGVjdHVyZS9pbWciXX0sIHsiZ2lzdCI6IHsicGF0aCI6ICJob3d0'\
-      'b3MvaG93LXRvLXNldHVwLWEtc2NhbGFibGUtdnBjLWFyY2hpdGVjdHVyZS9SRUFETUUubWQiLCAi'\
-      'Y29tbWl0X2lkIjogImNjYWI0NGUiLCAidGFncyI6IHsiamlyYSI6IHsiaXNzdWUiOiAiVUNCLTIy'\
-      'IiwgImhvc3QiOiAidmVydy5ic3NuLmV1In19fSwgInBhdGgiOiAiLmdpc3RvcHMvZGF0YS9ob3d0'\
-      'b3MvaG93LXRvLXNldHVwLWEtc2NhbGFibGUtdnBjLWFyY2hpdGVjdHVyZS9SRUFETUUuamlyYSIs'\
-      'ICJ0aXRsZSI6ICJIb3cgdG8gc2V0dXAgYSBzY2FsYWJsZSB2cGMgYXJjaGl0ZWN0dXJlIiwgImRl'\
-      'cHMiOiBbImhvd3Rvcy9ob3ctdG8tc2V0dXAtYS1zY2FsYWJsZS12cGMtYXJjaGl0ZWN0dXJlIiwg'\
-      'Imhvd3Rvcy9ob3ctdG8tc2V0dXAtYS1zY2FsYWJsZS12cGMtYXJjaGl0ZWN0dXJlL2ltZyJdfSwg'\
-      'eyJnaXN0IjogeyJwYXRoIjogImhvd3Rvcy9ob3ctdG8temlwLWRpcmVjdG9yaWVzLXJlY3Vyc2l2'\
-      'ZWx5LXdpdGgtaGlkZGVuLWZpbGVzL1JFQURNRS5tZCIsICJjb21taXRfaWQiOiAiY2NhYjQ0ZSIs'\
-      'ICJ0YWdzIjogeyJqaXJhIjogeyJpc3N1ZSI6ICJVQ0ItMjMiLCAiaG9zdCI6ICJ2ZXJ3LmJzc24u'\
-      'ZXUifX19LCAicGF0aCI6ICIuZ2lzdG9wcy9kYXRhL2hvd3Rvcy9ob3ctdG8temlwLWRpcmVjdG9y'\
-      'aWVzLXJlY3Vyc2l2ZWx5LXdpdGgtaGlkZGVuLWZpbGVzL1JFQURNRS5wZGYiLCAidGl0bGUiOiAi'\
-      'SG93IHRvIHppcCBkaXJlY3RvcmllcyByZWN1cnNpdmVseSB3aXRoIGhpZGRlbiBmaWxlcyIsICJk'\
-      'ZXBzIjogWyJob3d0b3MvaG93LXRvLXppcC1kaXJlY3Rvcmllcy1yZWN1cnNpdmVseS13aXRoLWhp'\
-      'ZGRlbi1maWxlcyIsICJob3d0b3MvaG93LXRvLXppcC1kaXJlY3Rvcmllcy1yZWN1cnNpdmVseS13'\
-      'aXRoLWhpZGRlbi1maWxlcy9pbWciXX0sIHsiZ2lzdCI6IHsicGF0aCI6ICJob3d0b3MvaG93LXRv'\
-      'LXppcC1kaXJlY3Rvcmllcy1yZWN1cnNpdmVseS13aXRoLWhpZGRlbi1maWxlcy9SRUFETUUubWQi'\
-      'LCAiY29tbWl0X2lkIjogImNjYWI0NGUiLCAidGFncyI6IHsiamlyYSI6IHsiaXNzdWUiOiAiVUNC'\
-      'LTIzIiwgImhvc3QiOiAidmVydy5ic3NuLmV1In19fSwgInBhdGgiOiAiLmdpc3RvcHMvZGF0YS9o'\
-      'b3d0b3MvaG93LXRvLXppcC1kaXJlY3Rvcmllcy1yZWN1cnNpdmVseS13aXRoLWhpZGRlbi1maWxl'\
-      'cy9SRUFETUUuamlyYSIsICJ0aXRsZSI6ICJIb3cgdG8gemlwIGRpcmVjdG9yaWVzIHJlY3Vyc2l2'\
-      'ZWx5IHdpdGggaGlkZGVuIGZpbGVzIiwgImRlcHMiOiBbImhvd3Rvcy9ob3ctdG8temlwLWRpcmVj'\
-      'dG9yaWVzLXJlY3Vyc2l2ZWx5LXdpdGgtaGlkZGVuLWZpbGVzIiwgImhvd3Rvcy9ob3ctdG8temlw'\
-      'LWRpcmVjdG9yaWVzLXJlY3Vyc2l2ZWx5LXdpdGgtaGlkZGVuLWZpbGVzL2ltZyJdfV19Cg=='
-
-    # Base64 encoding of
-    # {"semver": "0.1.0-beta", "record-type": "ConvertedGist", "records": [
-    # {
-    #   "gist": {
-    #     "path": "howtos/how-to-setup-a-scalable-vpc-architecture/README.md", 
-    #     "commit_id": "ccab44e", 
-    #     "tags": {"jira": {"issue": "UCB-22", "host": "verw.bssn.eu"}}
-    #   }, 
-    #   "path": ".gistops/data/howtos/how-to-setup-a-scalable-vpc-architecture/README.pdf",   
-    #   "title": "How to setup a scalable vpc architecture", 
-    #   "deps": [
-    #     "howtos/how-to-setup-a-scalable-vpc-architecture", 
-    #     "howtos/how-to-setup-a-scalable-vpc-architecture/img"
-    #   ]
-    # }, {
-    #   "gist": {
-    #     "path": "howtos/how-to-setup-a-scalable-vpc-architecture/README.md", 
-    #     "commit_id": "ccab44e", 
-    #     "tags": {"jira": {"issue": "UCB-22", "host": "verw.bssn.eu"}}
-    #   }, 
-    #   "path": ".gistops/data/howtos/how-to-setup-a-scalable-vpc-architecture/README.jira", 
-    #   "title": "How to setup a scalable vpc architecture", 
-    #   "deps": [
-    #     "howtos/how-to-setup-a-scalable-vpc-architecture", 
-    #     "howtos/how-to-setup-a-scalable-vpc-architecture/img"
-    #   ]
-    # }, {
-    #   "gist": {
-    #     "path": "howtos/how-to-zip-directories-recursively-with-hidden-files/README.md", 
-    #     "commit_id": "ccab44e", 
-    #     "tags": {"jira": {"issue": "UCB-23", "host": "verw.bssn.eu"}}
-    #   }, 
-    #   "path": ".gistops/data/howtos/how-to-zip-directories-recursively-with-hidden-files/README.pdf", 
-    #   "title": "How to zip directories recursively with hidden files", 
-    #   "deps": [
-    #     "howtos/how-to-zip-directories-recursively-with-hidden-files", 
-    #     "howtos/how-to-zip-directories-recursively-with-hidden-files/img"
-    #   ]
-    # }, {
-    #   "gist": {
-    #     "path": "howtos/how-to-zip-directories-recursively-with-hidden-files/README.md", 
-    #     "commit_id": "ccab44e", 
-    #     "tags": {"jira": {"issue": "UCB-23", "host": "verw.bssn.eu"}}
-    #   }, 
-    #   "path": ".gistops/data/howtos/how-to-zip-directories-recursively-with-hidden-files/README.jira", 
-    #   "title": "How to zip directories recursively with hidden files", 
-    #   "deps": [
-    #     "howtos/how-to-zip-directories-recursively-with-hidden-files", 
-    #     "howtos/how-to-zip-directories-recursively-with-hidden-files/img"
-    #   ]
-    # }
-    # ]}
-
+    in_base64 = 'eyJzZW12ZXIiOiIwLjEuMC1iZXRhIiwicmVjb3JkLXR5cGUiOiJHaXN0IiwicmVjb3JkcyI6W3sicGF0aCI6Ii5naXN0b3BzL2RhdGEvaG93dG9zL2hvdy10by1zZXR1cC1hLXNjYWxhYmxlLXZwYy1hcmNoaXRlY3R1cmUvUkVBRE1FLnBkZiIsInRhZ3MiOnsiamlyYSI6eyJpc3N1ZSI6IlVDQi0yMiIsImhvc3QiOiJ2ZXJ3LmJzc24uZXUifX0sImNvbW1pdF9pZCI6IjA0MTkzYWQiLCJyZXNvdXJjZXMiOlsiaG93dG9zL2hvdy10by1zZXR1cC1hLXNjYWxhYmxlLXZwYy1hcmNoaXRlY3R1cmU6KiIsImhvd3Rvcy9ob3ctdG8tc2V0dXAtYS1zY2FsYWJsZS12cGMtYXJjaGl0ZWN0dXJlL2ltZzoqIl0sInRyYWNlX2lkIjoiaG93dG9zL2hvdy10by1zZXR1cC1hLXNjYWxhYmxlLXZwYy1hcmNoaXRlY3R1cmUvUkVBRE1FLm1kIiwidGl0bGUiOiJIb3cgdG8gc2V0dXAgYSBzY2FsYWJsZSB2cGMgYXJjaGl0ZWN0dXJlIn0seyJwYXRoIjoiLmdpc3RvcHMvZGF0YS9ob3d0b3MvaG93LXRvLXNldHVwLWEtc2NhbGFibGUtdnBjLWFyY2hpdGVjdHVyZS9SRUFETUUuamlyYSIsInRhZ3MiOnsiamlyYSI6eyJpc3N1ZSI6IlVDQi0yMiIsImhvc3QiOiJ2ZXJ3LmJzc24uZXUifX0sImNvbW1pdF9pZCI6IjA0MTkzYWQiLCJyZXNvdXJjZXMiOlsiaG93dG9zL2hvdy10by1zZXR1cC1hLXNjYWxhYmxlLXZwYy1hcmNoaXRlY3R1cmU6KiIsImhvd3Rvcy9ob3ctdG8tc2V0dXAtYS1zY2FsYWJsZS12cGMtYXJjaGl0ZWN0dXJlL2ltZzoqIl0sInRyYWNlX2lkIjoiaG93dG9zL2hvdy10by1zZXR1cC1hLXNjYWxhYmxlLXZwYy1hcmNoaXRlY3R1cmUvUkVBRE1FLm1kIiwidGl0bGUiOiJIb3cgdG8gc2V0dXAgYSBzY2FsYWJsZSB2cGMgYXJjaGl0ZWN0dXJlIn0seyJwYXRoIjoiLmdpc3RvcHMvZGF0YS9ob3d0b3MvaG93LXRvLXppcC1kaXJlY3Rvcmllcy1yZWN1cnNpdmVseS13aXRoLWhpZGRlbi1maWxlcy9SRUFETUUucGRmIiwidGFncyI6eyJqaXJhIjp7Imlzc3VlIjoiVUNCLTIzIiwiaG9zdCI6InZlcncuYnNzbi5ldSJ9fSwiY29tbWl0X2lkIjoiMDQxOTNhZCIsInJlc291cmNlcyI6WyJob3d0b3MvaG93LXRvLXppcC1kaXJlY3Rvcmllcy1yZWN1cnNpdmVseS13aXRoLWhpZGRlbi1maWxlczoqIiwiaG93dG9zL2hvdy10by16aXAtZGlyZWN0b3JpZXMtcmVjdXJzaXZlbHktd2l0aC1oaWRkZW4tZmlsZXMvaW1nOioiXSwidHJhY2VfaWQiOiJob3d0b3MvaG93LXRvLXppcC1kaXJlY3Rvcmllcy1yZWN1cnNpdmVseS13aXRoLWhpZGRlbi1maWxlcy9SRUFETUUubWQiLCJ0aXRsZSI6IkhvdyB0byB6aXAgZGlyZWN0b3JpZXMgcmVjdXJzaXZlbHkgd2l0aCBoaWRkZW4gZmlsZXMifSx7InBhdGgiOiIuZ2lzdG9wcy9kYXRhL2hvd3Rvcy9ob3ctdG8temlwLWRpcmVjdG9yaWVzLXJlY3Vyc2l2ZWx5LXdpdGgtaGlkZGVuLWZpbGVzL1JFQURNRS5qaXJhIiwidGFncyI6eyJqaXJhIjp7Imlzc3VlIjoiVUNCLTIzIiwiaG9zdCI6InZlcncuYnNzbi5ldSJ9fSwiY29tbWl0X2lkIjoiMDQxOTNhZCIsInJlc291cmNlcyI6WyJob3d0b3MvaG93LXRvLXppcC1kaXJlY3Rvcmllcy1yZWN1cnNpdmVseS13aXRoLWhpZGRlbi1maWxlczoqIiwiaG93dG9zL2hvdy10by16aXAtZGlyZWN0b3JpZXMtcmVjdXJzaXZlbHktd2l0aC1oaWRkZW4tZmlsZXMvaW1nOioiXSwidHJhY2VfaWQiOiJob3d0b3MvaG93LXRvLXppcC1kaXJlY3Rvcmllcy1yZWN1cnNpdmVseS13aXRoLWhpZGRlbi1maWxlcy9SRUFETUUubWQiLCJ0aXRsZSI6IkhvdyB0byB6aXAgZGlyZWN0b3JpZXMgcmVjdXJzaXZlbHkgd2l0aCBoaWRkZW4gZmlsZXMifV19'
+    # Base64 encoding of ... {"semver":"0.1.0-beta","record-type":"Gist","records":[{"path":".gistops/data/howtos/how-to-setup-a-scalable-vpc-architecture/README.pdf","tags":{"jira":{"issue":"UCB-22","host":"verw.bssn.eu"}},"commit_id":"04193ad","resources":["howtos/how-to-setup-a-scalable-vpc-architecture:*","howtos/how-to-setup-a-scalable-vpc-architecture/img:*"],"trace_id":"howtos/how-to-setup-a-scalable-vpc-architecture/README.md","title":"How to setup a scalable vpc architecture"},{"path":".gistops/data/howtos/how-to-setup-a-scalable-vpc-architecture/README.jira","tags":{"jira":{"issue":"UCB-22","host":"verw.bssn.eu"}},"commit_id":"04193ad","resources":["howtos/how-to-setup-a-scalable-vpc-architecture:*","howtos/how-to-setup-a-scalable-vpc-architecture/img:*"],"trace_id":"howtos/how-to-setup-a-scalable-vpc-architecture/README.md","title":"How to setup a scalable vpc architecture"},{"path":".gistops/data/howtos/how-to-zip-directories-recursively-with-hidden-files/README.pdf","tags":{"jira":{"issue":"UCB-23","host":"verw.bssn.eu"}},"commit_id":"04193ad","resources":["howtos/how-to-zip-directories-recursively-with-hidden-files:*","howtos/how-to-zip-directories-recursively-with-hidden-files/img:*"],"trace_id":"howtos/how-to-zip-directories-recursively-with-hidden-files/README.md","title":"How to zip directories recursively with hidden files"},{"path":".gistops/data/howtos/how-to-zip-directories-recursively-with-hidden-files/README.jira","tags":{"jira":{"issue":"UCB-23","host":"verw.bssn.eu"}},"commit_id":"04193ad","resources":["howtos/how-to-zip-directories-recursively-with-hidden-files:*","howtos/how-to-zip-directories-recursively-with-hidden-files/img:*"],"trace_id":"howtos/how-to-zip-directories-recursively-with-hidden-files/README.md","title":"How to zip directories recursively with hidden files"}]}
+    
     def __connect_to_api( url: str, access_token: str ):
         assert access_token == 'unknown'
 
         return publishing.JiraAPI(
           url=url, api=FakeJiraApi() )
-
 
     mocker.patch('publishing.connect_to_api', side_effect=__connect_to_api)
 

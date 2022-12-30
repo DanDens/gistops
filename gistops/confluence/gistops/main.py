@@ -129,10 +129,10 @@ class GistOps():
                     publishing.publish(cnfl = cnfl, gist = gist, dry_run = self.__dry_run)
 
                     logging.getLogger('gistops.trail').info(
-                      f'{gist.gist.path},published on {cnfl.url} as {gist.path.suffix}')
+                      f'{gist.trace_id},published on {cnfl.url} as {gist.path.suffix}')
                 except Exception as err:
                     logging.getLogger('gistops.trail').error(
-                      f'{gist.gist.path},publishing on {cnfl.url} as {gist.path.suffix} failed')
+                      f'{gist.trace_id},publishing on {cnfl.url} as {gist.path.suffix} failed')
                     raise err
 
         except Exception as err:

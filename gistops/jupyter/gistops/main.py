@@ -90,10 +90,17 @@ class GistOps():
                     continue # ... skip non .ipynb files
 
                 try:
+                    # Check if gist is already relative to outpath
+                    try:
+                        gist.path.relative_to(Path(outpath))
+                        gist_outpath=Path('.')
+                    except ValueError:
+                        gist_outpath=Path(outpath)
+
                     nbs.append( 
                       extract.extract(
                         gist = gist,
-                        outpath = Path(outpath),
+                        outpath = gist_outpath,
                         outformat = outformat,
                         launch = launch) )
 

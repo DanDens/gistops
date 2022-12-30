@@ -25,14 +25,19 @@ class Gist:
     path: Path
     commit_id: str
     tags: dict
-
+    resources: List[str]
+    trace_id: Path
+    title: str
 
 def to_basic_dict(gist: Gist) -> dict:
     """Returns gist as dict using basic types"""
     return {
         'path': str(gist.path),
         'tags': gist.tags,
-        'commit_id': gist.commit_id }
+        'commit_id': gist.commit_id,
+        'resources': gist.resources,
+        'trace_id': str(gist.trace_id),
+        'title': gist.title }
 
 
 def to_event(gists: List[Gist]) -> str:
@@ -55,9 +60,15 @@ def to_event(gists: List[Gist]) -> str:
                     "properties": {
                         "path": {"type": "string"},
                         "commit_id": {"type": "string"},
-                        "tags": {"type":"object"}
+                        "tags": {"type":"object"},
+                        "resources": {
+                            "type": "array",
+                            "items": { "type": "string" }
+                        },
+                        "trace_id": {"type": "string"},
+                        "title": {"type": "string"}
                     },
-                    "required": ["path","commit_id","tags"]
+                    "required": ["path", "commit_id", "tags", "resources", "trace_id", "title"]
                 }
             }
         },

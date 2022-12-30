@@ -46,12 +46,12 @@ def __tagged(tag_name: str):
             cnfl: ConfluenceAPI = \
                 args[0] if len(args) > 0 else kwargs['cnfl']
 
-            gist: gists.ConvertedGist = \
+            gist: gists.Gist = \
                 args[1] if len(args) > 0 else kwargs['gist']
 
-            if tag_name not in gist.gist.tags:
+            if tag_name not in gist.tags:
                 return # not ment to be published on confluence
-            cnfl_tags = gist.gist.tags[tag_name]
+            cnfl_tags = gist.tags[tag_name]
 
             try:
                 validate(instance=cnfl_tags, schema={
@@ -80,13 +80,13 @@ def __tagged(tag_name: str):
 
 
 def __attach_to_page(
-  page_id: str, attachpath: Path, cnfl: Confluence, gist: gists.ConvertedGist, dry_run: bool):
+  page_id: str, attachpath: Path, cnfl: Confluence, gist: gists.Gist, dry_run: bool):
     logger = logging.getLogger()
     logger.info(
       'curl -u USERNAME:PASSWORD -X POST -H "X-Atlassian-Token: nocheck" '
       f'-F "file=@${attachpath}" '
       f'-F "name={attachpath.name}" '
-      f'-F "comment={gist.gist.commit_id}" '
+      f'-F "comment={gist.commit_id}" '
       f'${cnfl.url}/rest/api/content/${page_id}/child/attachment')
 
     if dry_run:
@@ -96,20 +96,34 @@ def __attach_to_page(
         str(attachpath), 
         name=attachpath.name,
         page_id=page_id, 
-        comment=f'Matches {gist.gist.commit_id} git commit id')
+        comment=f'Matches {gist.commit_id} git commit id')
 
 
-def __iterate_attachments(gist: gists.ConvertedGist, jira_wiki:str) -> dict:
+def __iterate_attachments(gist: gists.Gist, jira_wiki:str) -> dict:
     attachs = {}
     for attach in re.findall(r'(?<=!)\S+(?=!)', jira_wiki):
-        for candidate in [dep.joinpath(urllib.parse.unquote(attach)) for dep in gist.deps]:
-            if candidate.exists():
-                attachs[attach] = candidate
-                break
+        unquoted_attach_name = urllib.parse.unquote(attach)
+        
+        # Lookup in resource paths
+        for resource in gist.resources:
+            if resource.rfind(':') < 0:
+                continue # not a valid resource specifier
+
+            resource_parent = Path(resource.split(':')[0])
+            resource_pattern: str = resource.split(':')[-1]
+
+            for candidate_path in resource_parent.glob(resource_pattern):
+                if candidate_path.name == unquoted_attach_name and candidate_path.is_file():
+                    attachs[attach] = candidate_path
+                    break # attachment found
+            else:
+                continue
+            break # attachment found
+
     return attachs
 
 
-def __update_page(parent_id: str, cnfl: Confluence, gist: gists.ConvertedGist, dry_run: bool):
+def __update_page(parent_id: str, cnfl: Confluence, gist: gists.Gist, dry_run: bool):
     logger = logging.getLogger()
 
     # https://atlassian-python-api.readthedocs.io/confluence.html#page-actions
@@ -149,11 +163,11 @@ def __update_page(parent_id: str, cnfl: Confluence, gist: gists.ConvertedGist, d
 @__tagged('confluence')
 def publish(
   cnfl: Confluence,
-  gist: gists.ConvertedGist,
+  gist: gists.Gist,
   dry_run: bool = False):
     """Force mirror branches matching the given regex"""
 
-    parent_id = gist.gist.tags['confluence']['page']
+    parent_id = gist.tags['confluence']['page']
 
     if gist.path.suffix == '.jira':
         __update_page( parent_id=parent_id, cnfl=cnfl, gist=gist, dry_run=dry_run )

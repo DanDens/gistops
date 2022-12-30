@@ -28,10 +28,10 @@ def __render_j2(gist:gists.Gist, pandoc_j2_path: Path) -> dict:
           f'Pandoc configuration {pandoc_j2_path} is invalid') from err
 
     # Extract output file extension
-    if 'to' not in pandoc_yml:
+    if 'to' not in pandoc_yml or 'from' not in pandoc_yml:
         raise gists.GistOpsError(
-          f'Required "to" option not found in configuration {pandoc_j2_path}'
-          'See --to option in https://pandoc.org/MANUAL.html')
+          f'Required "to" and/or "from" option not found in configuration {pandoc_j2_path}'
+          'See --to or --from option in https://pandoc.org/MANUAL.html')
 
     return pandoc_yml
 
@@ -82,6 +82,37 @@ def __gitignore_new(func):
     return decorator_func
 
 
+def __supported_pandoc_format_to_ext(pandoc_format: str) -> str:
+    try:
+        # See https://pandoc.org/MANUAL.html for a list of all formats
+        format2ext = {
+          'markdown': '.md',
+          'markdown_mmd': '.md',
+          'markdown_phpextra': '.md',
+          'markdown_strict': '.md',
+          'bibtex': '.bibtex',
+          'odt': '.odt',
+          'opml': '.opml',
+          'gfm': '.md',
+          'epub': '.epub',
+          'csv': '.csv',
+          'json': '.json',
+          'latex': '.tex',
+          'docx': '.docx',
+          'rtf': '.rtf',
+          'ipynb': '.ipynb',
+          'jira': '.jira',
+          'pdf': '.pdf',
+          'html': '.html',
+          'html4': '.html',
+          'html5': '.html',
+          'plain': '.txt'
+        }
+        return format2ext[pandoc_format]
+    except KeyError:
+        return None
+
+
 ######################
 # EXPORTED FUNCTIONS #
 ######################
@@ -90,11 +121,11 @@ def convert(
   shrun: Callable[[List[str]], str], 
   gist: gists.Gist,
   outpath: Path,
-  dry_run: bool = False) -> List[gists.ConvertedGist]:
+  dry_run: bool = False) -> List[gists.Gist]:
     """Convert gists using pandoc configurations""" 
     logger = logging.getLogger()
 
-    convs: List[gists.ConvertedGist] = []
+    convs: List[gists.Gist] = []
     for pandoc_j2_path in sorted(
       list(gist.path.parent.glob('*.pandoc.j2')), 
       key=str):
@@ -111,6 +142,21 @@ def convert(
             pandoc_yml_path.parent.mkdir(parents=True, exist_ok=True)
             with open(pandoc_yml_path,'w',encoding='utf-8') as pandoc_yml_file:
                 pandoc_yml_file.write( yaml.dump(pandoc_yml) )
+
+        # Get stem from pandoc format
+        from_ext: str = __supported_pandoc_format_to_ext(pandoc_yml["from"])
+        if from_ext is None or gist.path.suffix != from_ext:
+            # ... ignore, e.g. extension does not match from statement in pandoc yml
+            
+            if from_ext is None:
+                logger.info(
+                  f'Skip conversion of {gist.path} using {pandoc_j2_path} '
+                  f'because of unsupported format {pandoc_yml["from"]}')
+            else:
+                logger.info(
+                  f'Skip conversion of {gist.path} using {pandoc_j2_path} '
+                  f'because of non matching file extension {gist.path.suffix}')
+            continue 
 
         # Convert using Pandoc Configuration
         output_filepath = outpath.joinpath(pandoc_j2_path.parent).joinpath(
@@ -134,13 +180,16 @@ def convert(
         if 'metadata' in pandoc_yml and 'title' in pandoc_yml['metadata']:
             title = pandoc_yml['metadata']['title']
         else:
-            title = f'{gist.path.parent.name}-{gist.path.name}'
+            title = gist.title
 
-        convs.append(gists.ConvertedGist(
-          gist=gist,
-          title=title,
-          path=output_filepath,
-          deps=[gist.path.parent.joinpath(r) for r in pandoc_yml['resource-path']] ))
+        convs.append(gists.Gist(
+          title = title,
+          path = output_filepath,
+          commit_id = gist.commit_id,
+          resources = [ f'{str(gist.path.parent.joinpath(r))}:*' for r in pandoc_yml['resource-path'] ],
+          tags = gist.tags,
+          trace_id = gist.trace_id ))
+
     return convs
 
 

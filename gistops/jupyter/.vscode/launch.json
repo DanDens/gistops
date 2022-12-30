@@ -10,8 +10,20 @@
       "type": "python",
       "request": "launch",
       "program": "${workspaceRoot}/gistops/main.py",
-      "args": ["run","--outpath","data","--outformat","markdown","--launch","--event_base64","eyJzZW12ZXIiOiIwLjEuMC1iZXRhIiwicmVjb3JkLXR5cGUiOiJHaXN0IiwicmVjb3JkcyI6W3sicGF0aCI6InNvbWUgbm90ZWJvb2tzL3NvbWUta3Bpcy9rcGlzLmlweW5iIiwidGFncyI6e30sImNvbW1pdF9pZCI6IjM0NmU0ZWIifV19"],
+      "args": ["run","--outpath",".gistops/data","--outformat","markdown","--launch","--event_base64","eyJzZW12ZXIiOiIwLjEuMC1iZXRhIiwicmVjb3JkLXR5cGUiOiJHaXN0IiwicmVjb3JkcyI6W3sicGF0aCI6Imhvd3Rvcy9ob3ctdG8tc2V0dXAtYS1zY2FsYWJsZS12cGMtYXJjaGl0ZWN0dXJlL1JFQURNRS5tZCIsInRhZ3MiOnsiamlyYSI6eyJpc3N1ZSI6IlVDQi0yMiIsImhvc3QiOiJ2ZXJ3LmJzc24uZXUifX0sImNvbW1pdF9pZCI6IjFjY2U4OTAiLCJyZXNvdXJjZXMiOlsiaG93dG9zL2hvdy10by1zZXR1cC1hLXNjYWxhYmxlLXZwYy1hcmNoaXRlY3R1cmU6KiovKi4qIl0sInRyYWNlX2lkIjoiaG93dG9zL2hvdy10by1zZXR1cC1hLXNjYWxhYmxlLXZwYy1hcmNoaXRlY3R1cmUvUkVBRE1FLm1kIiwidGl0bGUiOiJob3ctdG8tc2V0dXAtYS1zY2FsYWJsZS12cGMtYXJjaGl0ZWN0dXJlLVJFQURNRS5tZCJ9LHsicGF0aCI6Imhvd3Rvcy9ob3ctdG8temlwLWRpcmVjdG9yaWVzLXJlY3Vyc2l2ZWx5LXdpdGgtaGlkZGVuLWZpbGVzL1JFQURNRS5tZCIsInRhZ3MiOnsiamlyYSI6eyJpc3N1ZSI6IlVDQi0yMyIsImhvc3QiOiJ2ZXJ3LmJzc24uZXUifX0sImNvbW1pdF9pZCI6IjFjY2U4OTAiLCJyZXNvdXJjZXMiOlsiaG93dG9zL2hvdy10by16aXAtZGlyZWN0b3JpZXMtcmVjdXJzaXZlbHktd2l0aC1oaWRkZW4tZmlsZXM6KiovKi4qIl0sInRyYWNlX2lkIjoiaG93dG9zL2hvdy10by16aXAtZGlyZWN0b3JpZXMtcmVjdXJzaXZlbHktd2l0aC1oaWRkZW4tZmlsZXMvUkVBRE1FLm1kIiwidGl0bGUiOiJob3ctdG8temlwLWRpcmVjdG9yaWVzLXJlY3Vyc2l2ZWx5LXdpdGgtaGlkZGVuLWZpbGVzLVJFQURNRS5tZCJ9LHsicGF0aCI6InNvbWUgbm90ZWJvb2tzL3NvbWUta3Bpcy9rcGlzLmlweW5iIiwidGFncyI6e30sImNvbW1pdF9pZCI6IjFjY2U4OTAiLCJyZXNvdXJjZXMiOlsic29tZSBub3RlYm9va3Mvc29tZS1rcGlzOioqLyouKiJdLCJ0cmFjZV9pZCI6InNvbWUgbm90ZWJvb2tzL3NvbWUta3Bpcy9rcGlzLmlweW5iIiwidGl0bGUiOiJzb21lLWtwaXMta3Bpcy5pcHluYiJ9XX0="],
       "cwd": "/home/dandens/ws/test_jupyter.unpack",
+      "env": {
+      },
+      "console": "integratedTerminal",
+      "justMyCode": true
+    },
+    {
+      "name": "gistops-jupyter on other",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceRoot}/gistops/main.py",
+      "args": ["run","--outformat","markdown","--launch","--event_base64","eyJzZW12ZXIiOiIwLjEuMC1iZXRhIiwicmVjb3JkLXR5cGUiOiJHaXN0IiwicmVjb3JkcyI6W3sicGF0aCI6Imhvd3Rvcy9ob3ctdG8tc2V0dXAtYS1zY2FsYWJsZS12cGMtYXJjaGl0ZWN0dXJlL1JFQURNRS5tZCIsInRhZ3MiOnsiY29uZmx1ZW5jZSI6eyJwYWdlIjoiMTE3NjA1Nzk4IiwiaG9zdCI6InZlcncuYnNzbi5ldSJ9fSwiY29tbWl0X2lkIjoiNmNkMDE0ZCIsInJlc291cmNlcyI6WyJob3d0b3MvaG93LXRvLXNldHVwLWEtc2NhbGFibGUtdnBjLWFyY2hpdGVjdHVyZToqKi8qLioiXSwidHJhY2VfaWQiOiJob3d0b3MvaG93LXRvLXNldHVwLWEtc2NhbGFibGUtdnBjLWFyY2hpdGVjdHVyZS9SRUFETUUubWQiLCJ0aXRsZSI6Imhvdy10by1zZXR1cC1hLXNjYWxhYmxlLXZwYy1hcmNoaXRlY3R1cmUtUkVBRE1FLm1kIn0seyJwYXRoIjoiaG93dG9zL2hvdy10by16aXAtZGlyZWN0b3JpZXMtcmVjdXJzaXZlbHktd2l0aC1oaWRkZW4tZmlsZXMvUkVBRE1FLm1kIiwidGFncyI6eyJjb25mbHVlbmNlIjp7InBhZ2UiOiIxMTc2MDU3OTgiLCJob3N0IjoidmVydy5ic3NuLmV1In19LCJjb21taXRfaWQiOiI2Y2QwMTRkIiwicmVzb3VyY2VzIjpbImhvd3Rvcy9ob3ctdG8temlwLWRpcmVjdG9yaWVzLXJlY3Vyc2l2ZWx5LXdpdGgtaGlkZGVuLWZpbGVzOioqLyouKiJdLCJ0cmFjZV9pZCI6Imhvd3Rvcy9ob3ctdG8temlwLWRpcmVjdG9yaWVzLXJlY3Vyc2l2ZWx5LXdpdGgtaGlkZGVuLWZpbGVzL1JFQURNRS5tZCIsInRpdGxlIjoiaG93LXRvLXppcC1kaXJlY3Rvcmllcy1yZWN1cnNpdmVseS13aXRoLWhpZGRlbi1maWxlcy1SRUFETUUubWQifSx7InBhdGgiOiJzb21lIG5vdGVib29rcy9zb21lLWtwaXMva3Bpcy5pcHluYiIsInRhZ3MiOnt9LCJjb21taXRfaWQiOiI2Y2QwMTRkIiwicmVzb3VyY2VzIjpbInNvbWUgbm90ZWJvb2tzL3NvbWUta3BpczoqKi8qLioiXSwidHJhY2VfaWQiOiJzb21lIG5vdGVib29rcy9zb21lLWtwaXMva3Bpcy5pcHluYiIsInRpdGxlIjoic29tZS1rcGlzLWtwaXMuaXB5bmIifV19"],
+      "cwd": "/home/dandens/ws/test_pandoc.unpack",
       "env": {
       },
       "console": "integratedTerminal",

@@ -58,28 +58,10 @@ def test_all_gists_are_found():
 
     event_base64:str = main.GistOps(
       cwd=str(Path.cwd())).list()
-    assert event_base64 == \
-      'eyJzZW12ZXIiOiIwLjEuMC1iZXRhIiwicmVjb3JkLXR5cGUiOiJHa' \
-      'XN0IiwicmVjb3JkcyI6W3sicGF0aCI6Imhvd3Rvcy9ob3ctdG8tc2' \
-      'V0dXAtYS1zY2FsYWJsZS12cGMtYXJjaGl0ZWN0dXJlL1JFQURNRS5' \
-      'tZCIsInRhZ3MiOnsiY29uZmx1ZW5jZSI6eyJwYWdlIjoiMTE3NjA1' \
-      'Nzk4IiwiaG9zdCI6InZlcncuYnNzbi5ldSJ9fSwiY29tbWl0X2lkI' \
-      'joiY2NhYjQ0ZSJ9LHsicGF0aCI6Imhvd3Rvcy9ob3ctdG8temlwLW' \
-      'RpcmVjdG9yaWVzLXJlY3Vyc2l2ZWx5LXdpdGgtaGlkZGVuLWZpbGV' \
-      'zL1JFQURNRS5tZCIsInRhZ3MiOnsiY29uZmx1ZW5jZSI6eyJwYWdl' \
-      'IjoiMTE3NjA1Nzk4IiwiaG9zdCI6InZlcncuYnNzbi5ldSJ9fSwiY' \
-      '29tbWl0X2lkIjoiY2NhYjQ0ZSJ9XX0='
-    # Base64 encoding of ...
-    #{"semver":"0.1.0-beta","record-type":"Gist","records":[{
-    #   "path":"howtos/how-to-setup-a-scalable-vpc-architecture/README.md",
-    #   "tags":{"confluence":{"page":"117605798","host":"verw.bssn.eu"}},
-    #   "commit_id":"ccab44e"
-    # },{
-    #   "path":"howtos/how-to-zip-directories-recursively-with-hidden-files/README.md",
-    #   "tags":{"confluence":{"page":"117605798","host":"verw.bssn.eu"}},
-    #   "commit_id":"ccab44e"
-    # }]}
 
+    assert event_base64 == 'eyJzZW12ZXIiOiIwLjEuMC1iZXRhIiwicmVjb3JkLXR5cGUiOiJHaXN0IiwicmVjb3JkcyI6W3sicGF0aCI6Imhvd3Rvcy9ob3ctdG8tc2V0dXAtYS1zY2FsYWJsZS12cGMtYXJjaGl0ZWN0dXJlL1JFQURNRS5tZCIsInRhZ3MiOnsiY29uZmx1ZW5jZSI6eyJwYWdlIjoiMTE3NjA1Nzk4IiwiaG9zdCI6InZlcncuYnNzbi5ldSJ9fSwiY29tbWl0X2lkIjoiY2NhYjQ0ZSIsInJlc291cmNlcyI6WyJob3d0b3MvaG93LXRvLXNldHVwLWEtc2NhbGFibGUtdnBjLWFyY2hpdGVjdHVyZToqKi8qLioiXSwidHJhY2VfaWQiOiJob3d0b3MvaG93LXRvLXNldHVwLWEtc2NhbGFibGUtdnBjLWFyY2hpdGVjdHVyZS9SRUFETUUubWQiLCJ0aXRsZSI6Imhvdy10by1zZXR1cC1hLXNjYWxhYmxlLXZwYy1hcmNoaXRlY3R1cmUtUkVBRE1FLm1kIn0seyJwYXRoIjoiaG93dG9zL2hvdy10by16aXAtZGlyZWN0b3JpZXMtcmVjdXJzaXZlbHktd2l0aC1oaWRkZW4tZmlsZXMvUkVBRE1FLm1kIiwidGFncyI6eyJjb25mbHVlbmNlIjp7InBhZ2UiOiIxMTc2MDU3OTgiLCJob3N0IjoidmVydy5ic3NuLmV1In19LCJjb21taXRfaWQiOiJjY2FiNDRlIiwicmVzb3VyY2VzIjpbImhvd3Rvcy9ob3ctdG8temlwLWRpcmVjdG9yaWVzLXJlY3Vyc2l2ZWx5LXdpdGgtaGlkZGVuLWZpbGVzOioqLyouKiJdLCJ0cmFjZV9pZCI6Imhvd3Rvcy9ob3ctdG8temlwLWRpcmVjdG9yaWVzLXJlY3Vyc2l2ZWx5LXdpdGgtaGlkZGVuLWZpbGVzL1JFQURNRS5tZCIsInRpdGxlIjoiaG93LXRvLXppcC1kaXJlY3Rvcmllcy1yZWN1cnNpdmVseS13aXRoLWhpZGRlbi1maWxlcy1SRUFETUUubWQifV19'
+    # Base64 encoding of ... {"semver":"0.1.0-beta","record-type":"Gist","records":[{"path":"howtos/how-to-setup-a-scalable-vpc-architecture/README.md","tags":{"confluence":{"page":"117605798","host":"verw.bssn.eu"}},"commit_id":"ccab44e","resources":["howtos/how-to-setup-a-scalable-vpc-architecture:**/*.*"],"trace_id":"howtos/how-to-setup-a-scalable-vpc-architecture/README.md","title":"how-to-setup-a-scalable-vpc-architecture-README.md"},{"path":"howtos/how-to-zip-directories-recursively-with-hidden-files/README.md","tags":{"confluence":{"page":"117605798","host":"verw.bssn.eu"}},"commit_id":"ccab44e","resources":["howtos/how-to-zip-directories-recursively-with-hidden-files:**/*.*"],"trace_id":"howtos/how-to-zip-directories-recursively-with-hidden-files/README.md","title":"how-to-zip-directories-recursively-with-hidden-files-README.md"}]}
+    
     assert Path.cwd().joinpath('.gistops').joinpath('gists.json').exists()
     assert Path.cwd().joinpath('.gistops').joinpath('git-ls-attr.gistops.trail').exists()
     assert Path.cwd().joinpath('.gistops').joinpath('git-ls-attr.gistops.log').exists()
@@ -90,20 +72,9 @@ def test_last_committed_gists_are_found():
     
     event_base64:str = main.GistOps(
       cwd=str(Path.cwd())).list(git_hash='HEAD')
-    assert event_base64 == \
-      'eyJzZW12ZXIiOiIwLjEuMC1iZXRhIiwicmVjb3JkLXR5cGUiOiJ' \
-      'HaXN0IiwicmVjb3JkcyI6W3sicGF0aCI6Imhvd3Rvcy9ob3ctdG' \
-      '8temlwLWRpcmVjdG9yaWVzLXJlY3Vyc2l2ZWx5LXdpdGgtaGlkZ' \
-      'GVuLWZpbGVzL1JFQURNRS5tZCIsInRhZ3MiOnsiY29uZmx1ZW5j' \
-      'ZSI6eyJwYWdlIjoiMTE3NjA1Nzk4IiwiaG9zdCI6InZlcncuYnN' \
-      'zbi5ldSJ9fSwiY29tbWl0X2lkIjoiY2NhYjQ0ZSJ9XX0='
-
-    # Base64 encoding of ...
-    # {"semver":"0.1.0-beta","record-type":"Gist","records":[{
-    #   "path":"howtos/how-to-zip-directories-recursively-with-hidden-files/README.md",
-    #   "tags":{"confluence":{"page":"117605798","host":"verw.bssn.eu"}},
-    #   "commit_id":"ccab44e"
-    # }]}
+    
+    assert event_base64 == 'eyJzZW12ZXIiOiIwLjEuMC1iZXRhIiwicmVjb3JkLXR5cGUiOiJHaXN0IiwicmVjb3JkcyI6W3sicGF0aCI6Imhvd3Rvcy9ob3ctdG8temlwLWRpcmVjdG9yaWVzLXJlY3Vyc2l2ZWx5LXdpdGgtaGlkZGVuLWZpbGVzL1JFQURNRS5tZCIsInRhZ3MiOnsiY29uZmx1ZW5jZSI6eyJwYWdlIjoiMTE3NjA1Nzk4IiwiaG9zdCI6InZlcncuYnNzbi5ldSJ9fSwiY29tbWl0X2lkIjoiY2NhYjQ0ZSIsInJlc291cmNlcyI6WyJob3d0b3MvaG93LXRvLXppcC1kaXJlY3Rvcmllcy1yZWN1cnNpdmVseS13aXRoLWhpZGRlbi1maWxlczoqKi8qLioiXSwidHJhY2VfaWQiOiJob3d0b3MvaG93LXRvLXppcC1kaXJlY3Rvcmllcy1yZWN1cnNpdmVseS13aXRoLWhpZGRlbi1maWxlcy9SRUFETUUubWQiLCJ0aXRsZSI6Imhvdy10by16aXAtZGlyZWN0b3JpZXMtcmVjdXJzaXZlbHktd2l0aC1oaWRkZW4tZmlsZXMtUkVBRE1FLm1kIn1dfQ=='
+    # Base64 encoding of ... {"semver":"0.1.0-beta","record-type":"Gist","records":[{"path":"howtos/how-to-zip-directories-recursively-with-hidden-files/README.md","tags":{"confluence":{"page":"117605798","host":"verw.bssn.eu"}},"commit_id":"ccab44e","resources":["howtos/how-to-zip-directories-recursively-with-hidden-files:**/*.*"],"trace_id":"howtos/how-to-zip-directories-recursively-with-hidden-files/README.md","title":"how-to-zip-directories-recursively-with-hidden-files-README.md"}]}
 
     assert Path.cwd().joinpath('.gistops').joinpath('git-ls-attr.gistops.trail').exists()
     assert Path.cwd().joinpath('.gistops').joinpath('git-ls-attr.gistops.log').exists()

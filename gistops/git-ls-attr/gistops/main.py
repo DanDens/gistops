@@ -97,7 +97,7 @@ class GistOps():
               git_diff_hash=git_hash):
 
                 gsts.append(gist)
-                logging.getLogger('gistops.trail').info(f'{gist.path},triggered')
+                logging.getLogger('gistops.trail').info(f'{gist.trace_id},triggered')
 
             return gists.to_event(gsts)
 

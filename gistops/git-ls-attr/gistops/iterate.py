@@ -139,12 +139,16 @@ def iterate_gists(
                 continue # no gistops flag on this one
 
             gist_file, _, gist_tags = gitattr.split(': ')
+            gist_file_path = Path(gist_file)
             if git_diff_files is not None and \
-                Path(gist_file) not in git_diff_files:
+                gist_file_path not in git_diff_files:
                 logger.info(f'{gist_file} unchanged for {git_diff_hash}')
                 continue
 
             yield gists.Gist(
-              path=Path(gist_file), 
+              path=gist_file_path, 
               commit_id=git_commit_id,
-              tags=json.loads(gist_tags) if gist_tags != 'set' else {} )
+              tags=json.loads(gist_tags) if gist_tags != 'set' else {},
+              resources=[f'{str(gist_file_path.parent)}:**/*.*'],
+              trace_id=str(gist_file_path),
+              title=f'{gist_file_path.parent.name}-{gist_file_path.name}' )

@@ -26,6 +26,9 @@ class Gist:
     path: Path
     commit_id: str
     tags: dict
+    resources: List[str]
+    trace_id: Path
+    title: str
 
 
 def from_event(event_base64: str) -> List[Gist]:
@@ -44,7 +47,7 @@ def from_event(event_base64: str) -> List[Gist]:
     validate(instance=event, schema={
         "type": "object",
         "properties": {
-            "semver": {"type": "string"},
+            "semver": {"const": version.__semver__},
             "record-type": {"const": "Gist"},
             "records": {
                 "type": "array",
@@ -53,9 +56,15 @@ def from_event(event_base64: str) -> List[Gist]:
                     "properties": {
                         "path": {"type": "string"},
                         "commit_id": {"type": "string"},
-                        "tags": {"type":"object"}
+                        "tags": {"type":"object"},
+                        "resources": {
+                            "type": "array",
+                            "items": { "type": "string" }
+                        },
+                        "trace_id": {"type": "string"},
+                        "title": {"type": "string"}
                     },
-                    "required": ["path","commit_id","tags"]
+                    "required": ["path", "commit_id", "tags", "resources", "trace_id", "title"]
                 }
             }
         },
@@ -69,15 +78,24 @@ def from_event(event_base64: str) -> List[Gist]:
         raise GistOpsError(
           f"Event semver major version differ {event['semver']} != {version.__semver__}")
 
-    return [ Gist(Path(rec['path']), rec['commit_id'], rec['tags']) for rec in event['records'] ]
+    return [ Gist(
+        Path(rec['path']), 
+        rec['commit_id'], 
+        rec['tags'], 
+        rec['resources'], 
+        Path(rec['trace_id']), 
+        rec['title'] ) for rec in event['records'] ]
 
 
-def to_basic_dict(gist: Gist) -> dict:
+def __to_basic_dict(gist: Gist) -> dict:
     """Returns gist as dict using basic types"""
     return {
         'path': str(gist.path),
         'tags': gist.tags,
-        'commit_id': gist.commit_id }
+        'commit_id': gist.commit_id,
+        'resources': gist.resources,
+        'trace_id': str(gist.trace_id),
+        'title': gist.title }
 
 
 def to_event(gists: List[Gist]) -> str:
@@ -86,7 +104,7 @@ def to_event(gists: List[Gist]) -> str:
     event = {
         "semver": version.__semver__,
         "record-type": 'Gist',
-        "records": [to_basic_dict(gist) for gist in gists] }
+        "records": [__to_basic_dict(gist) for gist in gists] }
 
     validate(instance=event, schema={
     "type": "object",
@@ -100,9 +118,15 @@ def to_event(gists: List[Gist]) -> str:
                     "properties": {
                         "path": {"type": "string"},
                         "commit_id": {"type": "string"},
-                        "tags": {"type":"object"}
+                        "tags": {"type":"object"},
+                        "resources": {
+                            "type": "array",
+                            "items": { "type": "string" }
+                        },
+                        "trace_id": {"type": "string"},
+                        "title": {"type": "string"}
                     },
-                    "required": ["path","commit_id","tags"]
+                    "required": ["path", "commit_id", "tags", "resources", "trace_id", "title"]
                 }
             }
         },

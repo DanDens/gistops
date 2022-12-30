@@ -94,20 +94,27 @@ class GistOps():
             except OSError:
                 pass # e.g. filename to long for base64
 
-            convs: List[gists.ConvertedGist] = []
+            convs: List[gists.Gist] = []
             for gist in gists.from_event(event_base64):
                 try:
+                    # Check if gist is already relative to outpath
+                    try:
+                        gist.path.relative_to(Path(outpath))
+                        gist_outpath=Path('.')
+                    except ValueError:
+                        gist_outpath=Path(outpath)
+
                     convs.extend(
                       converting.convert(
                         shrun=self.__shrun, 
                         gist=gist, 
-                        outpath=Path(outpath),
+                        outpath=gist_outpath,
                         dry_run=self.__dry_run) )
 
-                    logging.getLogger('gistops.trail').info(f'{gist.path},converted')
+                    logging.getLogger('gistops.trail').info(f'{gist.trace_id},converted')
 
                 except Exception as err:
-                    logging.getLogger('gistops.trail').error(f'{gist.path},convertion failed')
+                    logging.getLogger('gistops.trail').error(f'{gist.trace_id},convertion failed')
                     raise err
                 
             return gists.to_event( convs )
