@@ -93,19 +93,34 @@ def __attach_to_issue(
 
 def __iterate_attachments(gist: gists.Gist, jira_wiki:str) -> dict:
     attachs = {}
-    for attach in re.findall(r'(?<=!)\S+(?=!)', jira_wiki):
-        unquoted_attach_name = urllib.parse.unquote(attach)
-        
-        # Lookup in resource paths
-        for resource in gist.resources:
-            if resource.rfind(':') < 0:
-                continue # not a valid resource specifier
 
-            resource_parent = Path(resource.split(':')[0])
-            resource_pattern: str = resource.split(':')[-1]
+    resource_paths: List[dict] = []
+    for resource in gist.resources:
+        if resource.rfind(':') < 0:
+            continue # not a valid resource specifier
+        
+        resource_paths.append(
+            {
+                'parent': Path(resource.split(':')[0]),
+                'pattern': resource.split(':')[-1]
+            }
+        )
+
+    for attach in re.findall(r'(?<=!)\S+(?=!)', jira_wiki):
+        
+        # Preprocess possible attach paths
+        unquoted_attach_name = urllib.parse.unquote(attach)
+        possible_attach_paths = []
+        for resource_path in resource_paths:
+            possible_attach_paths.append( resource_path['parent'].joinpath(unquoted_attach_name) )
+
+        # Lookup files from resource paths
+        for resource_path in resource_paths:
+            resource_parent: Path = resource_path['parent']
+            resource_pattern: str = resource_path['pattern']
 
             for candidate_path in resource_parent.glob(resource_pattern):
-                if candidate_path == resource_parent.joinpath(unquoted_attach_name) and \
+                if candidate_path in possible_attach_paths and \
                     candidate_path.is_file():
                     attachs[attach] = candidate_path
                     break # attachment found
