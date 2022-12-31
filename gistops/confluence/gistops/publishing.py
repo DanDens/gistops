@@ -113,7 +113,8 @@ def __iterate_attachments(gist: gists.Gist, jira_wiki:str) -> dict:
             resource_pattern: str = resource.split(':')[-1]
 
             for candidate_path in resource_parent.glob(resource_pattern):
-                if candidate_path.name == unquoted_attach_name and candidate_path.is_file():
+                if candidate_path == resource_parent.joinpath(unquoted_attach_name) and \
+                    candidate_path.is_file():
                     attachs[attach] = candidate_path
                     break # attachment found
             else:
@@ -136,6 +137,7 @@ def __update_page(parent_id: str, cnfl: Confluence, gist: gists.Gist, dry_run: b
 
     # replace attach references to not include pathes
     for attachref, attachpath in attachs.items():
+        logger.info(f'replacing "!{attachref}!" with "!{str(attachpath.name)}!"')
         jira_wiki = jira_wiki.replace( f'!{attachref}!', f'!{str(attachpath.name)}!' )
 
     # Upload page ...
