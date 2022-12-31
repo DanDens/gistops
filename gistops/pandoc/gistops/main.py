@@ -6,7 +6,7 @@ import os
 import logging
 from functools import partial
 from pathlib import Path
-from typing import Callable, List
+from typing import Callable, List, Union
 
 import fire
 
@@ -77,46 +77,57 @@ class GistOps():
         return version.__version__
 
 
-    def convert(self, event_base64: str, outpath: str='.gistops/data') -> str:
+    def convert(self, event_base64: Union[str,list], outpath: str='.gistops/data') -> str:
         """Convert gists using *.pandoc.yml"""
+
         try:
+            if isinstance(event_base64, list):
+                eb64s = event_base64
+            elif isinstance(event_base64, str):
+                eb64s = [event_base64] 
+            else:
+                raise gists.GistOpsError(
+                  'event_base64 must bei either single base64 encoded event ' 
+                  'or list of base64 encoded events')
+
             try:
                 outpath = Path(outpath).resolve().relative_to(self.__git_root.resolve())
             except ValueError as err:
                 raise gists.GistOpsError(
-                  'output path MUST be sub directory of git root'
-                  'in order to be accessable from downstream ops') from err
-
-            try:
-                if Path(event_base64).exists() and Path(event_base64).is_file():
-                    with open(Path(event_base64), 'r', encoding='utf-8') as event_base64_file:
-                        event_base64 = event_base64_file.read()
-            except OSError:
-                pass # e.g. filename to long for base64
+                'output path MUST be sub directory of git root'
+                'in order to be accessable from downstream ops') from err
 
             convs: List[gists.Gist] = []
-            for gist in gists.from_event(event_base64):
+            for eb64 in eb64s:
                 try:
-                    # Check if gist is already relative to outpath
+                    if Path(eb64).exists() and Path(eb64).is_file():
+                        with open(Path(eb64), 'r', encoding='utf-8') as event_base64_file:
+                            eb64 = event_base64_file.read()
+                except OSError:
+                    pass # e.g. filename to long for base64
+
+                for gist in gists.from_event(eb64):
                     try:
-                        gist.path.relative_to(Path(outpath))
-                        gist_outpath=Path('.')
-                    except ValueError:
-                        gist_outpath=Path(outpath)
+                        # Check if gist is already relative to outpath
+                        try:
+                            gist.path.relative_to(Path(outpath))
+                            gist_outpath=Path('.')
+                        except ValueError:
+                            gist_outpath=Path(outpath)
 
-                    convs.extend(
-                      converting.convert(
-                        shrun=self.__shrun, 
-                        gist=gist, 
-                        outpath=gist_outpath,
-                        dry_run=self.__dry_run) )
+                        convs.extend( converting.convert(
+                            shrun=self.__shrun, 
+                            gist=gist, 
+                            outpath=gist_outpath,
+                            dry_run=self.__dry_run) )
 
-                    logging.getLogger('gistops.trail').info(f'{gist.trace_id},converted')
+                        logging.getLogger('gistops.trail').info(f'{gist.trace_id},converted')
 
-                except Exception as err:
-                    logging.getLogger('gistops.trail').error(f'{gist.trace_id},convertion failed')
-                    raise err
-                
+                    except Exception as err:
+                        logging.getLogger('gistops.trail').error(
+                          f'{gist.trace_id},convertion failed')
+                        raise err
+                    
             return gists.to_event( convs )
       
         except Exception as err:
@@ -125,7 +136,7 @@ class GistOps():
             raise err
 
 
-    def run(self, event_base64: str, outpath: str='.gistops/data') -> str:
+    def run(self, event_base64: Union[str,list], outpath: str='.gistops/data') -> str:
         """Convert gists using *.pandoc.yml"""
         return self.convert(event_base64, outpath)
 

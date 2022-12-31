@@ -5,7 +5,7 @@ Command line arguments for GistOps Operations
 import os
 import logging
 from pathlib import Path
-from typing import List
+from typing import List, Union
 
 import fire
 
@@ -64,12 +64,22 @@ class GistOps():
 
 
     def extract(self, 
-      event_base64: str, 
+      event_base64: Union[str,list], 
       outpath: str='.gistops/data',
       outformat: str='markdown',
       launch: bool=False):
         """Extract static reports from jupyter notebooks"""
+
         try:
+            if isinstance(event_base64, list):
+                eb64s = event_base64
+            elif isinstance(event_base64, str):
+                eb64s = [event_base64] 
+            else:
+                raise gists.GistOpsError(
+                  'event_base64 must bei either single base64 encoded event ' 
+                  'or list of base64 encoded events')
+
             try:
                 outpath = Path(outpath).resolve().relative_to(self.__git_root.resolve())
             except ValueError as err:
@@ -77,39 +87,40 @@ class GistOps():
                   'output path MUST be sub directory of git root'
                   'in order to be accessable from downstream ops') from err
 
-            try:
-                if Path(event_base64).exists() and Path(event_base64).is_file():
-                    with open(Path(event_base64), 'r', encoding='utf-8') as event_base64_file:
-                        event_base64 = event_base64_file.read()
-            except OSError:
-                pass # e.g. filename to long for base64
-
             nbs: List[gists.Gist] = []
-            for gist in gists.from_event(event_base64):
-                if gist.path.suffix != '.ipynb':
-                    continue # ... skip non .ipynb files
-
+            for eb64 in eb64s:
                 try:
-                    # Check if gist is already relative to outpath
-                    try:
-                        gist.path.relative_to(Path(outpath))
-                        gist_outpath=Path('.')
-                    except ValueError:
-                        gist_outpath=Path(outpath)
+                    if Path(eb64).exists() and Path(eb64).is_file():
+                        with open(Path(eb64), 'r', encoding='utf-8') as event_base64_file:
+                            eb64 = event_base64_file.read()
+                except OSError:
+                    pass # e.g. filename to long for base64
 
-                    nbs.append( 
-                      extract.extract(
-                        gist = gist,
-                        outpath = gist_outpath,
-                        outformat = outformat,
-                        launch = launch) )
-
-                    logging.getLogger('gistops.trail').info(f'{gist.path},converted')
-
-                except Exception as err:
-                    logging.getLogger('gistops.trail').error(f'{gist.path},convertion failed')
-                    raise err
                 
+                for gist in gists.from_event(eb64):
+                    if gist.path.suffix != '.ipynb':
+                        continue # ... skip non .ipynb files
+
+                    try:
+                        # Check if gist is already relative to outpath
+                        try:
+                            gist.path.relative_to(Path(outpath))
+                            gist_outpath=Path('.')
+                        except ValueError:
+                            gist_outpath=Path(outpath)
+
+                        nbs.append( extract.extract(
+                            gist = gist,
+                            outpath = gist_outpath,
+                            outformat = outformat,
+                            launch = launch) )
+
+                        logging.getLogger('gistops.trail').info(f'{gist.path},converted')
+
+                    except Exception as err:
+                        logging.getLogger('gistops.trail').error(f'{gist.path},convertion failed')
+                        raise err
+                    
             return gists.to_event( nbs )
       
         except Exception as err:
@@ -119,7 +130,7 @@ class GistOps():
 
 
     def run(self, 
-      event_base64: str, 
+      event_base64: Union[str,list], 
       outpath: str='.gistops/data', 
       outformat: str='markdown', 
       launch: bool=False) -> str:

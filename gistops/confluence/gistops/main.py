@@ -5,6 +5,7 @@ Command line arguments for GistOps Operations
 import os
 import logging
 from pathlib import Path
+from typing import Union
 
 import fire
 
@@ -101,7 +102,7 @@ class GistOps():
 
 
     def publish(self,
-      event_base64: str,
+      event_base64: Union[str,list],
       confluence_url: str = None,
       confluence_access_token: str = None,
       confluence_username: str = None,
@@ -109,31 +110,41 @@ class GistOps():
         """Publish gist as page on confluence"""
 
         try:
+            if isinstance(event_base64, list):
+                eb64s = event_base64
+            elif isinstance(event_base64, str):
+                eb64s = [event_base64] 
+            else:
+                raise gists.GistOpsError(
+                  'event_base64 must bei either single base64 encoded event ' 
+                  'or list of base64 encoded events')
+
             cnfl = self.__cnfl_api( 
               confluence_url=confluence_url, 
               confluence_access_token=confluence_access_token, 
               confluence_username=confluence_username, 
               confluence_password=confluence_password )
 
-            try:
-                if Path(event_base64).exists() and Path(event_base64).is_file():
-                    with open(Path(event_base64), 'r', encoding='utf-8') as event_base64_file:
-                        event_base64 = event_base64_file.read()
-            except OSError:
-                pass # e.g. filename to long for base64
-
-            for gist in sorted(
-              gists.from_event(event_base64),
-              key=lambda g: 0 if g.path.suffix == '.jira' else 1 ):
+            for eb64 in eb64s:
                 try:
-                    publishing.publish(cnfl = cnfl, gist = gist, dry_run = self.__dry_run)
+                    if Path(eb64).exists() and Path(eb64).is_file():
+                        with open(Path(eb64), 'r', encoding='utf-8') as event_base64_file:
+                            eb64 = event_base64_file.read()
+                except OSError:
+                    pass # e.g. filename to long for base64
 
-                    logging.getLogger('gistops.trail').info(
-                      f'{gist.trace_id},published on {cnfl.url} as {gist.path.suffix}')
-                except Exception as err:
-                    logging.getLogger('gistops.trail').error(
-                      f'{gist.trace_id},publishing on {cnfl.url} as {gist.path.suffix} failed')
-                    raise err
+                for gist in sorted(
+                  gists.from_event(eb64),
+                  key=lambda g: 0 if g.path.suffix == '.jira' else 1 ):
+                    try:
+                        publishing.publish(cnfl = cnfl, gist = gist, dry_run = self.__dry_run)
+
+                        logging.getLogger('gistops.trail').info(
+                          f'{gist.trace_id},published on {cnfl.url} as {gist.path.suffix}')
+                    except Exception as err:
+                        logging.getLogger('gistops.trail').error(
+                          f'{gist.trace_id},publishing on {cnfl.url} as {gist.path.suffix} failed')
+                        raise err
 
         except Exception as err:
             logging.getLogger('gistops.trail').error('*,unexpected error')
@@ -142,7 +153,7 @@ class GistOps():
 
 
     def run(self,
-      event_base64: str,
+      event_base64: Union[str,list],
       confluence_url: str = None,
       confluence_access_token: str = None,
       confluence_username: str = None,
