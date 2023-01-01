@@ -65,9 +65,9 @@ class GistOps():
 
     def extract(self, 
       event_base64: Union[str,list], 
-      outpath: str='.gistops/data',
-      outformat: str='markdown',
-      launch: bool=False):
+      outpath: str = '.gistops/data',
+      outformat: Union[str,list] = 'markdown',
+      launch: bool = False):
         """Extract static reports from jupyter notebooks"""
 
         try:
@@ -75,6 +75,15 @@ class GistOps():
                 eb64s = event_base64
             elif isinstance(event_base64, str):
                 eb64s = [event_base64] 
+            else:
+                raise gists.GistOpsError(
+                  'event_base64 must bei either single base64 encoded event ' 
+                  'or list of base64 encoded events')
+
+            if isinstance(outformat, list):
+                outfmts = outformat
+            elif isinstance(outformat, str):
+                outfmts = [outformat] 
             else:
                 raise gists.GistOpsError(
                   'event_base64 must bei either single base64 encoded event ' 
@@ -109,11 +118,12 @@ class GistOps():
                         except ValueError:
                             gist_outpath=Path(outpath)
 
-                        nbs.append( extract.extract(
-                            gist = gist,
-                            outpath = gist_outpath,
-                            outformat = outformat,
-                            launch = launch) )
+                        for outfmt in outfmts:
+                            nbs.append( extract.extract(
+                                gist = gist,
+                                outpath = gist_outpath,
+                                outformat = outfmt,
+                                launch = launch) )
 
                         logging.getLogger('gistops.trail').info(f'{gist.path},converted')
 
@@ -131,9 +141,9 @@ class GistOps():
 
     def run(self, 
       event_base64: Union[str,list], 
-      outpath: str='.gistops/data', 
-      outformat: str='markdown', 
-      launch: bool=False) -> str:
+      outpath: str = '.gistops/data', 
+      outformat: Union[str,list] = 'markdown', 
+      launch: bool = False) -> str:
         """Extract static reports from jupyter notebooks"""
 
         return self.extract(
