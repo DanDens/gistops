@@ -145,10 +145,12 @@ def iterate_gists(
                 logger.info(f'{gist_file} unchanged for {git_diff_hash}')
                 continue
 
+            # Note [:space:] filter according to
+            # https://github.com/git/git/blob/8d8387116ae8c3e73f6184471f0c46edbd2c7601/Documentation/gitattributes.txt#L563-L564
             yield gists.Gist(
               path=gist_file_path, 
               commit_id=git_commit_id,
-              tags=json.loads(gist_tags) if gist_tags != 'set' else {},
+              tags=json.loads(gist_tags.replace('[[:space:]]',' ')) if gist_tags != 'set' else {},
               resources=[f'{str(gist_file_path.parent)}:**/*.*'],
               trace_id=str(gist_file_path),
               title=f'{gist_file_path.parent.name}-{gist_file_path.name}' )
