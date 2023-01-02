@@ -11,13 +11,7 @@ if ! docker info >/dev/null 2>&1; then
     exit 1
 fi
 
-if ! [ $# -ge 1 ]; then 
-    echo "No job provided, use either trufflehog, git-ls-attr, git-mirror, pandoc, confluence, jira or jupyter"
-    exit 1
-fi
-GISTOPS_JOB="$1"
-
-GISTOPS_GIT_ROOT=$(realpath "${2:-.}")
+GISTOPS_GIT_ROOT=$(realpath "${1:-.}")
 if ! [ -d "$GISTOPS_GIT_ROOT/.git" ]; then
     echo "\"$GISTOPS_GIT_ROOT\" is not a git root directory."\
       "Please provide path to a git root directory."
@@ -26,131 +20,64 @@ fi
 
 [[ -n "${GISTOPS_IMAGE_REGISTRY_PREFIX}" ]] || GISTOPS_IMAGE_REGISTRY_PREFIX="ghcr.io/dandens"
 
-# Create random container name
-GISTOPS_CONTAINER_NAME="gistops-$(cat /proc/sys/kernel/random/uuid | sed 's/[-]//g' | head -c 10)"
+##################
+# Dockerize Jobs #
+##################
+run_gistops() {
+  local GISTOPS_IMAGE_URI="${GISTOPS_IMAGE_REGISTRY_PREFIX}/$1"
+  local GISTOPS_CONTAINER_NAME="gistops-$(cat /proc/sys/kernel/random/uuid | sed 's/[-]//g' | head -c 10)"
+  
+  if [ -z "$(docker image ls $GISTOPS_IMAGE_URI --format '{{json . }}')" ]; 
+  then
+      echo "docker pull $GISTOPS_IMAGE_URI > /dev/null"
+      docker pull "$GISTOPS_IMAGE_URI" > /dev/null 
+  fi 
 
-########
-# Jobs #
-########
-trufflehog() {
+  echo "docker run --name '$GISTOPS_CONTAINER_NAME' --workdir '/home/dandens/ws' --volume '$GISTOPS_GIT_ROOT:/home/dandens/ws' $GISTOPS_IMAGE_URI ${@:2} > /dev/null"
   docker run \
   --name "$GISTOPS_CONTAINER_NAME" \
   --workdir "/home/dandens/ws" \
   --volume "$GISTOPS_GIT_ROOT:/home/dandens/ws" \
-  "${GISTOPS_IMAGE_REGISTRY_PREFIX}/gistops-trufflehog:b22a808" \
-  gistops . "$@"
+  "$GISTOPS_IMAGE_URI" \
+  ${@:2} > /dev/null
+
+  gistops_stdout=$(docker logs "$GISTOPS_CONTAINER_NAME")
+
+  docker rm "$GISTOPS_CONTAINER_NAME" > /dev/null
 }
 
-git_mirror() {
-  docker run \
-  --name "$GISTOPS_CONTAINER_NAME" \
-  --workdir "/home/dandens/ws" \
-  --volume "$GISTOPS_GIT_ROOT:/home/dandens/ws" \
-  "${GISTOPS_IMAGE_REGISTRY_PREFIX}/gistops-git-mirror:b22a808" \
-  gistops run "$@"
-}
+###############
+# Run Gistops #
+###############
+# 1. analyze
+run_gistops 'gistops-trufflehog:b22a808' 'gistops' '.'
+run_gistops 'gistops-git-ls-attr:a22694b' 'gistops' 'run'
+gists_git_ls_attr="$gistops_stdout"
 
-git_ls_attr() {
-  docker run \
-  --rm \
-  --name "$GISTOPS_CONTAINER_NAME" \
-  --workdir "/home/dandens/ws" \
-  --volume "$GISTOPS_GIT_ROOT:/home/dandens/ws" \
-  "${GISTOPS_IMAGE_REGISTRY_PREFIX}/gistops-git-ls-attr:b22a808" \
-  gistops run "$@"
-}
+# 2. convert
+run_gistops 'gistops-jupyter:e38f570' 'gistops' 'run' "--event-base64=$gists_git_ls_attr"
+gists_jupyter="$gistops_stdout"
+run_gistops 'gistops-pandoc:3f14c69' 'gistops' 'run' "--event-base64=['$gists_git_ls_attr','$gists_jupyter']"
+gists_pandoc="$gistops_stdout"
 
-jupyter() {
-  docker run \
-  --rm \
-  --name "$GISTOPS_CONTAINER_NAME" \
-  --workdir "/home/dandens/ws" \
-  --volume "$GISTOPS_GIT_ROOT:/home/dandens/ws" \
-  "${GISTOPS_IMAGE_REGISTRY_PREFIX}/gistops-jupyter:b22a808" \
-  gistops run "$@"
-}
+# 3. publish
+if [[ -n "$GISTOPS_JIRA_URL" ]] && [[ -n "$GISTOPS_JIRA_ACCESS_TOKEN" ]]; then
+    run_gistops 'gistops-jira:9f50ec1' 'gistops' 'run' \
+      "--event-base64=$gists_pandoc" \
+      "--jira-url=$GISTOPS_JIRA_URL" \
+      "--jira-access-token=$GISTOPS_JIRA_ACCESS_TOKEN"
+fi
 
-pandoc() {
-  docker run \
-  --rm \
-  --name "$GISTOPS_CONTAINER_NAME" \
-  --workdir "/home/dandens/ws" \
-  --volume "$GISTOPS_GIT_ROOT:/home/dandens/ws" \
-  "${GISTOPS_IMAGE_REGISTRY_PREFIX}/gistops-pandoc:b22a808" \
-  gistops run "$@"
-}
+if [[ -n "$GISTOPS_CONFLUENCE_URL" ]] && [[ -n "$GISTOPS_CONFLUENCE_ACCESS_TOKEN" ]]; then
+    run_gistops 'gistops-confluence:3f14c69' 'gistops' 'run' \
+      "--event-base64=$gists_pandoc" \
+      "--confluence-url=$GISTOPS_CONFLUENCE_URL" \
+      "--confluence-access-token=$GISTOPS_CONFLUENCE_ACCESS_TOKEN"
+fi
 
-confluence() {
-  docker run \
-  --rm \
-  --name "$GISTOPS_CONTAINER_NAME" \
-  --workdir "/home/dandens/ws" \
-  --volume "$GISTOPS_GIT_ROOT:/home/dandens/ws" \
-  "${GISTOPS_IMAGE_REGISTRY_PREFIX}/gistops-confluence:b22a808" \
-  gistops run "$@"
-}
-
-jira() {
-  docker run \
-  --rm \
-  --name "$GISTOPS_CONTAINER_NAME" \
-  --workdir "/home/dandens/ws" \
-  --volume "$GISTOPS_GIT_ROOT:/home/dandens/ws" \
-  "${GISTOPS_IMAGE_REGISTRY_PREFIX}/gistops-jira:b22a808" \
-  gistops run "$@"
-}
-
-msteams() {
-  docker run \
-  --rm \
-  --name "$GISTOPS_CONTAINER_NAME" \
-  --workdir "/home/dandens/ws" \
-  --volume "$GISTOPS_GIT_ROOT:/home/dandens/ws" \
-  "${GISTOPS_IMAGE_REGISTRY_PREFIX}/gistops-msteams:b22a808" \
-  gistops run "$@"
-}
-
-############
-# Run Jobs #
-############
-case "$GISTOPS_JOB" in
-
-  "trufflehog")
-    trufflehog ${@:3}
-    ;;
-
-  "git-mirror")
-    git_mirror ${@:3}
-    ;;
-
-  "git-ls-attr")
-    git_ls_attr ${@:3}
-    ;;
-
-  "jupyter")
-    jupyter ${@:3}
-    ;;
-
-  "pandoc")
-    pandoc ${@:3}
-    ;;
-
-  "confluence")
-    confluence ${@:3}
-    ;;
-
-  "jira")
-    jira ${@:3}
-    ;;
-
-  "msteams")
-    msteams ${@:3}
-    ;;
-
-  *)
-    echo "Unknown job \"$GISTOPS_JOB\"." \
-    "Available are trufflehog, git-ls-attr, git-mirror, pandoc, confluence, jira, jupyter, msteams"
-    exit 1
-    ;;
-esac
-
+# 4. report
+if [[ -n "$GISTOPS_MSTEAMS_WEBHOOK_URL" ]] && [[ -n "$GISTOPS_MSTEAMS_REPORT_TITLE" ]]; then
+    run_gistops 'gistops-msteams:b22a808' 'gistops' 'run' \
+      "--webhook-url=$GISTOPS_MSTEAMS_WEBHOOK_URL" \
+      "--report-title=$GISTOPS_MSTEAMS_REPORT_TITLE"
+fi
