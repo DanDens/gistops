@@ -11,9 +11,9 @@ if ! docker info >/dev/null 2>&1; then
     exit 1
 fi
 
-GISTOPS_GIT_ROOT=$(realpath "${1:-.}")
-if ! [ -d "$GISTOPS_GIT_ROOT/.git" ]; then
-    echo "\"$GISTOPS_GIT_ROOT\" is not a git root directory."\
+GIT_REPOSITORY_DIR=$(realpath "${1:-.}")
+if ! [ -d "$GIT_REPOSITORY_DIR/.git" ]; then
+    echo "\"$GIT_REPOSITORY_DIR\" is not a git root directory."\
       "Please provide path to a git root directory."
     exit 1
 fi
@@ -33,11 +33,11 @@ run_gistops() {
       docker pull "$GISTOPS_IMAGE_URI" > /dev/null 
   fi 
 
-  echo "docker run --name '$GISTOPS_CONTAINER_NAME' --workdir '/home/dandens/ws' --volume '$GISTOPS_GIT_ROOT:/home/dandens/ws' $GISTOPS_IMAGE_URI ${@:2} > /dev/null"
+  echo "docker run --name '$GISTOPS_CONTAINER_NAME' --workdir '/home/dandens/ws' --volume '$GIT_REPOSITORY_DIR:/home/dandens/ws' $GISTOPS_IMAGE_URI ${@:2} > /dev/null"
   docker run \
   --name "$GISTOPS_CONTAINER_NAME" \
   --workdir "/home/dandens/ws" \
-  --volume "$GISTOPS_GIT_ROOT:/home/dandens/ws" \
+  --volume "$GIT_REPOSITORY_DIR:/home/dandens/ws" \
   "$GISTOPS_IMAGE_URI" \
   ${@:2} > /dev/null
 
