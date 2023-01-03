@@ -30,6 +30,7 @@ if (-not (Test-Path -Path "$GitRepositoryDir\.git")) {
       "Please provide path to a valid git repository"
     exit 1
 }
+$GitRepositoryDir = Resolve-Path -Path "$GitRepositoryDir"
 
 ##################
 # Dockerize Jobs #
