@@ -55,7 +55,7 @@ run_gistops 'gistops-git-ls-attr:a22694b' 'gistops' 'run'
 gists_git_ls_attr="$gistops_stdout"
 
 # 2. convert
-run_gistops 'gistops-jupyter:e38f570' 'gistops' 'run' "--event-base64=$gists_git_ls_attr"
+run_gistops 'gistops-jupyter:513f9c0' 'gistops' 'run' "--event-base64=$gists_git_ls_attr"
 gists_jupyter="$gistops_stdout"
 run_gistops 'gistops-pandoc:3f14c69' 'gistops' 'run' "--event-base64=['$gists_git_ls_attr','$gists_jupyter']"
 gists_pandoc="$gistops_stdout"

@@ -69,7 +69,7 @@ Run-Gistops 'gistops-trufflehog:b22a808' @("gistops", ".")
 $gists_git_ls_attr = Run-Gistops 'gistops-git-ls-attr:a22694b' @("gistops", "run")
 
 # 2. convert
-$gists_jupyter = Run-Gistops 'gistops-jupyter:e38f570' @(
+$gists_jupyter = Run-Gistops 'gistops-jupyter:513f9c0' @(
   'gistops','run',"--event-base64=$gists_git_ls_attr")
 $gists_pandoc = Run-Gistops 'gistops-pandoc:3f14c69' @(
   'gistops','run',"--event-base64=['$gists_git_ls_attr','$gists_jupyter']")
