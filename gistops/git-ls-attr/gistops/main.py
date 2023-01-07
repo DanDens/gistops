@@ -103,7 +103,7 @@ class GistOps():
 
         except Exception as err:
             logging.getLogger('gistops.trail').error('*,unexpected error')
-            logging.getLogger().error(str(err))
+            logging.getLogger().error(err, exc_info=True)
             raise err
 
 

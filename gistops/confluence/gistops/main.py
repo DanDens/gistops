@@ -5,7 +5,7 @@ Command line arguments for GistOps Operations
 import os
 import logging
 from pathlib import Path
-from typing import Union
+from typing import Union, List
 
 import fire
 
@@ -125,6 +125,7 @@ class GistOps():
               confluence_username=confluence_username, 
               confluence_password=confluence_password )
 
+            failed: List(str) = []
             for eb64 in eb64s:
                 try:
                     if Path(eb64).exists() and Path(eb64).is_file():
@@ -136,19 +137,17 @@ class GistOps():
                 for gist in sorted(
                   gists.from_event(eb64),
                   key=lambda g: 0 if g.path.suffix == '.jira' else 1 ):
-                    try:
-                        publishing.publish(cnfl = cnfl, gist = gist, dry_run = self.__dry_run)
+                    if not publishing.publish(
+                      cnfl = cnfl, gist = gist, dry_run = self.__dry_run):
+                        failed.append(gist.trace_id)
 
-                        logging.getLogger('gistops.trail').info(
-                          f'{gist.trace_id},published on {cnfl.url} as {gist.path.suffix}')
-                    except Exception as err:
-                        logging.getLogger('gistops.trail').error(
-                          f'{gist.trace_id},publishing on {cnfl.url} as {gist.path.suffix} failed')
-                        raise err
+            if len(failed) > 0:
+                raise gists.GistOpsError(
+                  f'Failed to publish gists {failed}, see previous errors')
 
         except Exception as err:
             logging.getLogger('gistops.trail').error('*,unexpected error')
-            logging.getLogger().error(str(err))
+            logging.getLogger().error(err, exc_info=True)
             raise err
 
 

@@ -167,14 +167,33 @@ def __update_issue_summary(jira: Jira, issue_key: str, gist: gists.Gist, dry_run
 def publish(
   jira: Jira,
   gist: gists.Gist,
-  dry_run: bool = False):
+  dry_run: bool = False) -> bool:
     """Update jira issue summary"""
 
     issue_key = gist.tags['jira']['issue']
+    try:
+        if gist.path.suffix == '.jira':
+            __update_issue_summary( 
+              jira=jira, issue_key=issue_key, gist=gist, dry_run=dry_run )
 
-    if gist.path.suffix == '.jira':
-        __update_issue_summary( 
-          jira=jira, issue_key=issue_key, gist=gist, dry_run=dry_run )
-    else:
-        __attach_to_issue( 
-          jira=jira, issue_key=issue_key, attachpath=gist.path, dry_run=dry_run )
+            logging.getLogger('gistops.trail').info(
+              f'{gist.trace_id},published as {gist.path.suffix} '
+              f'description on issue {issue_key} on host {jira.url}')
+        else:
+            __attach_to_issue( 
+            jira=jira, issue_key=issue_key, attachpath=gist.path, dry_run=dry_run )
+
+            logging.getLogger('gistops.trail').info(
+              f'{gist.trace_id},published as {gist.path.suffix} '
+              f'attachment on issue {issue_key} on host {jira.url}')
+
+    except Exception as err:
+        what = 'description' if gist.path.suffix == '.jira' else 'attachment'
+
+        logging.getLogger('gistops.trail').error(
+          f'{gist.trace_id},publishing {what} as {gist.path.suffix} '
+          f'on issue {issue_key} on {jira.url} failed')
+        logging.getLogger().error(err, exc_info=True)
+        return False 
+
+    return True

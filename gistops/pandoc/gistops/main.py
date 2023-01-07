@@ -106,6 +106,7 @@ class GistOps():
                 except OSError:
                     pass # e.g. filename to long for base64
 
+                failed = []
                 for gist in gists.from_event(eb64):
                     try:
                         # Check if gist is already relative to outpath
@@ -121,18 +122,25 @@ class GistOps():
                             outpath=gist_outpath,
                             dry_run=self.__dry_run) )
 
-                        logging.getLogger('gistops.trail').info(f'{gist.trace_id},converted')
+                        logging.getLogger('gistops.trail').info(
+                          f'{gist.trace_id},{gist.path.name} converted')
 
                     except Exception as err:
                         logging.getLogger('gistops.trail').error(
-                          f'{gist.trace_id},convertion failed')
-                        raise err
+                          f'{gist.trace_id},convertion failed for {gist.path.name}')
+                        logging.getLogger().error(err, exc_info=True)
+                        failed.append(gist.trace_id)
+                
+                if len(failed) > 0:
+                    raise gists.GistOpsError(
+                      f'Gists {failed} failed during convertion. '
+                      'See previous errors.')
                     
             return gists.to_event( convs )
       
         except Exception as err:
             logging.getLogger('gistops.trail').error('*,unexpected error')
-            logging.getLogger().error(str(err))
+            logging.getLogger().error(err, exc_info=True)
             raise err
 
 

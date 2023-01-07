@@ -139,7 +139,7 @@ def __iterate_attachments(gist: gists.Gist, jira_wiki:str) -> dict:
     return attachs
 
 
-def __update_page(parent_id: str, cnfl: Confluence, gist: gists.Gist, dry_run: bool):
+def __update_page(parent_id: str, cnfl: Confluence, gist: gists.Gist, dry_run: bool) -> str:
     logger = logging.getLogger()
 
     # https://atlassian-python-api.readthedocs.io/confluence.html#page-actions
@@ -176,21 +176,52 @@ def __update_page(parent_id: str, cnfl: Confluence, gist: gists.Gist, dry_run: b
         __attach_to_page(
           page_id=page_id, attachpath=attachpath, cnfl=cnfl, gist=gist, dry_run=dry_run)
 
+    return page_id
+
 
 @__tagged('confluence')
 def publish(
   cnfl: Confluence,
   gist: gists.Gist,
-  dry_run: bool = False):
+  dry_run: bool = False) -> bool:
     """Force mirror branches matching the given regex"""
 
     parent_id = gist.tags['confluence']['page']
 
-    if gist.path.suffix == '.jira':
-        __update_page( parent_id=parent_id, cnfl=cnfl, gist=gist, dry_run=dry_run )
-    else:
-        space: str = cnfl.api.get_page_space(parent_id)
-        page_id = cnfl.api.get_page_id(space, gist.title)
+    try:
+        if gist.path.suffix == '.jira':
+            page_id = __update_page( 
+              parent_id=parent_id,
+              cnfl=cnfl,
+              gist=gist,
+              dry_run=dry_run )
 
-        __attach_to_page( 
-          page_id=page_id, attachpath=gist.path, cnfl=cnfl, gist=gist, dry_run=dry_run )
+            logging.getLogger('gistops.trail').info(
+              f'{gist.trace_id},published page {page_id} '
+              f'as {gist.path.suffix} on host {cnfl.url}')
+
+        else:
+            space: str = cnfl.api.get_page_space(parent_id)
+            page_id = cnfl.api.get_page_id(space, gist.title)
+
+            __attach_to_page(
+              page_id=page_id,
+              attachpath=gist.path,
+              cnfl=cnfl,
+              gist=gist,
+              dry_run=dry_run )
+        
+            logging.getLogger('gistops.trail').info(
+              f'{gist.trace_id},published attachment as {gist.path.suffix} '
+              f'on page {page_id} on host {cnfl.url}')
+
+    except Exception as err:
+        what = 'page' if gist.path.suffix == '.jira' else 'attachment'
+
+        logging.getLogger('gistops.trail').error(
+          f'{gist.trace_id},publishing {what} as {gist.path.suffix} '
+          f'below parent page {parent_id} on {cnfl.url} failed')
+        logging.getLogger().error(err, exc_info=True)
+        return False 
+
+    return True

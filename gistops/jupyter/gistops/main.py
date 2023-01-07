@@ -86,6 +86,7 @@ class GistOps():
                   'in order to be accessable from downstream ops') from err
 
             nbs: List[gists.Gist] = []
+            failed: List[str] = []
             for eb64 in eb64s:
                 try:
                     if Path(eb64).exists() and Path(eb64).is_file():
@@ -115,8 +116,13 @@ class GistOps():
 
                     except Exception as err:
                         logging.getLogger('gistops.trail').error(f'{gist.path},convertion failed')
-                        raise err
+                        logging.getLogger().error(err, exc_info=True)
+                        failed.append(gist.trace_id)
                     
+            if len(failed) > 0:
+                raise gists.GistOpsError(
+                  f'Failed to convert ipynb {failed}, see previous errors')
+
             return gists.to_event( nbs )
       
         except Exception as err:
