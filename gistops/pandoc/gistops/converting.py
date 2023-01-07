@@ -86,27 +86,11 @@ def __supported_pandoc_format_to_ext(pandoc_format: str) -> str:
     try:
         # See https://pandoc.org/MANUAL.html for a list of all formats
         format2ext = {
+          'gfm': '.md',
           'markdown': '.md',
           'markdown_mmd': '.md',
           'markdown_phpextra': '.md',
-          'markdown_strict': '.md',
-          'bibtex': '.bibtex',
-          'odt': '.odt',
-          'opml': '.opml',
-          'gfm': '.md',
-          'epub': '.epub',
-          'csv': '.csv',
-          'json': '.json',
-          'latex': '.tex',
-          'docx': '.docx',
-          'rtf': '.rtf',
-          'ipynb': '.ipynb',
-          'jira': '.jira',
-          'pdf': '.pdf',
-          'html': '.html',
-          'html4': '.html',
-          'html5': '.html',
-          'plain': '.txt'
+          'markdown_strict': '.md'
         }
         return format2ext[pandoc_format]
     except KeyError:
@@ -186,7 +170,8 @@ def convert(
           title = title,
           path = output_filepath,
           commit_id = gist.commit_id,
-          resources = [ f'{str(gist.path.parent.joinpath(r))}:*' for r in pandoc_yml['resource-path'] ],
+          resources = [ 
+            f'{str(gist.path.parent.joinpath(r))}:*' for r in pandoc_yml['resource-path'] ],
           tags = gist.tags,
           trace_id = gist.trace_id ))
 
