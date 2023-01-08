@@ -40,6 +40,6 @@ ENV SSL_CERT_FILE /etc/ssl/certs/ca-certificates.crt
 ENV REQUESTS_CA_BUNDLE /etc/ssl/certs/ca-certificates.crt
 
 # Run as USER from here
-USER ${USER}
+USER ${USER} 
 WORKDIR /home/${USER}
 ENV PATH="/home/${USER}/.local/bin:$PATH"
