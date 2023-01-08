@@ -4,12 +4,14 @@ Functions to mirror branches for git remotes
 """
 import re
 import logging
+import base64
 from pathlib import Path
 from typing import List, Any
 import urllib.parse
 from functools import wraps
 from dataclasses import dataclass 
 
+import requests
 from jsonschema import validate
 from jsonschema.exceptions import ValidationError
 from atlassian import Confluence
@@ -22,19 +24,75 @@ class ConfluenceAPI:
     """Internal Confluence API representation"""
     url: str
     api: Confluence
+    access_token: str
+    username: str
+    password: str
+
+
+def __create_or_update_workaround(
+    cnfl: Confluence, parent_id: int, gist: gists.Gist, jira_wiki:str) -> int:
+    # Fallback because atlassian jira python client 
+    # fails with Status Code 500 for POST and PUT requests 
+    # on confluence versions >= 7.13.x
+
+    def __request_headers() -> dict: 
+        if cnfl.access_token is not None:
+            auth = f"Bearer {cnfl.access_token}"
+        else:
+            base64_token=base64.b64encode(f'{cnfl.username}:{cnfl.password}').decode()
+            auth = f"Basic {base64_token}"
+
+        return {
+          "Authorization": auth,
+          "Content-Type": "application/json" }
+
+    parent_page = cnfl.api.get_page_by_id(parent_id)
+    this_page = cnfl.api.get_page_by_title(
+            parent_page['space']['key'], gist.title)
+
+    if this_page is None:
+        res = requests.post(
+          url=f'{cnfl.url}/rest/api/content/',  
+          headers=__request_headers(),
+          json={
+              "type":"page",
+              "title":gist.title,
+              "ancestors": [{"id":parent_id}],
+              "space":{"key":parent_page['space']['key']},
+              "body":{"storage":{"value":jira_wiki,"representation":"wiki"}} },
+          timeout=120 )
+        res.raise_for_status()
+        return res.json()['id']
+    else:
+        res = requests.put(
+          url=f'{cnfl.url}/rest/api/content/{this_page["id"]}',  
+          headers=__request_headers(),
+          json={
+              "id":f"{this_page['id']}",
+              "type":"page",
+              "title":gist.title,
+              "space":{"key":parent_page['space']['key']},
+              "body":{"storage":{"value":jira_wiki,"representation":"wiki"}},
+              "version":{"number":this_page['version']['number']+1} },
+          timeout=120 )
+        res.raise_for_status()
+        return res.json()['id']
 
 
 def connect_to_api( url: str, access_token: str ) -> ConfluenceAPI:
     """Connect to confluence Web API"""
 
     return ConfluenceAPI(
-      url=url, api=Confluence(url=url, token=access_token) )
+      url=url, api=Confluence(url=url, token=access_token), 
+      access_token=access_token, username=None, password=None )
+
 
 def connect_to_api_via_password( url: str, username: str, password: str ) -> ConfluenceAPI:
     """Connect to confluence Web API"""
 
     return ConfluenceAPI(
-      url=url, api=Confluence(url=url, username=username, password=password) )
+      url=url, api=Confluence(url=url, username=username, password=password), 
+      access_token=None, username=username, password=password )
 
 
 def __tagged(tag_name: str):
@@ -164,9 +222,16 @@ def __update_page(parent_id: str, cnfl: Confluence, gist: gists.Gist, dry_run: b
       f'{cnfl.url}/rest/api/content/{parent_id}')
 
     if not dry_run:
-        page: dict = cnfl.api.update_or_create(
-          parent_id=parent_id, title=gist.title, body=jira_wiki, representation='wiki')
-        page_id = page["id"]
+        try:
+            page: dict = cnfl.api.update_or_create(
+              parent_id=parent_id, title=gist.title, body=jira_wiki, representation='wiki')
+            page_id = page["id"]
+        except requests.exceptions.HTTPError:
+            # Fallback because atlassian jira python client 
+            # fails with Status Code 500 for POST and PUT requests 
+            # on confluence versions >= 7.13.x
+            __create_or_update_workaround(
+              cnfl=cnfl, parent_id=parent_id, gist=gist, jira_wiki=jira_wiki)
     else: 
         space: str = cnfl.api.get_page_space(parent_id)
         page_id = cnfl.api.get_page_id(space, gist.title)

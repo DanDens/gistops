@@ -21,7 +21,8 @@ dependencies = [
     "jsonschema>=4.16.0",
     "fire>=0.4.0",
     "semver==2.13.0",
-    "atlassian-python-api==3.28.1"
+    "atlassian-python-api==3.32.2",
+    "requests==2.28.1"
 ]
 
 [project.urls]
