@@ -1,5 +1,5 @@
 # ----------
-FROM python:3.10.8-bullseye as builder
+FROM python:3.10.9-bullseye as builder
 LABEL maintainer="DanDens <dandens@github.com>"
 
 WORKDIR /build
@@ -12,7 +12,7 @@ RUN git clone https://github.com/AGWA/git-crypt.git
 RUN cd git-crypt && make && make install PREFIX=/usr/local
 
 # ----------
-FROM python:3.10.8-slim-bullseye
+FROM python:3.10.9-slim-bullseye
 LABEL maintainer="DanDens <dandens@github.com>"
 
 RUN export PIP_DISABLE_PIP_VERSION_CHECK=1 && \
