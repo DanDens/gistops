@@ -64,8 +64,3 @@ jobs:
       with:
         image: ghcr.io/dandens/gistops-base:${{ env.IMAGE_TAG }}
         args: --severity-threshold=high --policy-path=gistops/base/.snyk
-    
-    - name: Upload result to GitHub Code Scanning
-      uses: github/codeql-action/upload-sarif@v2
-      with:
-        sarif_file: snyk.sarif
