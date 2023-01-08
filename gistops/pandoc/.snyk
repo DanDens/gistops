@@ -11,3 +11,9 @@ ignore:
   SNYK-DEBIAN11-CURL-3179181:
   - '*':
       reason: Not applicable as not exposed
+  SNYK-DEBIAN11-XDGUTILS-3135678:
+  - '*':
+      reason: Not applicable as not exposed
+  SNYK-DEBIAN11-TIFF-3113871:
+  - '*':
+      reason: Not applicable as not exposed
