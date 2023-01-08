@@ -32,16 +32,14 @@ jobs:
     needs: 
     - pytest
     runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/dandens/gistops-githubenv:latest
     steps:
       - uses: actions/checkout@master
       - run: >
-          python3 -m pip install -r 
+          python -m pip install -r 
           $GITHUB_WORKSPACE/gistops/git-ls-attr/requirements.txt
       
       - name: Run Snyk for code vulnerabilities
-        uses: snyk/actions/python@master
+        uses: snyk/actions/python-3.8@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
@@ -49,7 +47,6 @@ jobs:
             --severity-threshold=high
             --policy-path=gistops/git-ls-attr/.snyk
             --file=$GITHUB_WORKSPACE/gistops/git-ls-attr/requirements.txt
-            $GITHUB_WORKSPACE/gistops/git-ls-attr
 
 
   build-and-push:
