@@ -34,7 +34,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
-      
+      - run: >
+          python3 -m pip install -r 
+          $GITHUB_WORKSPACE/gistops/git-ls-attr/requirements.txt
       - name: Run Snyk for code vulnerabilities
         uses: snyk/actions/python@master
         continue-on-error: true # To make sure that SARIF upload gets called
