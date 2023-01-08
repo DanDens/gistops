@@ -48,7 +48,17 @@ jobs:
             --severity-threshold=high
             --policy-path=gistops/git-ls-attr/.snyk
             $GITHUB_WORKSPACE/gistops/git-ls-attr/gistops
-
+      
+      - name: Run Snyk for dependency vulnerabilities
+        uses: snyk/actions/python-3.8@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          command: test
+          args: >
+            --severity-threshold=high
+            --policy-path=gistops/git-ls-attr/.snyk
+            --file=$GITHUB_WORKSPACE/gistops/git-ls-attr/requirements.txt
 
   build-and-push:
     needs: 
@@ -100,9 +110,3 @@ jobs:
           args: > 
             --severity-threshold=high
             --policy-path=gistops/git-ls-attr/.snyk
-            --sarif-file-output=snyk.sarif
-
-      - name: Upload result to GitHub Code Scanning
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: snyk.sarif
