@@ -123,7 +123,8 @@ def test_confluence_publish(mocker):
         assert access_token == 'unknown'
 
         return publishing.ConfluenceAPI(
-          url=url, api=FakeConfluenceApi() )
+          url=url, api=FakeConfluenceApi(), 
+          access_token=None, username=None, password=None)
 
 
     mocker.patch('publishing.connect_to_api', side_effect=__connect_to_api)
