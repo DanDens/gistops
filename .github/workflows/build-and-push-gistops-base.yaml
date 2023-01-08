@@ -43,4 +43,15 @@ jobs:
             ghcr.io/dandens/gistops-base:${{ env.IMAGE_TAG }}
             ghcr.io/dandens/gistops-base:latest
           push: ${{ github.ref == 'refs/heads/main' }}
-          
+
+  snyk-docker:
+    needs:
+    - build-and-push-gistops-base
+    runs-on: ubuntu-latest
+    steps:
+    - name: Run Snyk to check Docker image for vulnerabilities
+      uses: snyk/actions/docker@master
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      with:
+        image: ghcr.io/dandens/gistops-base:latest
