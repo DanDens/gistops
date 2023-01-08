@@ -32,6 +32,8 @@ jobs:
     needs: 
     - pytest
     runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/dandens/gistops-githubenv:latest
     steps:
       - uses: actions/checkout@master
       - run: >
