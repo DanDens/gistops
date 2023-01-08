@@ -213,7 +213,7 @@ def __update_page(parent_id: str, cnfl: Confluence, gist: gists.Gist, dry_run: b
     for attachref, attachpath in attachs.items():
         logger.info(f'replacing "!{attachref}!" with "!{str(attachpath.name)}!"')
         jira_wiki = re.sub(
-            pattern=fr'(?<=!){attachref}(?=[!\|])', 
+            pattern=fr'(?<=!){re.escape(attachref)}(?=[!\|])', 
             repl=attachpath.name, 
             string=jira_wiki, 
             flags=re.MULTILINE )
