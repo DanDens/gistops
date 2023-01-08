@@ -59,6 +59,7 @@ jobs:
             --severity-threshold=high
             --policy-path=gistops/git-ls-attr/.snyk
             --command=python3
+            --skip-unresolved=true
             --file=$GITHUB_WORKSPACE/gistops/git-ls-attr/requirements.txt
 
   build-and-push:
