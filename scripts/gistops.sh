@@ -50,26 +50,26 @@ run_gistops() {
 # Run Gistops #
 ###############
 # 1. analyze
-run_gistops 'gistops-trufflehog:b22a808' 'gistops' '.'
-run_gistops 'gistops-git-ls-attr:a22694b' 'gistops' 'run'
+run_gistops 'gistops-trufflehog:1133f19' 'gistops' '.'
+run_gistops 'gistops-git-ls-attr:eab342b' 'gistops' 'run'
 gists_git_ls_attr="$gistops_stdout"
 
 # 2. convert
-run_gistops 'gistops-jupyter:513f9c0' 'gistops' 'run' "--event-base64=$gists_git_ls_attr"
+run_gistops 'gistops-jupyter:31c649e' 'gistops' 'run' "--event-base64=$gists_git_ls_attr"
 gists_jupyter="$gistops_stdout"
-run_gistops 'gistops-pandoc:3f14c69' 'gistops' 'run' "--event-base64=['$gists_git_ls_attr','$gists_jupyter']"
+run_gistops 'gistops-pandoc:31c649e' 'gistops' 'run' "--event-base64=['$gists_git_ls_attr','$gists_jupyter']"
 gists_pandoc="$gistops_stdout"
 
 # 3. publish
 if [[ -n "$GISTOPS_JIRA_URL" ]] && [[ -n "$GISTOPS_JIRA_ACCESS_TOKEN" ]]; then
-    run_gistops 'gistops-jira:9f50ec1' 'gistops' 'run' \
+    run_gistops 'gistops-jira:31c649e' 'gistops' 'run' \
       "--event-base64=$gists_pandoc" \
       "--jira-url=$GISTOPS_JIRA_URL" \
       "--jira-access-token=$GISTOPS_JIRA_ACCESS_TOKEN"
 fi
 
 if [[ -n "$GISTOPS_CONFLUENCE_URL" ]] && [[ -n "$GISTOPS_CONFLUENCE_ACCESS_TOKEN" ]]; then
-    run_gistops 'gistops-confluence:3f14c69' 'gistops' 'run' \
+    run_gistops 'gistops-confluence:31c649e' 'gistops' 'run' \
       "--event-base64=$gists_pandoc" \
       "--confluence-url=$GISTOPS_CONFLUENCE_URL" \
       "--confluence-access-token=$GISTOPS_CONFLUENCE_ACCESS_TOKEN"
@@ -77,7 +77,7 @@ fi
 
 # 4. report
 if [[ -n "$GISTOPS_MSTEAMS_WEBHOOK_URL" ]] && [[ -n "$GISTOPS_MSTEAMS_REPORT_TITLE" ]]; then
-    run_gistops 'gistops-msteams:b22a808' 'gistops' 'run' \
+    run_gistops 'gistops-msteams:31c649e' 'gistops' 'run' \
       "--webhook-url=$GISTOPS_MSTEAMS_WEBHOOK_URL" \
       "--report-title=$GISTOPS_MSTEAMS_REPORT_TITLE"
 fi

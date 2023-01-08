@@ -65,19 +65,19 @@ function Run-Gistops {
 # Run Gistops #
 ###############
 # 1. analyze
-Run-Gistops 'gistops-trufflehog:b22a808' @("gistops", ".")
-$gists_git_ls_attr = Run-Gistops 'gistops-git-ls-attr:a22694b' @("gistops", "run")
+Run-Gistops 'gistops-trufflehog:1133f19' @("gistops", ".")
+$gists_git_ls_attr = Run-Gistops 'gistops-git-ls-attr:eab342b' @("gistops", "run")
 
 # 2. convert
-$gists_jupyter = Run-Gistops 'gistops-jupyter:513f9c0' @(
+$gists_jupyter = Run-Gistops 'gistops-jupyter:31c649e' @(
   'gistops','run',"--event-base64=$gists_git_ls_attr")
-$gists_pandoc = Run-Gistops 'gistops-pandoc:3f14c69' @(
+$gists_pandoc = Run-Gistops 'gistops-pandoc:31c649e' @(
   'gistops','run',"--event-base64=['$gists_git_ls_attr','$gists_jupyter']")
 
 # 3. publish
 if ( -not ([string]::IsNullOrWhitespace($env:GISTOPS_JIRA_URL) -or 
            [string]::IsNullOrWhitespace($env:GISTOPS_JIRA_ACCESS_TOKEN)) ) {
-    Run-Gistops 'gistops-jira:9f50ec1' @(
+    Run-Gistops 'gistops-jira:31c649e' @(
       'gistops','run',
       "--event-base64=$gists_pandoc",
       "--jira-url=$env:GISTOPS_JIRA_URL",
@@ -86,17 +86,17 @@ if ( -not ([string]::IsNullOrWhitespace($env:GISTOPS_JIRA_URL) -or
 
 if ( -not ([string]::IsNullOrWhitespace($env:GISTOPS_CONFLUENCE_URL) -or 
            [string]::IsNullOrWhitespace($env:GISTOPS_CONFLUENCE_ACCESS_TOKEN)) ) {
-    Run-Gistops 'gistops-jira:9f50ec1' @(
+    Run-Gistops 'gistops-confluence:31c649e' @(
       'gistops','run',
       "--event-base64=$gists_pandoc",
-      "--jira-url=$env:GISTOPS_CONFLUENCE_URL",
-      "--jira-access-token=$env:GISTOPS_CONFLUENCE_ACCESS_TOKEN")
+      "--confluence-url=$env:GISTOPS_CONFLUENCE_URL",
+      "--confluence-access-token=$env:GISTOPS_CONFLUENCE_ACCESS_TOKEN")
 }
 
 # 4. report
 if ( -not ([string]::IsNullOrWhitespace($env:GISTOPS_MSTEAMS_WEBHOOK_URL) -or 
            [string]::IsNullOrWhitespace($env:GISTOPS_MSTEAMS_REPORT_TITLE)) ) {
-    Run-Gistops 'gistops-msteams:b22a808' @(
+    Run-Gistops 'gistops-msteams:31c649e' @(
       'gistops','run',
       "--webhook-url=$env:GISTOPS_MSTEAMS_WEBHOOK_URL",
       "--report-title=$env:GISTOPS_MSTEAMS_REPORT_TITLE" )
