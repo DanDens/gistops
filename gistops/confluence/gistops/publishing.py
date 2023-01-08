@@ -172,7 +172,8 @@ def __iterate_attachments(gist: gists.Gist, jira_wiki:str) -> dict:
             }
         )
 
-    for attach in re.findall(r'(?<=!)\S+(?=[!\|])', jira_wiki):
+    for attach in re.findall(
+      pattern=r'(?<=!)\S+(?=[!\|])', string=jira_wiki, flags=re.MULTILINE):
         
         # Preprocess possible attach paths
         unquoted_attach_name = urllib.parse.unquote(attach)
@@ -211,7 +212,11 @@ def __update_page(parent_id: str, cnfl: Confluence, gist: gists.Gist, dry_run: b
     # replace attach references to not include pathes
     for attachref, attachpath in attachs.items():
         logger.info(f'replacing "!{attachref}!" with "!{str(attachpath.name)}!"')
-        jira_wiki = jira_wiki.replace( f'!{attachref}!', f'!{str(attachpath.name)}!' )
+        jira_wiki = re.sub(
+            pattern=fr'(?<=!){attachref}(?=[!\|])', 
+            repl=attachpath.name, 
+            string=jira_wiki, 
+            flags=re.MULTILINE )
 
     # Upload page ...
     logger.info(
