@@ -106,7 +106,7 @@ def __iterate_attachments(gist: gists.Gist, jira_wiki:str) -> dict:
             }
         )
 
-    for attach in re.findall(r'(?<=!)\S+(?=!)', jira_wiki):
+    for attach in re.findall(r'(?<=!)\S+(?=[!\|])', jira_wiki):
         
         # Preprocess possible attach paths
         unquoted_attach_name = urllib.parse.unquote(attach)
