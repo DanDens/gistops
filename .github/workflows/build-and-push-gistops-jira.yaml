@@ -31,9 +31,44 @@ jobs:
         cd $GITHUB_WORKSPACE/gistops/jira && 
         python3 -m pytest
 
+  snyk:
+    needs: 
+    - pytest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - run: >
+          python3 -m pip install -r 
+          $GITHUB_WORKSPACE/gistops/jira/requirements.txt
+      
+      - name: Run Snyk for code vulnerabilities
+        uses: snyk/actions/python-3.8@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          command: code test
+          args: >
+            --severity-threshold=high
+            --policy-path=gistops/jira/.snyk
+            $GITHUB_WORKSPACE/gistops/jira/gistops
+      
+      - name: Run Snyk for dependency vulnerabilities
+        uses: snyk/actions/python-3.8@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          command: test
+          args: >
+            --severity-threshold=high
+            --policy-path=gistops/jira/.snyk
+            --command=python3
+            --skip-unresolved=true
+            --file=$GITHUB_WORKSPACE/gistops/jira/requirements.txt
+
   build-and-push:
     needs:
     - pytest
+    - snyk
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Git Repository

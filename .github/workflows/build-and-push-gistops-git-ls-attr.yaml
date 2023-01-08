@@ -12,7 +12,7 @@ on:
     types:
       - completed
 jobs:
-  pytest:
+  pytest-and-synk:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/dandens/gistops-githubenv:latest
@@ -20,15 +20,15 @@ jobs:
     - name: Checkout Git Repository
       uses: actions/checkout@v2
     - run: >
-        python3 -m pip install pytest
-    - run: >
         python3 -m pip install -r 
         $GITHUB_WORKSPACE/gistops/git-ls-attr/requirements.txt
+    - run: >
+        python3 -m pip install pytest
     - run: > 
         cd $GITHUB_WORKSPACE/gistops/git-ls-attr && 
         python3 -m pytest
 
-  snyk-scan:
+  snyk:
     needs: 
     - pytest
     runs-on: ubuntu-latest
@@ -65,7 +65,7 @@ jobs:
   build-and-push:
     needs: 
     - pytest
-    - snyk-scan
+    - snyk
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Git Repository
