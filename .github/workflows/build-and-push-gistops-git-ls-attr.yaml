@@ -39,15 +39,15 @@ jobs:
           $GITHUB_WORKSPACE/gistops/git-ls-attr/requirements.txt
       
       - name: Run Snyk for code vulnerabilities
-        working-directory: ./gistops/git-ls-attr
         uses: snyk/actions/python-3.8@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
+          command: code test
           args: >
             --severity-threshold=high
             --policy-path=gistops/git-ls-attr/.snyk
-            --file=$GITHUB_WORKSPACE/gistops/git-ls-attr/requirements.txt
+            $GITHUB_WORKSPACE/gistops/git-ls-attr/gistops
 
 
   build-and-push:
