@@ -28,6 +28,26 @@ jobs:
         cd $GITHUB_WORKSPACE/gistops/git-ls-attr && 
         python3 -m pytest
 
+  snyk-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      
+      - name: Run Snyk for code vulnerabilities
+        uses: snyk/actions/python@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: >
+            --severity-threshold=high
+            --policy-path=gistops/git-ls-attr/.snyk
+            --sarif-file-output=snyk.sarif
+
+      - name: Upload result to GitHub Code Scanning
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: snyk.sarif
+
   build-and-push:
     needs: 
     - pytest
@@ -74,4 +94,7 @@ jobs:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
           image: ghcr.io/dandens/gistops-git-ls-attr:${{ env.IMAGE_TAG }}
-          args: --severity-threshold=high --policy-path=gistops/git-ls-attr/.snyk
+          args: > 
+            --severity-threshold=high
+            --policy-path=gistops/git-ls-attr/.snyk
+            --sarif-file-output=snyk.sarif
