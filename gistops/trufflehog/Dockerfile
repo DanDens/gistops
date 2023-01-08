@@ -5,6 +5,9 @@ LABEL maintainer="DanDens <dandens@github.com>"
 USER root
 WORKDIR /root
 
+RUN DEBIAN_FRONTEND=noninteractive apt-get update 
+RUN DEBIAN_FRONTEND=noninteractive && apt install -y curl
+
 # Clone git-secrets repository
 WORKDIR /build
 RUN curl -L -s https://github.com/trufflesecurity/trufflehog/releases/download/v3.16.4/trufflehog_3.16.4_linux_amd64.tar.gz --output trufflehog_3.16.4_linux_amd64.tar.gz

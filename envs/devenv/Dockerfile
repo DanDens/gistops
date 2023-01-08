@@ -21,6 +21,8 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
   apt-utils \
   software-properties-common \
   unzip \
+  curl \
+  jq \
   apt-transport-https \
   ca-certificates \
   nano \

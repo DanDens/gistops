@@ -25,8 +25,6 @@ RUN apt-get -y install ca-certificates
 RUN apt-get -y install git
 # https://wiki.debianforum.de/GnuPG#Installation
 RUN apt-get -y install gnupg
-# Required for downstream scripts
-RUN apt-get -y install jq curl
 # Cleanup cache
 RUN apt-get clean
 
