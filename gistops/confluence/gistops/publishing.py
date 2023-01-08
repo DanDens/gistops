@@ -30,7 +30,7 @@ class ConfluenceAPI:
 
 
 def __create_or_update_workaround(
-    cnfl: Confluence, parent_id: int, gist: gists.Gist, jira_wiki:str) -> int:
+    cnfl: Confluence, parent_id: int, gist: gists.Gist, jira_wiki:str) -> str:
     # Fallback because atlassian jira python client 
     # fails with Status Code 500 for POST and PUT requests 
     # on confluence versions >= 7.13.x
@@ -230,7 +230,7 @@ def __update_page(parent_id: str, cnfl: Confluence, gist: gists.Gist, dry_run: b
             # Fallback because atlassian jira python client 
             # fails with Status Code 500 for POST and PUT requests 
             # on confluence versions >= 7.13.x
-            __create_or_update_workaround(
+            page_id = __create_or_update_workaround(
               cnfl=cnfl, parent_id=parent_id, gist=gist, jira_wiki=jira_wiki)
     else: 
         space: str = cnfl.api.get_page_space(parent_id)
