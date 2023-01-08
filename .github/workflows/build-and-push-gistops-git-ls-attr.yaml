@@ -39,6 +39,7 @@ jobs:
           $GITHUB_WORKSPACE/gistops/git-ls-attr/requirements.txt
       
       - name: Run Snyk for code vulnerabilities
+        working-directory: $GITHUB_WORKSPACE/gistops/git-ls-attr
         uses: snyk/actions/python-3.8@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
