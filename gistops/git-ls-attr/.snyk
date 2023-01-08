@@ -1,2 +1,13 @@
 # Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
 version: v1.25.0
+
+ignore:
+  SNYK-DEBIAN11-CURL-3066040:
+  - '*':
+      reason: Not applicable as not exposed
+  SNYK-DEBIAN11-CURL-3065656:
+  - '*':
+      reason: Not applicable as not exposed
+  SNYK-DEBIAN11-CURL-3179181:
+  - '*':
+      reason: Not applicable as not exposed
