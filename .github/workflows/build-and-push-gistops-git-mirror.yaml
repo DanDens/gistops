@@ -49,4 +49,11 @@ jobs:
             ghcr.io/dandens/gistops-git-mirror:${{ env.IMAGE_TAG }}
             ghcr.io/dandens/gistops-git-mirror:latest
           push: ${{ github.ref == 'refs/heads/main' }}
-          
+
+      - name: Run Snyk for image for vulnerabilities
+        uses: snyk/actions/docker@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          image: ghcr.io/dandens/gistops-git-mirror:${{ env.IMAGE_TAG }}
+          args: --severity-threshold=high --policy-path=gistops/git-mirror/.snyk
