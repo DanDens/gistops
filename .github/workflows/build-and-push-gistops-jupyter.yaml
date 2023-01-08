@@ -70,4 +70,13 @@ jobs:
             ghcr.io/dandens/gistops-jupyter:${{ env.IMAGE_TAG }}
             ghcr.io/dandens/gistops-jupyter:latest
           push: ${{ github.ref == 'refs/heads/main' }}
-          
+
+  snyk-docker:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Run Snyk to check Docker image for vulnerabilities
+      uses: snyk/actions/docker@master
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      with:
+        image: ghcr.io/dandens/gistops-jupyter:latest
