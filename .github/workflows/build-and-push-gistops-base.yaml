@@ -44,23 +44,10 @@ jobs:
             ghcr.io/dandens/gistops-base:latest
           push: ${{ github.ref == 'refs/heads/main' }}
 
-  snyk-docker:
-    needs:
-    - build-and-push-gistops-base
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout Git Repository
-      uses: actions/checkout@v2
-
-    - name: Use Git Commit Id as IMAGE_TAG 
-      run: | 
-        GIT_COMMIT_SHORT_ID=$(git rev-parse --short HEAD)
-        echo "IMAGE_TAG=$GIT_COMMIT_SHORT_ID" >> $GITHUB_ENV
-
-    - name: Run Snyk to check Docker image for vulnerabilities
-      uses: snyk/actions/docker@master
-      env:
-        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-      with:
-        image: ghcr.io/dandens/gistops-base:${{ env.IMAGE_TAG }}
-        args: --severity-threshold=high --policy-path=gistops/base/.snyk
+      - name: Run Snyk for image for vulnerabilities
+        uses: snyk/actions/docker@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          image: ghcr.io/dandens/gistops-base:${{ env.IMAGE_TAG }}
+          args: --severity-threshold=high --policy-path=gistops/base/.snyk
