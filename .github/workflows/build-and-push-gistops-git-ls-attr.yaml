@@ -39,6 +39,7 @@ jobs:
       - run: >
           python3 -m pip install -r 
           $GITHUB_WORKSPACE/gistops/git-ls-attr/requirements.txt
+      
       - name: Run Snyk for code vulnerabilities
         uses: snyk/actions/python@master
         env:
@@ -47,8 +48,8 @@ jobs:
           args: >
             --severity-threshold=high
             --policy-path=gistops/git-ls-attr/.snyk
-            --file=gistops/git-ls-attr/requirements.txt
-            gistops/git-ls-attr
+            --file=$GITHUB_WORKSPACE/gistops/git-ls-attr/requirements.txt
+            $GITHUB_WORKSPACE/gistops/git-ls-attr
 
 
   build-and-push:
